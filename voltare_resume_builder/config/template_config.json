@@ -1,0 +1,155 @@
+{
+    "page": {
+        "width_pts": 612,
+        "height_pts": 792,
+        "width_inches": 8.5,
+        "height_inches": 11,
+        "format": "US Letter",
+        "orientation": "portrait"
+    },
+    "margins": {
+        "left_pts": 46,
+        "right_pts": 58.5,
+        "top_pts": 20,
+        "bottom_pts": 15,
+        "content_width_pts": 507.5,
+        "content_left": 46,
+        "content_right": 553.5
+    },
+    "background": {
+        "color_rgb": [247, 243, 239],
+        "hex": "#f7f3ef",
+        "rect": [26.16, 0, 586.68, 792]
+    },
+    "watermark": {
+        "bbox": [59.64, 164.28, 553.56, 627.72],
+        "width_pts": 493.92,
+        "height_pts": 463.44,
+        "image_file": "original_watermark.png",
+        "opacity": 0.12
+    },
+    "dividers": {
+        "x_start": 45.97,
+        "x_end": 553.46,
+        "stroke_width": 0.72,
+        "color": "#000000",
+        "positions_y": {
+            "after_professional_summary": 80.02,
+            "after_skills_education_label": 152.70,
+            "after_education": 272.00,
+            "after_research_projects": 475.15,
+            "after_professional_experience": 622.57
+        }
+    },
+    "sections": {
+        "name": {
+            "y_start": 20,
+            "y_end": 48,
+            "font_family": "Cormorant SC",
+            "font_size_pt": 22,
+            "font_weight": "bold",
+            "alignment": "center",
+            "text_transform": "uppercase"
+        },
+        "contact_info": {
+            "y_start": 50,
+            "y_end": 66,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9,
+            "alignment": "center"
+        },
+        "professional_summary_heading": {
+            "y_start": 68,
+            "y_end": 80,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 11,
+            "font_weight": "bold",
+            "text_transform": "uppercase"
+        },
+        "professional_summary_body": {
+            "y_start": 82,
+            "y_end": 140,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9,
+            "line_height": 1.25
+        },
+        "skills": {
+            "y_start": 140,
+            "y_end": 153,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9
+        },
+        "education_heading": {
+            "y_start": 153,
+            "y_end": 165,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 11,
+            "font_weight": "bold",
+            "text_transform": "uppercase"
+        },
+        "education_body": {
+            "y_start": 165,
+            "y_end": 272,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9,
+            "line_height": 1.25
+        },
+        "research_heading": {
+            "y_start": 272,
+            "y_end": 284,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 11,
+            "font_weight": "bold",
+            "text_transform": "uppercase"
+        },
+        "research_body": {
+            "y_start": 284,
+            "y_end": 475,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9,
+            "line_height": 1.25
+        },
+        "experience_heading": {
+            "y_start": 475,
+            "y_end": 487,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 11,
+            "font_weight": "bold",
+            "text_transform": "uppercase"
+        },
+        "experience_body": {
+            "y_start": 487,
+            "y_end": 623,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9,
+            "line_height": 1.25
+        },
+        "achievements_heading": {
+            "y_start": 623,
+            "y_end": 635,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 11,
+            "font_weight": "bold",
+            "text_transform": "uppercase"
+        },
+        "achievements_body": {
+            "y_start": 635,
+            "y_end": 780,
+            "font_family": "Cormorant Garamond",
+            "font_size_pt": 9,
+            "line_height": 1.2
+        }
+    },
+    "typography": {
+        "heading_font": "Cormorant SC",
+        "body_font": "Cormorant Garamond",
+        "name_size": 22,
+        "section_heading_size": 11,
+        "body_size": 9,
+        "contact_size": 9,
+        "bullet_char": "●",
+        "bullet_indent": 10,
+        "line_height": 1.25
+    }
+}
+

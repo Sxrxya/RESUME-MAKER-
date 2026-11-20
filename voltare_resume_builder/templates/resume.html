@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voltare Official Resume</title>
+<link rel="stylesheet" href="resume.css">
+</head>
+<body>
+<div class="resume-page">
+    <div class="background-fill"></div>
+    
+    {% if watermark_src %}
+    <div class="watermark">
+        <img src="{{ watermark_src }}" alt="Voltare Watermark">
+    </div>
+    {% endif %}
+    
+    <div class="content">
+        <!-- NAME -->
+        <div class="name">{{ name_display }}</div>
+        
+        <!-- CONTACT -->
+        <div class="contact-info">{{ contact_line }}</div>
+
+        <!-- PROFESSIONAL SUMMARY -->
+        <div class="section-heading">PROFESSIONAL SUMMARY</div>
+        <div class="section-body">
+            <div class="summary-text">{{ summary_text }}</div>
+            <div class="skills-line"><strong>Skills</strong>: {{ skills_text }}</div>
+        </div>
+
+        <!-- EDUCATION -->
+        <div class="section-heading">EDUCATION</div>
+        <div class="section-body">
+            {{ edu_html }}
+        </div>
+
+        <!-- RESEARCH/PROJECT EXPERIENCE -->
+        <div class="section-heading">RESEARCH/PROJECT EXPERIENCE</div>
+        <div class="section-body">
+            {{ res_html }}
+        </div>
+
+        <!-- PROFESSIONAL EXPERIENCE -->
+        <div class="section-heading">PROFESSIONAL EXPERIENCE</div>
+        <div class="section-body">
+            {{ exp_html }}
+        </div>
+
+        <!-- ACHIEVEMENT AND LEADERSHIP -->
+        <div class="section-heading">ACHIEVEMENT AND LEADERSHIP</div>
+        <div class="section-body">
+            {{ ach_html }}
+        </div>
+    </div>
+</div>
+</body>
+</html>
