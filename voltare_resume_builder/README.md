@@ -113,7 +113,7 @@ playwright install chromium
 
 ### 3. Launch the Streamlit application:
 ```bash
-streamlit run app.py
+python -m python -m streamlit run app.py
 ```
 
 ### 4. Run the comprehensive test suite:

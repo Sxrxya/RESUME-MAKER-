@@ -271,7 +271,7 @@ def render_professional_experience(st):
                     placeholder=fields["domain"]["placeholder"],
                 )
 
-            col3, col4 = st.columns(2)
+            col3, col4, col5 = st.columns([2, 1, 1])
             with col3:
                 role = limited_text_input(
                     st, f"exp_{idx}_role", fields["role"]["label"],
@@ -279,19 +279,17 @@ def render_professional_experience(st):
                     placeholder=fields["role"]["placeholder"],
                 )
             with col4:
-                col5, col6 = st.columns(2)
-                with col5:
-                    start = limited_text_input(
-                        st, f"exp_{idx}_start", fields["start_date"]["label"],
-                        fields["start_date"]["max_chars"], required=True,
-                        placeholder=fields["start_date"]["placeholder"],
-                    )
-                with col6:
-                    end = limited_text_input(
-                        st, f"exp_{idx}_end", fields["end_date"]["label"],
-                        fields["end_date"]["max_chars"], required=True,
-                        placeholder=fields["end_date"]["placeholder"],
-                    )
+                start = limited_text_input(
+                    st, f"exp_{idx}_start", fields["start_date"]["label"],
+                    fields["start_date"]["max_chars"], required=True,
+                    placeholder=fields["start_date"]["placeholder"],
+                )
+            with col5:
+                end = limited_text_input(
+                    st, f"exp_{idx}_end", fields["end_date"]["label"],
+                    fields["end_date"]["max_chars"], required=True,
+                    placeholder=fields["end_date"]["placeholder"],
+                )
 
             bullets = []
             for b in range(1, num_bullets + 1):
@@ -327,39 +325,39 @@ def render_achievements_leadership(st):
     awards = limited_text_area(
         st, "awards", p["awards"]["label"],
         p["awards"]["max_chars"], required=False,
-        placeholder=p["awards"]["placeholder"], height=60,
+        placeholder=p["awards"]["placeholder"], height=70,
     )
 
     st.markdown("**Leadership Entries**")
     leadership_1 = limited_text_area(
         st, "leadership_1", p["leadership_1"]["label"],
         p["leadership_1"]["max_chars"], required=False,
-        placeholder=p["leadership_1"]["placeholder"], height=60,
+        placeholder=p["leadership_1"]["placeholder"], height=70,
     )
 
     leadership_2 = limited_text_area(
         st, "leadership_2", p["leadership_2"]["label"],
         p["leadership_2"]["max_chars"], required=False,
-        placeholder=p["leadership_2"]["placeholder"], height=60,
+        placeholder=p["leadership_2"]["placeholder"], height=70,
     )
 
     achievement = limited_text_area(
         st, "achievement", p["achievement"]["label"],
         p["achievement"]["max_chars"], required=False,
-        placeholder=p["achievement"]["placeholder"], height=60,
+        placeholder=p["achievement"]["placeholder"], height=70,
     )
 
     st.markdown("**Community Entries**")
     community_1 = limited_text_area(
         st, "community_1", p["community_1"]["label"],
         p["community_1"]["max_chars"], required=False,
-        placeholder=p["community_1"]["placeholder"], height=60,
+        placeholder=p["community_1"]["placeholder"], height=70,
     )
 
     community_2 = limited_text_area(
         st, "community_2", p["community_2"]["label"],
         p["community_2"]["max_chars"], required=False,
-        placeholder=p["community_2"]["placeholder"], height=60,
+        placeholder=p["community_2"]["placeholder"], height=70,
     )
 
     interests = limited_text_input(
