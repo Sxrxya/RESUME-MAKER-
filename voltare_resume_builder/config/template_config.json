@@ -1,155 +1,149 @@
 {
     "page": {
-        "width_pts": 612,
-        "height_pts": 792,
-        "width_inches": 8.5,
-        "height_inches": 11,
-        "format": "US Letter",
+        "width_pts": 596,
+        "height_pts": 842,
+        "width_mm": 210,
+        "height_mm": 297,
+        "format": "A4",
         "orientation": "portrait"
     },
     "margins": {
-        "left_pts": 46,
-        "right_pts": 58.5,
-        "top_pts": 20,
-        "bottom_pts": 15,
-        "content_width_pts": 507.5,
-        "content_left": 46,
-        "content_right": 553.5
+        "left_pts": 21.0,
+        "right_pts": 36.0,
+        "top_pts": 28.0,
+        "bottom_pts": 20.0,
+        "content_width_pts": 539.0,
+        "content_left": 21.0,
+        "content_right": 560.0
     },
     "background": {
         "color_rgb": [247, 243, 239],
         "hex": "#f7f3ef",
-        "rect": [26.16, 0, 586.68, 792]
+        "rect": [0.0, 0.0, 596.0, 842.0]
     },
     "watermark": {
-        "bbox": [59.64, 164.28, 553.56, 627.72],
-        "width_pts": 493.92,
-        "height_pts": 463.44,
+        "bbox": [35.65, 174.57, 559.90, 667.32],
+        "width_pts": 524.25,
+        "height_pts": 492.75,
         "image_file": "original_watermark.png",
-        "opacity": 0.12
+        "opacity": 0.95
     },
     "dividers": {
-        "x_start": 45.97,
-        "x_end": 553.46,
-        "stroke_width": 0.72,
+        "x_start": 21.0,
+        "x_end": 560.0,
+        "stroke_width": 1.0,
         "color": "#000000",
         "positions_y": {
-            "after_professional_summary": 80.02,
-            "after_skills_education_label": 152.70,
-            "after_education": 272.00,
-            "after_research_projects": 475.15,
-            "after_professional_experience": 622.57
+            "after_professional_summary": 85.50,
+            "after_education": 162.50,
+            "after_research_projects": 289.50,
+            "after_professional_experience": 504.50,
+            "after_achievements": 661.50
         }
     },
     "sections": {
         "name": {
-            "y_start": 20,
-            "y_end": 48,
+            "y_start": 28,
+            "y_end": 52,
             "font_family": "Cormorant SC",
-            "font_size_pt": 22,
+            "font_size_pt": 19,
             "font_weight": "bold",
             "alignment": "center",
             "text_transform": "uppercase"
         },
         "contact_info": {
-            "y_start": 50,
-            "y_end": 66,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9,
+            "y_start": 53,
+            "y_end": 68,
+            "font_family": "Times New Roman",
+            "font_size_pt": 10,
             "alignment": "center"
         },
         "professional_summary_heading": {
-            "y_start": 68,
-            "y_end": 80,
-            "font_family": "Cormorant Garamond",
+            "y_start": 71,
+            "y_end": 85,
+            "font_family": "Times New Roman",
             "font_size_pt": 11,
             "font_weight": "bold",
             "text_transform": "uppercase"
         },
         "professional_summary_body": {
-            "y_start": 82,
-            "y_end": 140,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9,
-            "line_height": 1.25
-        },
-        "skills": {
-            "y_start": 140,
-            "y_end": 153,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9
+            "y_start": 86,
+            "y_end": 145,
+            "font_family": "Garamond",
+            "font_size_pt": 10,
+            "line_height": 1.15
         },
         "education_heading": {
-            "y_start": 153,
-            "y_end": 165,
-            "font_family": "Cormorant Garamond",
+            "y_start": 148,
+            "y_end": 162,
+            "font_family": "Times New Roman",
             "font_size_pt": 11,
             "font_weight": "bold",
             "text_transform": "uppercase"
         },
         "education_body": {
-            "y_start": 165,
-            "y_end": 272,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9,
-            "line_height": 1.25
+            "y_start": 163,
+            "y_end": 289,
+            "font_family": "Times New Roman",
+            "font_size_pt": 10,
+            "line_height": 1.15
         },
         "research_heading": {
-            "y_start": 272,
-            "y_end": 284,
-            "font_family": "Cormorant Garamond",
+            "y_start": 275,
+            "y_end": 289,
+            "font_family": "Times New Roman",
             "font_size_pt": 11,
             "font_weight": "bold",
             "text_transform": "uppercase"
         },
         "research_body": {
-            "y_start": 284,
-            "y_end": 475,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9,
-            "line_height": 1.25
+            "y_start": 290,
+            "y_end": 504,
+            "font_family": "Times New Roman",
+            "font_size_pt": 10,
+            "line_height": 1.15
         },
         "experience_heading": {
-            "y_start": 475,
-            "y_end": 487,
-            "font_family": "Cormorant Garamond",
+            "y_start": 490,
+            "y_end": 504,
+            "font_family": "Times New Roman",
             "font_size_pt": 11,
             "font_weight": "bold",
             "text_transform": "uppercase"
         },
         "experience_body": {
-            "y_start": 487,
-            "y_end": 623,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9,
-            "line_height": 1.25
+            "y_start": 505,
+            "y_end": 661,
+            "font_family": "Times New Roman",
+            "font_size_pt": 10,
+            "line_height": 1.15
         },
         "achievements_heading": {
-            "y_start": 623,
-            "y_end": 635,
-            "font_family": "Cormorant Garamond",
+            "y_start": 647,
+            "y_end": 661,
+            "font_family": "Times New Roman",
             "font_size_pt": 11,
             "font_weight": "bold",
             "text_transform": "uppercase"
         },
         "achievements_body": {
-            "y_start": 635,
-            "y_end": 780,
-            "font_family": "Cormorant Garamond",
-            "font_size_pt": 9,
-            "line_height": 1.2
+            "y_start": 662,
+            "y_end": 815,
+            "font_family": "Times New Roman",
+            "font_size_pt": 10,
+            "line_height": 1.15
         }
     },
     "typography": {
         "heading_font": "Cormorant SC",
-        "body_font": "Cormorant Garamond",
-        "name_size": 22,
+        "section_heading_font": "Times New Roman",
+        "body_font": "Times New Roman",
+        "summary_font": "Garamond",
+        "name_size": 19,
         "section_heading_size": 11,
-        "body_size": 9,
-        "contact_size": 9,
+        "body_size": 10,
+        "contact_size": 10,
         "bullet_char": "●",
-        "bullet_indent": 10,
-        "line_height": 1.25
+        "line_height": 1.15
     }
 }
-

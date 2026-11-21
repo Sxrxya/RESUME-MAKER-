@@ -15,7 +15,7 @@ def get_watermark_base64(watermark_path: str) -> str:
 
 
 def render_live_preview(st, resume_data: dict, watermark_path: str):
-    """Render the live resume preview in Streamlit."""
+    """Render the live resume preview in Streamlit with zero white margins/borders."""
     import streamlit.components.v1 as components
     from backend.resume_renderer import render_resume_html
 
@@ -25,31 +25,40 @@ def render_live_preview(st, resume_data: dict, watermark_path: str):
     # Generate HTML
     html = render_resume_html(resume_data, watermark_base64=wm_b64)
 
-    # Wrap in a scaled container for preview
-    preview_html = f"""<!DOCTYPE html>
+    # Inject preview container styling to ensure zero white borders around the page
+    # and provide a clean dark backdrop with authentic paper drop shadow
+    preview_wrapper = f"""<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
-    body {{
+    *, *:before, *:after {{
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+    }}
+    html, body {{
+        background-color: #0d0d0d !important;
+        margin: 0;
+        padding: 10px 0;
+        width: 100%;
         display: flex;
         justify-content: center;
-        background: #2a2a2a;
+        overflow-x: auto;
     }}
-    .page-wrapper {{
-        transform-origin: top center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        background: white;
+    .preview-sheet {{
+        background-color: #f7f3ef !important;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.7);
+        border: none !important;
     }}
 </style>
 </head>
 <body>
-<div class="page-wrapper">
+<div class="preview-sheet">
 {html}
 </div>
 </body>
 </html>"""
 
     # Display using Streamlit components
-    components.html(preview_html, height=1050, scrolling=True)
+    components.html(preview_wrapper, height=1150, scrolling=True)

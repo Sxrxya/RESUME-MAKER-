@@ -1,19 +1,19 @@
 {
     "personal": {
         "first_name": {
-            "max_chars": 20,
+            "max_chars": 35,
             "required": true,
             "label": "First Name",
-            "placeholder": "John"
+            "placeholder": "<FIRSTNAME>"
         },
         "second_name": {
-            "max_chars": 20,
+            "max_chars": 35,
             "required": true,
             "label": "Second Name",
-            "placeholder": "Doe"
+            "placeholder": "<SECONDNAME>"
         },
         "city_country": {
-            "max_chars": 40,
+            "max_chars": 70,
             "required": true,
             "label": "City, Country",
             "placeholder": "City, State (Or Country If Applying Outside India)"
@@ -22,16 +22,16 @@
             "max_chars": 60,
             "required": true,
             "label": "LinkedIn URL",
-            "placeholder": "linkedin.com/in/yourprofile"
+            "placeholder": "LinkedIn"
         },
         "phone": {
-            "max_chars": 20,
+            "max_chars": 25,
             "required": true,
             "label": "Phone Number",
             "placeholder": "+91 12233 34455"
         },
         "email": {
-            "max_chars": 40,
+            "max_chars": 50,
             "required": true,
             "label": "Email Address",
             "placeholder": "youremail@youremail.com"
@@ -39,49 +39,49 @@
     },
     "professional_summary": {
         "summary": {
-            "max_chars": 450,
-            "max_lines": 4,
+            "max_chars": 560,
+            "max_lines": 5,
             "required": true,
             "label": "Professional Summary",
             "placeholder": "Write a concise professional summary..."
         },
         "skills": {
-            "max_chars": 200,
-            "max_lines": 1,
+            "max_chars": 180,
+            "max_lines": 2,
             "required": true,
             "label": "Skills",
-            "placeholder": "Skill1, Skill2, Skill3..."
+            "placeholder": "Integer ante arcu, accumsan a..."
         }
     },
     "education": {
         "num_entries": 3,
         "entry_fields": {
             "university": {
-                "max_chars": 50,
+                "max_chars": 60,
                 "required": true,
                 "label": "University Name",
                 "placeholder": "ABC University"
             },
             "city_country": {
-                "max_chars": 30,
+                "max_chars": 40,
                 "required": true,
                 "label": "City, Country",
                 "placeholder": "City, Country"
             },
             "program": {
-                "max_chars": 50,
+                "max_chars": 60,
                 "required": true,
                 "label": "Program Name",
                 "placeholder": "Program Name"
             },
             "gpa": {
-                "max_chars": 15,
+                "max_chars": 20,
                 "required": false,
                 "label": "GPA",
-                "placeholder": "(GPA – X.X)"
+                "placeholder": "(GPA \u2013 X.X)"
             },
             "graduation_date": {
-                "max_chars": 15,
+                "max_chars": 20,
                 "required": true,
                 "label": "Graduation Date",
                 "placeholder": "mon YYYY"
@@ -98,13 +98,13 @@
         "num_entries": 3,
         "entry_fields": {
             "title": {
-                "max_chars": 60,
+                "max_chars": 70,
                 "required": true,
                 "label": "Project/Research Title",
                 "placeholder": "Research Paper /Project Name"
             },
             "organization": {
-                "max_chars": 40,
+                "max_chars": 50,
                 "required": true,
                 "label": "University/Organization",
                 "placeholder": "ABC University"
@@ -116,27 +116,27 @@
                 "placeholder": "with additional information (if any)"
             },
             "start_date": {
-                "max_chars": 12,
+                "max_chars": 15,
                 "required": true,
                 "label": "Start Date",
                 "placeholder": "Mon YYYY"
             },
             "end_date": {
-                "max_chars": 12,
+                "max_chars": 15,
                 "required": true,
                 "label": "End Date",
                 "placeholder": "Mon YYYY"
             },
             "bullet_1": {
-                "max_chars": 220,
-                "max_lines": 2,
+                "max_chars": 285,
+                "max_lines": 3,
                 "required": true,
                 "label": "Description 1",
                 "placeholder": "First bullet point description..."
             },
             "bullet_2": {
-                "max_chars": 220,
-                "max_lines": 2,
+                "max_chars": 285,
+                "max_lines": 3,
                 "required": true,
                 "label": "Description 2",
                 "placeholder": "Second bullet point description..."
@@ -150,38 +150,38 @@
                 "num_bullets": 1,
                 "fields": {
                     "company": {
-                        "max_chars": 40,
+                        "max_chars": 50,
                         "required": true,
                         "label": "Company Name",
                         "placeholder": "XYZ Company"
                     },
                     "domain": {
-                        "max_chars": 30,
+                        "max_chars": 35,
                         "required": true,
                         "label": "Domain/Industry",
                         "placeholder": "Domain/Industry"
                     },
                     "role": {
-                        "max_chars": 30,
+                        "max_chars": 35,
                         "required": true,
                         "label": "Role Name",
                         "placeholder": "Role Name"
                     },
                     "start_date": {
-                        "max_chars": 12,
+                        "max_chars": 15,
                         "required": true,
                         "label": "Start Date",
                         "placeholder": "Mon YYYY"
                     },
                     "end_date": {
-                        "max_chars": 12,
+                        "max_chars": 15,
                         "required": true,
                         "label": "End Date",
                         "placeholder": "Mon YYYY"
                     },
                     "bullet_1": {
-                        "max_chars": 220,
-                        "max_lines": 2,
+                        "max_chars": 285,
+                        "max_lines": 3,
                         "required": true,
                         "label": "Description",
                         "placeholder": "Bullet point description..."
@@ -192,45 +192,45 @@
                 "num_bullets": 2,
                 "fields": {
                     "company": {
-                        "max_chars": 40,
+                        "max_chars": 50,
                         "required": true,
                         "label": "Company Name",
                         "placeholder": "XYZ Company"
                     },
                     "domain": {
-                        "max_chars": 30,
+                        "max_chars": 35,
                         "required": true,
                         "label": "Domain/Industry",
                         "placeholder": "Domain/Industry"
                     },
                     "role": {
-                        "max_chars": 30,
+                        "max_chars": 35,
                         "required": true,
                         "label": "Role Name",
                         "placeholder": "Role Name"
                     },
                     "start_date": {
-                        "max_chars": 12,
+                        "max_chars": 15,
                         "required": true,
                         "label": "Start Date",
                         "placeholder": "Mon YYYY"
                     },
                     "end_date": {
-                        "max_chars": 12,
+                        "max_chars": 15,
                         "required": true,
                         "label": "End Date",
                         "placeholder": "Mon YYYY"
                     },
                     "bullet_1": {
-                        "max_chars": 220,
-                        "max_lines": 2,
+                        "max_chars": 285,
+                        "max_lines": 3,
                         "required": true,
                         "label": "Description 1",
                         "placeholder": "First bullet point description..."
                     },
                     "bullet_2": {
-                        "max_chars": 220,
-                        "max_lines": 2,
+                        "max_chars": 285,
+                        "max_lines": 3,
                         "required": true,
                         "label": "Description 2",
                         "placeholder": "Second bullet point description..."
@@ -241,38 +241,38 @@
                 "num_bullets": 1,
                 "fields": {
                     "company": {
-                        "max_chars": 40,
+                        "max_chars": 50,
                         "required": true,
                         "label": "Company Name",
                         "placeholder": "XYZ Company"
                     },
                     "domain": {
-                        "max_chars": 30,
+                        "max_chars": 35,
                         "required": true,
                         "label": "Domain/Industry",
                         "placeholder": "Domain/Industry"
                     },
                     "role": {
-                        "max_chars": 30,
+                        "max_chars": 35,
                         "required": true,
                         "label": "Role Name",
                         "placeholder": "Role Name"
                     },
                     "start_date": {
-                        "max_chars": 12,
+                        "max_chars": 15,
                         "required": true,
                         "label": "Start Date",
                         "placeholder": "Mon YYYY"
                     },
                     "end_date": {
-                        "max_chars": 12,
+                        "max_chars": 15,
                         "required": true,
                         "label": "End Date",
                         "placeholder": "Mon YYYY"
                     },
                     "bullet_1": {
-                        "max_chars": 220,
-                        "max_lines": 2,
+                        "max_chars": 285,
+                        "max_lines": 3,
                         "required": true,
                         "label": "Description",
                         "placeholder": "Bullet point description..."
@@ -283,54 +283,53 @@
     },
     "achievements_leadership": {
         "awards": {
-            "max_chars": 180,
-            "max_lines": 1,
+            "max_chars": 160,
+            "max_lines": 2,
             "required": false,
             "label": "Awards",
-            "placeholder": "Awards description..."
+            "placeholder": "Aenean imperdiet..."
         },
         "leadership_1": {
-            "max_chars": 220,
-            "max_lines": 2,
+            "max_chars": 285,
+            "max_lines": 3,
             "required": false,
             "label": "Leadership Entry 1",
             "placeholder": "Leadership Role, Community/Club Name: Description..."
         },
         "leadership_2": {
-            "max_chars": 220,
-            "max_lines": 2,
+            "max_chars": 285,
+            "max_lines": 3,
             "required": false,
             "label": "Leadership Entry 2",
             "placeholder": "Leadership Role, Community/Club Name: Description..."
         },
         "achievement": {
-            "max_chars": 180,
-            "max_lines": 1,
+            "max_chars": 160,
+            "max_lines": 2,
             "required": false,
             "label": "Achievement",
             "placeholder": "Achievement description..."
         },
         "community_1": {
-            "max_chars": 220,
-            "max_lines": 2,
+            "max_chars": 285,
+            "max_lines": 3,
             "required": false,
             "label": "Community Entry 1",
             "placeholder": "Role, Community/Club Name: Description..."
         },
         "community_2": {
-            "max_chars": 220,
-            "max_lines": 2,
+            "max_chars": 285,
+            "max_lines": 3,
             "required": false,
             "label": "Community Entry 2",
             "placeholder": "Role, Community/Club Name: Description..."
         },
         "interests": {
-            "max_chars": 180,
-            "max_lines": 1,
+            "max_chars": 160,
+            "max_lines": 2,
             "required": false,
             "label": "Interests",
             "placeholder": "Your interests..."
         }
     }
 }
-

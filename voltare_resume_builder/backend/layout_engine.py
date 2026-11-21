@@ -1,4 +1,6 @@
-"""Layout validation engine for Voltare resume."""
+"""Layout validation engine for Voltare resume.
+Enforces character and line budgets without exposing pixel or point measurements to candidates.
+"""
 import json
 import os
 
@@ -14,130 +16,138 @@ def _load_config(filename: str) -> dict:
 FIELD_LIMITS = _load_config("field_limits.json")
 TEMPLATE_CONFIG = _load_config("template_config.json")
 
-CONTENT_WIDTH = TEMPLATE_CONFIG["margins"]["content_width_pts"]
-BODY_FONT_SIZE = TEMPLATE_CONFIG["typography"]["body_size"]
-LINE_HEIGHT = TEMPLATE_CONFIG["typography"]["line_height"]
-
-# Approximate characters per line at 9pt Cormorant Garamond in ~507pt width
-CHARS_PER_LINE = 90
-LINE_HEIGHT_PTS = BODY_FONT_SIZE * LINE_HEIGHT  # ~11.25pt per line
+# Calibrated from the official reference PDF: 539pt column holds ~130 characters per line
+CHARS_PER_LINE = 130
 
 
-def estimate_text_lines(text: str, font_size: float = BODY_FONT_SIZE, container_width: float = CONTENT_WIDTH) -> int:
-    if not text.strip():
+def estimate_text_lines(text: str, chars_per_line: int = CHARS_PER_LINE) -> int:
+    """Estimate rendered lines using paragraph structure and average character width."""
+    if not text or not text.strip():
         return 0
-    # Scale chars per line by container width ratio
-    cpl = int(CHARS_PER_LINE * (container_width / CONTENT_WIDTH))
     total_lines = 0
     for paragraph in text.split("\n"):
-        paragraph = paragraph.strip()
-        if not paragraph:
+        p = paragraph.strip()
+        if not p:
             total_lines += 1
         else:
-            total_lines += max(1, -(-len(paragraph) // cpl))
+            total_lines += max(1, -(-len(p) // chars_per_line))
     return total_lines
 
 
 def check_section_overflow(section: str, data: dict) -> dict:
-    sections = TEMPLATE_CONFIG.get("sections", {})
-    result = {"fits": True, "overflow_px": 0, "errors": []}
-    
+    """Validate section content against allocated line budgets."""
+    result = {"fits": True, "errors": []}
+
     if section == "professional_summary":
-        config = sections.get("professional_summary_body", {})
-        available_height = config.get("y_end", 140) - config.get("y_start", 82)
-        summary = data.get("professional_summary", {}).get("summary", "")
-        skills = data.get("professional_summary", {}).get("skills", "")
-        lines = estimate_text_lines(summary) + estimate_text_lines(skills) + 1  # +1 for skills label
-        needed = lines * LINE_HEIGHT_PTS
-        if needed > available_height:
+        summary = data.get("professional_summary", {}).get("summary", "").strip()
+        skills = data.get("professional_summary", {}).get("skills", "").strip()
+
+        summary_lines = estimate_text_lines(summary, CHARS_PER_LINE)
+        max_summary_lines = FIELD_LIMITS.get("professional_summary", {}).get("summary", {}).get("max_lines", 5)
+        if summary_lines > max_summary_lines:
+            excess = summary_lines - max_summary_lines
+            approx_chars = excess * CHARS_PER_LINE
             result["fits"] = False
-            result["overflow_px"] = needed - available_height
-            result["errors"].append(f"Professional summary content exceeds allocated space by {needed - available_height:.0f}pt")
-    
+            result["errors"].append(
+                f"Professional Summary: Exceeds limit by {excess} line(s). Please shorten by approximately {approx_chars} characters."
+            )
+
+        skills_lines = estimate_text_lines(skills, CHARS_PER_LINE)
+        max_skills_lines = FIELD_LIMITS.get("professional_summary", {}).get("skills", {}).get("max_lines", 2)
+        if skills_lines > max_skills_lines:
+            excess = skills_lines - max_skills_lines
+            approx_chars = excess * CHARS_PER_LINE
+            result["fits"] = False
+            result["errors"].append(
+                f"Skills: Exceeds maximum {max_skills_lines} line(s). Please shorten by approximately {approx_chars} characters."
+            )
+
     elif section == "education":
-        config_start = sections.get("education_body", {}).get("y_start", 165)
-        config_end = sections.get("education_body", {}).get("y_end", 272)
-        available_height = config_end - config_start
-        total_lines = 0
-        for entry in data.get("education", []):
-            if entry.get("university", "").strip():
-                total_lines += 2  # university + program lines
-                if entry.get("relevant_courses", "").strip():
-                    total_lines += 1
-                total_lines += 1  # spacing
-        needed = total_lines * LINE_HEIGHT_PTS
-        if needed > available_height:
-            result["fits"] = False
-            result["overflow_px"] = needed - available_height
-            result["errors"].append(f"Education content exceeds allocated space by {needed - available_height:.0f}pt")
-    
+        entries = data.get("education", [])
+        for i, entry in enumerate(entries):
+            idx = i + 1
+            courses = entry.get("relevant_courses", "").strip()
+            if len(courses) > 85:
+                result["fits"] = False
+                result["errors"].append(
+                    f"Education Entry {idx}: Relevant courses exceeds limit by {len(courses) - 85} character(s) (Max 85 characters)."
+                )
+
     elif section == "research":
-        config_start = sections.get("research_body", {}).get("y_start", 284)
-        config_end = sections.get("research_body", {}).get("y_end", 475)
-        available_height = config_end - config_start
-        total_lines = 0
-        for entry in data.get("research_projects", []):
-            if entry.get("title", "").strip():
-                total_lines += 1  # title line
-                if entry.get("additional_info", "").strip():
-                    total_lines += 1
-                total_lines += estimate_text_lines(entry.get("bullet_1", ""))
-                total_lines += estimate_text_lines(entry.get("bullet_2", ""))
-                total_lines += 1  # spacing
-        needed = total_lines * LINE_HEIGHT_PTS
-        if needed > available_height:
-            result["fits"] = False
-            result["overflow_px"] = needed - available_height
-            result["errors"].append(f"Research content exceeds allocated space by {needed - available_height:.0f}pt")
-    
+        entries = data.get("research_projects", [])
+        for i, entry in enumerate(entries):
+            idx = i + 1
+            for b_num in [1, 2]:
+                bullet = entry.get(f"bullet_{b_num}", "").strip()
+                lines = estimate_text_lines(bullet, CHARS_PER_LINE)
+                if lines > 3:
+                    excess = lines - 3
+                    approx_chars = excess * CHARS_PER_LINE
+                    result["fits"] = False
+                    result["errors"].append(
+                        f"Research Project {idx} (Bullet {b_num}): Exceeds 3-line limit. Please shorten by approximately {approx_chars} characters."
+                    )
+
     elif section == "experience":
-        config_start = sections.get("experience_body", {}).get("y_start", 487)
-        config_end = sections.get("experience_body", {}).get("y_end", 623)
-        available_height = config_end - config_start
-        total_lines = 0
-        for entry in data.get("professional_experience", []):
-            if entry.get("company", "").strip():
-                total_lines += 1  # company header
-                for bullet in entry.get("bullets", []):
-                    total_lines += estimate_text_lines(bullet)
-                total_lines += 1  # spacing
-        needed = total_lines * LINE_HEIGHT_PTS
-        if needed > available_height:
-            result["fits"] = False
-            result["overflow_px"] = needed - available_height
-            result["errors"].append(f"Professional experience exceeds allocated space by {needed - available_height:.0f}pt")
+        entries = data.get("professional_experience", [])
+        for i, entry in enumerate(entries):
+            idx = i + 1
+            bullets = entry.get("bullets", [])
+            for b_idx, bullet in enumerate(bullets):
+                b_num = b_idx + 1
+                lines = estimate_text_lines(bullet.strip(), CHARS_PER_LINE)
+                if lines > 3:
+                    excess = lines - 3
+                    approx_chars = excess * CHARS_PER_LINE
+                    result["fits"] = False
+                    result["errors"].append(
+                        f"Professional Experience {idx} (Bullet {b_num}): Exceeds 3-line limit. Please shorten by approximately {approx_chars} characters."
+                    )
+
+    elif section == "achievements_leadership":
+        ach = data.get("achievements_leadership", {})
+        for field_name in ["leadership_1", "leadership_2", "community_1", "community_2"]:
+            val = ach.get(field_name, "").strip()
+            lines = estimate_text_lines(val, CHARS_PER_LINE)
+            if lines > 3:
+                excess = lines - 3
+                approx_chars = excess * CHARS_PER_LINE
+                label = field_name.replace("_", " ").title()
+                result["fits"] = False
+                result["errors"].append(
+                    f"Achievements & Leadership ({label}): Exceeds line budget. Please shorten by approximately {approx_chars} characters."
+                )
 
     return result
 
 
 def validate_layout(data: dict) -> dict:
+    """Validate all sections for layout fit using human-readable line and character budgets."""
     errors = []
     warnings = []
 
-    for section in ["professional_summary", "education", "research", "experience"]:
+    for section in ["professional_summary", "education", "research", "experience", "achievements_leadership"]:
         check = check_section_overflow(section, data)
         if not check["fits"]:
             errors.extend(check["errors"])
 
-    # Check total page height
-    total_ok = len(errors) == 0
-    
     return {
-        "valid": total_ok,
+        "valid": len(errors) == 0,
         "errors": errors,
-        "warnings": warnings
+        "warnings": warnings,
     }
 
 
 def get_validation_summary(data: dict) -> list:
+    """Get a list of human-readable validation messages."""
     messages = []
     layout = validate_layout(data)
     for err in layout["errors"]:
         messages.append({"type": "error", "message": err})
     for warn in layout["warnings"]:
         messages.append({"type": "warning", "message": warn})
-    
+
     if layout["valid"]:
         messages.append({"type": "success", "message": "All layout checks passed. Resume fits on one page."})
-    
+
     return messages

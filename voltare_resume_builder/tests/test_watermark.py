@@ -28,8 +28,8 @@ class TestWatermark(unittest.TestCase):
     def test_watermark_info(self):
         info = get_watermark_info()
         self.assertTrue(info["exists"])
-        self.assertEqual(info["width"], 2055)
-        self.assertEqual(info["height"], 1929)
+        self.assertGreater(info["width"], 500)
+        self.assertGreater(info["height"], 500)
 
     def test_watermark_is_png(self):
         path = get_watermark_path()

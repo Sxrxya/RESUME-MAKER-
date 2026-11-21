@@ -13,7 +13,7 @@ def _load_field_limits() -> dict:
 
 FIELD_LIMITS = _load_field_limits()
 
-CHARS_PER_LINE = 90  # approximate for 9pt Cormorant Garamond in 507pt width
+CHARS_PER_LINE = 130  # Calibrated from reference PDF (539pt column with 10pt font)
 
 
 @dataclass
@@ -170,20 +170,27 @@ def estimate_lines(text: str, chars_per_line: int = CHARS_PER_LINE) -> int:
 
 
 def validate_line_counts(data: dict) -> ValidationResult:
+    """Validate line counts with helpful character-shortening guidance."""
     result = ValidationResult()
 
     prof = data.get("professional_summary", {})
     summary = prof.get("summary", "")
     summary_limit = FIELD_LIMITS.get("professional_summary", {}).get("summary", {})
-    max_lines = summary_limit.get("max_lines", 4)
-    if estimate_lines(summary) > max_lines:
-        result.add_error("summary", f"Summary exceeds {max_lines} lines", "Professional Summary")
+    max_lines = summary_limit.get("max_lines", 5)
+    est_lines = estimate_lines(summary)
+    if est_lines > max_lines:
+        excess = est_lines - max_lines
+        approx_chars = excess * CHARS_PER_LINE
+        result.add_error("summary", f"Exceeds limit by {excess} line(s). Please shorten by approximately {approx_chars} characters.", "Professional Summary")
 
     skills = prof.get("skills", "")
     skills_limit = FIELD_LIMITS.get("professional_summary", {}).get("skills", {})
-    max_lines = skills_limit.get("max_lines", 1)
-    if estimate_lines(skills) > max_lines:
-        result.add_error("skills", f"Skills exceeds {max_lines} line", "Professional Summary")
+    max_lines = skills_limit.get("max_lines", 2)
+    est_skills = estimate_lines(skills)
+    if est_skills > max_lines:
+        excess = est_skills - max_lines
+        approx_chars = excess * CHARS_PER_LINE
+        result.add_error("skills", f"Exceeds maximum {max_lines} line(s). Please shorten by approximately {approx_chars} characters.", "Professional Summary")
 
     return result
 

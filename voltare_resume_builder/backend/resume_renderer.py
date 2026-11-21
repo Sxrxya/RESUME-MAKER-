@@ -43,9 +43,10 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
 
     first_name = _escape_html(personal.get("first_name", ""))
     second_name = _escape_html(personal.get("second_name", ""))
-    name_display = f"&lt;Firstname&gt; &lt;Secondname&gt;"
     if first_name or second_name:
         name_display = f"{first_name} {second_name}".strip()
+    else:
+        name_display = "&lt;FIRSTNAME&gt; &lt;SECONDNAME&gt;"
 
     city = _escape_html(personal.get("city_country", ""))
     linkedin = _escape_html(personal.get("linkedin_url", ""))
@@ -53,64 +54,77 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
     email = _escape_html(personal.get("email", ""))
 
     contact_parts = []
-    if city:
-        contact_parts.append(city)
-    if linkedin:
-        contact_parts.append(f'<a href="https://{linkedin}" style="color:#0000ff;text-decoration:underline;">{linkedin}</a>')
-    if phone:
-        contact_parts.append(phone)
-    if email:
-        contact_parts.append(f'<a href="mailto:{email}" style="color:#0000ff;text-decoration:underline;">{email}</a>')
-    contact_line = " | ".join(contact_parts) if contact_parts else "City, State (Or Country) | LinkedIn | +91 12233 34455 | youremail@youremail.com"
+    contact_parts.append(city if city else "City, State (Or Country If Applying Outside India)")
+    
+    linkedin_val = linkedin if linkedin else "LinkedIn"
+    contact_parts.append(f'<a href="https://{linkedin_val}" style="color:#0000ff;text-decoration:underline;">{linkedin_val}</a>')
+    
+    contact_parts.append(phone if phone else "+91 12233 34455")
+    
+    email_val = email if email else "youremail@youremail.com"
+    contact_parts.append(f'<a href="mailto:{email_val}" style="color:#0000ff;text-decoration:underline;">{email_val}</a>')
+    
+    contact_line = " | ".join(contact_parts)
 
     summary_text = _escape_html(prof.get("summary", ""))
-    skills_text = _escape_html(prof.get("skills", ""))
+    if not summary_text:
+        summary_text = "My Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui sunt in culpa qui Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero, Cras id dui trebur"
 
-    # Build education HTML
+    skills_text = _escape_html(prof.get("skills", ""))
+    if not skills_text:
+        skills_text = "Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris, praesent adipiscing , ahteegnas, ayevo, veniam, quis, nulla pari."
+
+    # Build education HTML (ensure all 3 entries render)
+    default_edu = [
+        {"university": "ABC University", "city_country": "City, Country", "program": "Program Name", "gpa": "(GPA – X.X)", "graduation_date": "mon YYYY", "relevant_courses": "{Relevant Courses: if any}"},
+        {"university": "ABC University", "city_country": "City, Country", "program": "Program Name", "gpa": "", "graduation_date": "mon YYYY", "relevant_courses": "{Relevant Courses: if any}"},
+        {"university": "ABC University", "city_country": "City, Country", "program": "Program Name", "gpa": "", "graduation_date": "mon YYYY", "relevant_courses": "{Relevant Courses: if any}"}
+    ]
     edu_html = ""
-    for i, edu in enumerate(education):
-        uni = _escape_html(edu.get("university", ""))
-        edu_city = _escape_html(edu.get("city_country", ""))
-        program = _escape_html(edu.get("program", ""))
-        gpa = _escape_html(edu.get("gpa", ""))
-        grad_date = _escape_html(edu.get("graduation_date", ""))
-        courses = _escape_html(edu.get("relevant_courses", ""))
-        
-        if not uni:
-            continue
+    for i in range(3):
+        edu = education[i] if i < len(education) and education[i] else default_edu[i]
+        uni = _escape_html(edu.get("university", "") or default_edu[i]["university"])
+        edu_city = _escape_html(edu.get("city_country", "") or default_edu[i]["city_country"])
+        program = _escape_html(edu.get("program", "") or default_edu[i]["program"])
+        gpa = _escape_html(edu.get("gpa", "") or (default_edu[i]["gpa"] if i == 0 else ""))
+        grad_date = _escape_html(edu.get("graduation_date", "") or default_edu[i]["graduation_date"])
+        courses = _escape_html(edu.get("relevant_courses", "") or default_edu[i]["relevant_courses"])
 
         program_line = program
         if gpa:
-            program_line += f"  ({gpa})"
+            program_line += f"  {gpa}"
 
         edu_html += f'''
         <div class="edu-entry">
             <div class="entry-row">
-                <span class="entry-left"><strong>{uni}</strong> {f'<span class="courses-inline">{{{courses}}}</span>' if courses else ''}</span>
+                <span class="entry-left"><strong>{uni}</strong> {f'<span class="courses-inline">{courses}</span>' if courses and i == 0 else ''}</span>
                 <span class="entry-right"><strong>{edu_city}</strong></span>
             </div>
             <div class="entry-row">
                 <span class="entry-left"><em>{program_line}</em></span>
-                <span class="entry-right"><em>{grad_date}</em></span>
+                <span class="entry-right"><strong><em>{grad_date}</em></strong></span>
             </div>
-            {f'<div class="relevant-courses"><em>{{{courses}}}</em></div>' if courses and i > 0 else ''}
+            {f'<div class="relevant-courses"><em>{courses}</em></div>' if courses and i > 0 else ''}
         </div>'''
 
-    # Build research HTML
+    # Build research HTML (ensure all 3 entries render)
+    default_res = [
+        {"title": "Research Paper /Project Name", "organization": "ABC University", "additional_info": "with additional information (if any)", "start_date": "Mon YYYY", "end_date": "Mon YYYY", "bullet_1": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem Aenean viverra .", "bullet_2": "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad pellentesque habitant morbi tristique senectus"},
+        {"title": "Research Paper /Project Name", "organization": "ABC University", "additional_info": "with additional information (if any)", "start_date": "Mon YYYY", "end_date": "Mon YYYY", "bullet_1": "Minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae In hac habitasse platea dictumst ramuklihtnes.", "bullet_2": "Consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur At vero eos et accusamus et iusto el praesent libero Sed cursus ante"},
+        {"title": "Research Paper /Project Name", "organization": "ABC University", "additional_info": "with  additional information (if any)", "start_date": "Mon YYYY", "end_date": "Mon YYYY", "bullet_1": "Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla. Class aptent taciti sociosqu ad litora torquent curabitur at lacus ac velit ornare lobortis.", "bullet_2": "Per conubia nostra, per inceptos himenaeos. Curabitur sodales ligula in libero. Sed dignissim lacinia nunc. Curabitur tortor ahtews."}
+    ]
     res_html = ""
-    for i, res in enumerate(research):
-        title = _escape_html(res.get("title", ""))
-        org = _escape_html(res.get("organization", ""))
-        additional = _escape_html(res.get("additional_info", ""))
-        start = _escape_html(res.get("start_date", ""))
-        end = _escape_html(res.get("end_date", ""))
-        b1 = _escape_html(res.get("bullet_1", ""))
-        b2 = _escape_html(res.get("bullet_2", ""))
+    for i in range(3):
+        res = research[i] if i < len(research) and research[i] else default_res[i]
+        title = _escape_html(res.get("title", "") or default_res[i]["title"])
+        org = _escape_html(res.get("organization", "") or default_res[i]["organization"])
+        additional = _escape_html(res.get("additional_info", "") or default_res[i]["additional_info"])
+        start = _escape_html(res.get("start_date", "") or default_res[i]["start_date"])
+        end = _escape_html(res.get("end_date", "") or default_res[i]["end_date"])
+        b1 = _escape_html(res.get("bullet_1", "") or default_res[i]["bullet_1"])
+        b2 = _escape_html(res.get("bullet_2", "") or default_res[i]["bullet_2"])
 
-        if not title:
-            continue
-
-        dates = f"{start}– {end}" if start and end else ""
+        dates = f"{start} – {end}"
 
         res_html += f'''
         <div class="research-entry">
@@ -123,20 +137,23 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
             {f'<div class="bullet">● {b2}</div>' if b2 else ''}
         </div>'''
 
-    # Build experience HTML
+    # Build experience HTML (ensure all 3 entries render)
+    default_exp = [
+        {"company": "XYZ Company", "domain": "Domain/Industry", "role": "Role Name", "start_date": "Mon YYYY", "end_date": "Mon YYYY", "bullets": ["Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh.Quisque volutpat condimentum velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra per inceptos himenaeos."]},
+        {"company": "XYZ Company", "domain": "Domain/Industry", "role": "Role Name", "start_date": "Mon YYYY", "end_date": "Mon YYYY", "bullets": ["Proin ut ligula vel nunc egestas porttitor. Morbi lectus risus, iaculis vel, suscipit quis, luctus non, massa. Fusce ac turpis quis ligula lacinia aliquet. Mauris ipsum. Nulla metus metus, ullamcorper vel, tincidunt sed, euismod in, nibh. et malesuada fames ac turpis .", "Suspendisse potenti. Nunc feugiat mi a tellus consequat imperdiet. Vestibulum sapien. Proin quam. Etiam ultrices. Suspendisse in justo eu magna luctus suscipit. Sed lectus. Integer euismod lacus luctus magna. Quisque cursus, metus vitae pharetra auctor,"]},
+        {"company": "XYZ Company", "domain": "Domain/Industry", "role": "Role Name", "start_date": "Mon YYYY", "end_date": "Mon YYYY", "bullets": ["In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Vivamus quis mi. Phasellus a est. Phasellus magna quis ligula lacinia aliquet."]}
+    ]
     exp_html = ""
-    for i, exp in enumerate(experience):
-        company = _escape_html(exp.get("company", ""))
-        domain = _escape_html(exp.get("domain", ""))
-        role = _escape_html(exp.get("role", ""))
-        start = _escape_html(exp.get("start_date", ""))
-        end = _escape_html(exp.get("end_date", ""))
-        bullets = exp.get("bullets", [])
+    for i in range(3):
+        exp = experience[i] if i < len(experience) and experience[i] else default_exp[i]
+        company = _escape_html(exp.get("company", "") or default_exp[i]["company"])
+        domain = _escape_html(exp.get("domain", "") or default_exp[i]["domain"])
+        role = _escape_html(exp.get("role", "") or default_exp[i]["role"])
+        start = _escape_html(exp.get("start_date", "") or default_exp[i]["start_date"])
+        end = _escape_html(exp.get("end_date", "") or default_exp[i]["end_date"])
+        bullets = exp.get("bullets", []) or default_exp[i]["bullets"]
 
-        if not company:
-            continue
-
-        dates = f"{start} – {end}" if start and end else ""
+        dates = f"{start} – {end}"
 
         exp_html += f'''
         <div class="experience-entry">
@@ -151,27 +168,45 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
         exp_html += '\n        </div>'
 
     # Build achievements HTML
-    awards_text = _escape_html(achievements.get("awards", ""))
-    lead1 = _escape_html(achievements.get("leadership_1", ""))
-    lead2 = _escape_html(achievements.get("leadership_2", ""))
-    ach_text = _escape_html(achievements.get("achievement", ""))
-    comm1 = _escape_html(achievements.get("community_1", ""))
-    comm2 = _escape_html(achievements.get("community_2", ""))
-    interests = _escape_html(achievements.get("interests", ""))
+    default_ach = {
+        "awards": "Aenean imperdiet. Etiam ultricies nisi vel augue.Curabitur ullamcorper ultricies nisi. Nam eget dui Etiam rhoncus .",
+        "leadership_1": "Leadership Role, Community/Club Name: Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id mperdiet feugiat, pede. pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis gesta.",
+        "leadership_2": "Leadership Role, Community/ Club Name: Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo alujnam ahtews uhsnayirp",
+        "achievement": "Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. op urallan rahknayhba.",
+        "community_1": "Role, Community/ Club Name: Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum fringilla pede sit amet augue. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec.",
+        "community_2": "Career Counsellor, DAV Group of Schools: ellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce id purus.Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam.",
+        "interests": "In dui magna, posuere eget, vestibulum et, tempor auctor, justo, Proin sapien ipsum, porta a, auctor quis, euiql."
+    }
+
+    awards_text = _escape_html(achievements.get("awards", "") or default_ach["awards"])
+    lead1 = _escape_html(achievements.get("leadership_1", "") or default_ach["leadership_1"])
+    lead2 = _escape_html(achievements.get("leadership_2", "") or default_ach["leadership_2"])
+    ach_text = _escape_html(achievements.get("achievement", "") or default_ach["achievement"])
+    comm1 = _escape_html(achievements.get("community_1", "") or default_ach["community_1"])
+    comm2 = _escape_html(achievements.get("community_2", "") or default_ach["community_2"])
+    interests = _escape_html(achievements.get("interests", "") or default_ach["interests"])
 
     ach_html = ""
     if awards_text:
         ach_html += f'<div class="ach-line"><strong>Awards(if any):</strong> {awards_text}</div>\n'
     if lead1:
-        ach_html += f'<div class="ach-line"><strong>Leadership: (i)</strong>{lead1}</div>\n'
+        if not lead1.lower().startswith("leadership"):
+            lead1 = f"Leadership: (i){lead1}"
+        ach_html += f'<div class="ach-line">{lead1}</div>\n'
     if lead2:
-        ach_html += f'<div class="ach-line"><strong>(ii)</strong>{lead2}</div>\n'
+        if not lead2.startswith("(ii)"):
+            lead2 = f"(ii){lead2}"
+        ach_html += f'<div class="ach-line">{lead2}</div>\n'
     if ach_text:
-        ach_html += f'<div class="ach-line indent"><strong>○ Achievement(if any)</strong>: {ach_text}</div>\n'
+        ach_html += f'<div class="ach-line indent"><strong>○ Achievement(if any):</strong> {ach_text}</div>\n'
     if comm1:
-        ach_html += f'<div class="ach-line"><strong>Community: (i) Role, Community/ Club Name</strong>: {comm1}</div>\n'
+        if not comm1.lower().startswith("community"):
+            comm1 = f"Community: (i) {comm1}"
+        ach_html += f'<div class="ach-line">{comm1}</div>\n'
     if comm2:
-        ach_html += f'<div class="ach-line"><strong>(ii)Career Counsellor, DAV Group of Schools:</strong> {comm2}</div>\n'
+        if not comm2.startswith("(ii)"):
+            comm2 = f"(ii){comm2}"
+        ach_html += f'<div class="ach-line">{comm2}</div>\n'
     if interests:
         ach_html += f'<div class="ach-line"><strong>Interests :</strong> {interests}</div>\n'
 
@@ -181,55 +216,52 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Cormorant+SC:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@700&display=swap');
 
 @page {{
-    size: 8.5in 11in;
+    size: 210mm 297mm;
     margin: 0;
 }}
 
-* {{
+*, *:before, *:after {{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }}
 
+html {{
+    background-color: #f7f3ef !important;
+}}
+
 body {{
-    font-family: 'Cormorant Garamond', 'Georgia', serif;
-    font-size: 9pt;
-    line-height: 1.25;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10pt;
+    line-height: 1.15;
     color: #000000;
-    background: white;
+    background-color: #f7f3ef !important;
+    margin: 0;
+    padding: 0;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
 }}
 
 .resume-page {{
-    width: 8.5in;
-    height: 11in;
+    width: 596pt;
+    height: 842pt;
     position: relative;
     overflow: hidden;
-    background: white;
+    background-color: #f7f3ef !important;
     margin: 0 auto;
-}}
-
-.background-fill {{
-    position: absolute;
-    left: 0.363in;
-    top: 0;
-    right: 0.352in;
-    bottom: 0;
-    background-color: #f7f3ef;
-    z-index: 0;
+    box-sizing: border-box;
 }}
 
 .watermark {{
     position: absolute;
-    left: 0.828in;
-    top: 2.282in;
-    width: 6.86in;
-    height: 6.437in;
-    opacity: 0.12;
+    left: 35.65pt;
+    top: 174.57pt;
+    width: 524.25pt;
+    height: 492.75pt;
+    opacity: 0.95;
     z-index: 1;
     pointer-events: none;
 }}
@@ -243,27 +275,29 @@ body {{
 .content {{
     position: relative;
     z-index: 2;
-    padding: 0.278in 0.813in 0.208in 0.639in;
+    padding: 28pt 36pt 20pt 21pt;
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
 }}
 
 .name {{
     font-family: 'Cormorant SC', 'Georgia', serif;
-    font-size: 22pt;
+    font-size: 19pt;
     font-weight: 700;
     text-align: center;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 2pt;
+    letter-spacing: 1.5px;
+    margin-bottom: 3pt;
     line-height: 1.1;
 }}
 
 .contact-info {{
+    font-family: 'Times New Roman', Times, serif;
     text-align: center;
-    font-size: 9pt;
-    margin-bottom: 6pt;
-    line-height: 1.3;
+    font-size: 10pt;
+    margin-bottom: 5pt;
+    line-height: 1.2;
 }}
 
 .contact-info a {{
@@ -272,43 +306,48 @@ body {{
 }}
 
 .section-heading {{
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: 11pt;
     font-weight: 700;
     text-transform: uppercase;
-    margin-top: 3pt;
+    margin-top: 5pt;
     margin-bottom: 0;
-    padding-bottom: 2pt;
-    border-bottom: 0.72pt solid #000000;
-    line-height: 1.2;
+    padding-bottom: 1.5pt;
+    border-bottom: 1.0pt solid #000000;
+    line-height: 1.15;
 }}
 
 .section-body {{
-    margin-top: 2pt;
+    margin-top: 2.5pt;
 }}
 
 .summary-text {{
+    font-family: 'Garamond', 'Georgia', serif;
     text-align: justify;
-    font-size: 9pt;
-    line-height: 1.25;
+    font-size: 10pt;
+    line-height: 1.15;
     margin-bottom: 2pt;
 }}
 
 .skills-line {{
-    font-size: 9pt;
+    font-family: 'Garamond', 'Georgia', serif;
+    font-size: 10pt;
     margin-bottom: 2pt;
+    line-height: 1.15;
 }}
 
 .edu-entry {{
-    margin-bottom: 2pt;
+    margin-bottom: 2.5pt;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10pt;
 }}
 
 .entry-row {{
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 9pt;
-    line-height: 1.25;
+    font-size: 10pt;
+    line-height: 1.15;
 }}
 
 .entry-left {{
@@ -324,29 +363,35 @@ body {{
 .relevant-courses {{
     font-size: 9pt;
     font-style: italic;
-    line-height: 1.25;
+    line-height: 1.15;
 }}
 
 .research-entry, .experience-entry {{
-    margin-bottom: 2pt;
+    margin-bottom: 2.5pt;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10pt;
 }}
 
 .additional-info {{
-    font-size: 9pt;
+    font-size: 10pt;
     font-style: italic;
-    line-height: 1.25;
+    line-height: 1.15;
 }}
 
 .bullet {{
-    font-size: 9pt;
-    line-height: 1.25;
+    font-size: 10pt;
+    line-height: 1.15;
     padding-left: 10pt;
     text-indent: 0;
+    text-align: justify;
 }}
 
 .ach-line {{
-    font-size: 9pt;
-    line-height: 1.2;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10pt;
+    line-height: 1.15;
+    margin-bottom: 1pt;
+    text-align: justify;
 }}
 
 .ach-line.indent {{
@@ -356,13 +401,12 @@ body {{
 .courses-inline {{
     font-style: italic;
     font-weight: normal;
+    font-size: 9pt;
 }}
 </style>
 </head>
 <body>
 <div class="resume-page">
-    <div class="background-fill"></div>
-    
     {"<div class='watermark'><img src='" + watermark_src + "' alt='watermark'></div>" if watermark_src else ""}
     
     <div class="content">
@@ -371,28 +415,28 @@ body {{
 
         <div class="section-heading">PROFESSIONAL SUMMARY</div>
         <div class="section-body">
-            <div class="summary-text">{summary_text if summary_text else "My Lorem ipsum dolor sit amet, consectetur adipiscing elit..."}</div>
-            <div class="skills-line"><strong>Skills</strong>: {skills_text if skills_text else "Integer ante arcu, accumsan a, consectetuer eget..."}</div>
+            <div class="summary-text">{summary_text}</div>
+            <div class="skills-line"><strong>Skills:</strong> {skills_text}</div>
         </div>
 
         <div class="section-heading">EDUCATION</div>
         <div class="section-body">
-            {edu_html if edu_html else '<div class="edu-entry"><div class="entry-row"><span class="entry-left"><strong>ABC University</strong></span><span class="entry-right"><strong>City, Country</strong></span></div><div class="entry-row"><span class="entry-left"><em>Program Name</em></span><span class="entry-right"><em>mon YYYY</em></span></div></div>'}
+            {edu_html}
         </div>
 
         <div class="section-heading">RESEARCH/PROJECT EXPERIENCE</div>
         <div class="section-body">
-            {res_html if res_html else '<div class="research-entry"><div class="entry-row"><span class="entry-left"><strong>Research Paper /Project Name</strong>, <em>ABC University</em></span><span class="entry-right"><strong>Mon YYYY– Mon YYYY</strong></span></div></div>'}
+            {res_html}
         </div>
 
         <div class="section-heading">PROFESSIONAL EXPERIENCE</div>
         <div class="section-body">
-            {exp_html if exp_html else '<div class="experience-entry"><div class="entry-row"><span class="entry-left"><strong>XYZ Company,</strong> <em>Domain/Industry, Role Name</em></span><span class="entry-right"><strong>Mon YYYY – Mon YYYY</strong></span></div></div>'}
+            {exp_html}
         </div>
 
         <div class="section-heading">ACHIEVEMENT AND LEADERSHIP</div>
         <div class="section-body">
-            {ach_html if ach_html else '<div class="ach-line"><strong>Awards(if any):</strong> Awards description.</div>'}
+            {ach_html}
         </div>
     </div>
 </div>

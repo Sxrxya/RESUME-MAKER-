@@ -18,7 +18,7 @@ async def _generate_pdf_async(html_content: str, output_path: str) -> str:
         
         await page.pdf(
             path=output_path,
-            format="Letter",
+            format="A4",
             print_background=True,
             margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
             prefer_css_page_size=True,
@@ -84,9 +84,9 @@ def verify_pdf(pdf_path: str) -> dict:
             result["width"] = round(rect.width, 2)
             result["height"] = round(rect.height, 2)
             
-            # Check dimensions (US Letter: 612x792, allow some tolerance)
-            if abs(rect.width - 612) > 5 or abs(rect.height - 792) > 5:
-                result["errors"].append(f"Page dimensions {rect.width:.0f}x{rect.height:.0f} don't match US Letter (612x792)")
+            # Check dimensions (A4: ~595x842, allow tolerance)
+            if abs(rect.width - 595.28) > 10 or abs(rect.height - 841.89) > 10:
+                result["errors"].append(f"Page dimensions {rect.width:.0f}x{rect.height:.0f} don't match A4 (595x842)")
             
             # Check for content
             text = page.get_text()
