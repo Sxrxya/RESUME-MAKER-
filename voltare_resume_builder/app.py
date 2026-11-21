@@ -152,40 +152,17 @@ with left_col:
                         for err in verification["errors"]:
                             st.error(f"PDF verification failed: {err}")
 
-                except ImportError:
-                    # Playwright not installed — offer HTML download
-                    st.warning(
-                        "⚠️ Playwright is not installed. Install it with:\n"
-                        "```\npip install playwright\nplaywright install chromium\n```\n"
-                        "Offering HTML download as an alternative."
-                    )
-
-                    first_name = resume_data.get("personal_info", {}).get("first_name", "Candidate")
-                    second_name = resume_data.get("personal_info", {}).get("second_name", "")
-                    filename = f"Voltare_Resume_{first_name}_{second_name}.html".replace(" ", "_")
-
-                    st.download_button(
-                        label="⬇️ Download HTML Resume (Print to PDF)",
-                        data=html_content,
-                        file_name=filename,
-                        mime="text/html",
-                        use_container_width=True,
-                    )
-                    st.info(
-                        "💡 Open the HTML file in Chrome/Edge, press **Ctrl+P**, "
-                        "set Paper Size to **Letter**, enable **Background graphics**, "
-                        "set Margins to **None**, and save as PDF."
+                except ImportError as e:
+                    st.error(
+                        f"PDF export dependency missing: {e}. Install project requirements "
+                        "and run `python -m playwright install chromium`."
                     )
 
                 except Exception as e:
-                    st.error(f"PDF generation failed: {str(e)}")
-                    # Fallback to HTML download
-                    st.download_button(
-                        label="⬇️ Download HTML Resume (Fallback)",
-                        data=html_content,
-                        file_name="Voltare_Resume.html",
-                        mime="text/html",
-                        use_container_width=True,
+                    st.error(
+                        f"PDF generation failed ({type(e).__name__}): {e!r}. "
+                        "If Chromium is not installed, run "
+                        "`python -m playwright install chromium`."
                     )
 
             except Exception as e:

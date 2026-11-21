@@ -106,11 +106,11 @@ voltare_resume_builder/
 pip install -r requirements.txt
 ```
 
-### 2. (Optional for headless Playwright PDF export):
+### 2. Install Chromium for PDF export:
 ```bash
-playwright install chromium
+python -m playwright install chromium
 ```
-*Note: If Playwright is not installed, the application automatically provides high-fidelity direct HTML download with 1-click browser Print-to-PDF instructions.*
+*Chromium is required for generating PDF files from the app.*
 
 ### 3. Launch the Streamlit application:
 ```bash

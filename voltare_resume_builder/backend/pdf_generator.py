@@ -1,61 +1,53 @@
 """PDF generation using Playwright and verification using PyMuPDF."""
-import asyncio
-import os
-import sys
 import threading
-from typing import Optional
 
 
-async def _generate_pdf_async(html_content: str, output_path: str) -> str:
-    from playwright.async_api import async_playwright
-    
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
-        await page.set_content(html_content, wait_until="networkidle")
-        # Wait extra for font loading
-        await page.wait_for_timeout(2000)
-        
-        await page.pdf(
-            path=output_path,
-            format="A4",
-            print_background=True,
-            margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
-            prefer_css_page_size=True,
-        )
-        await browser.close()
-    
+def _generate_pdf(html_content: str, output_path: str) -> str:
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        try:
+            page = browser.new_page()
+            page.set_content(html_content, wait_until="networkidle", timeout=60000)
+            page.wait_for_timeout(2000)
+            page.pdf(
+                path=output_path,
+                format="A4",
+                print_background=True,
+                margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
+                prefer_css_page_size=True,
+            )
+        finally:
+            browser.close()
+
     return output_path
 
 
 def generate_pdf_sync(html_content: str, output_path: str) -> str:
-    """Generate PDF synchronously, handling Streamlit's event loop."""
-    try:
-        import nest_asyncio
-        nest_asyncio.apply()
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(_generate_pdf_async(html_content, output_path))
-    except (RuntimeError, ImportError):
-        # Run in a separate thread if event loop issues
-        result = [None]
-        exception = [None]
-        
-        def run():
-            try:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                result[0] = loop.run_until_complete(_generate_pdf_async(html_content, output_path))
-                loop.close()
-            except Exception as e:
-                exception[0] = e
-        
-        thread = threading.Thread(target=run)
-        thread.start()
-        thread.join(timeout=60)
-        
-        if exception[0]:
-            raise exception[0]
-        return result[0]
+    """Generate a PDF in an isolated thread so Streamlit's loop cannot interfere."""
+    result = []
+    errors = []
+
+    def run():
+        try:
+            result.append(_generate_pdf(html_content, output_path))
+        except Exception as error:
+            errors.append(error)
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    thread.join(timeout=90)
+
+    if thread.is_alive():
+        raise TimeoutError("PDF generation timed out after 90 seconds")
+    if errors:
+        error = errors[0]
+        raise RuntimeError(f"PDF generation failed ({type(error).__name__}): {error}") from error
+    if not result:
+        raise RuntimeError("PDF generation ended without returning an output path")
+
+    return result[0]
 
 
 def verify_pdf(pdf_path: str) -> dict:
