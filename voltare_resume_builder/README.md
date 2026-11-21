@@ -11,7 +11,8 @@ Unlike conventional resume builders that grant candidates creative freedom over 
 - **Exact Layout & Geometry**: Reconstructed from programmatic inspection of the official reference PDF (`612 x 792 pt`, exact divider lines, margins, and content boundaries).
 - **Original Pink Voltare Watermark**: Extracted at full native resolution (`2055 x 1929 px`) and placed at the precise PDF coordinates (`bbox: [59.64, 164.28, 553.56, 627.72]`) behind text with exact transparency.
 - **Strict Character & Visual-Space Limits**: Dual validation system ensuring candidates never overflow their allocated vertical height or character budgets.
-- **Voltare.in Brand Identity**: Application UI inspired by [voltare.in](https://www.voltare.in/) using dark obsidian tones (`#0d0d0d`), metallic gold accents (`#c9a84c`), and classic typography (`Cormorant SC` and `Cormorant Garamond`).
+- **Voltare.in Brand Identity**: Application UI styled with a warm cream background (`#F7F3EF`), burgundy accents (`#7D1128`), and classic typography (`Cormorant SC` and `Cormorant Garamond`).
+- **Blank Form by Default**: Candidate fields start empty; use **Load Official Template Data** to fill them with sample content.
 
 ---
 
@@ -113,7 +114,7 @@ playwright install chromium
 
 ### 3. Launch the Streamlit application:
 ```bash
-python -m python -m streamlit run app.py
+python -m streamlit run app.py
 ```
 
 ### 4. Run the comprehensive test suite:

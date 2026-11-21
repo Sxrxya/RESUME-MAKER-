@@ -26,7 +26,7 @@ def render_live_preview(st, resume_data: dict, watermark_path: str):
     html = render_resume_html(resume_data, watermark_base64=wm_b64)
 
     # Inject preview container styling to ensure zero white borders around the page
-    # and provide a clean dark backdrop with authentic paper drop shadow
+    # and provide a clean paper-toned backdrop with an authentic paper drop shadow
     preview_wrapper = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -38,7 +38,7 @@ def render_live_preview(st, resume_data: dict, watermark_path: str):
         box-sizing: border-box;
     }}
     html, body {{
-        background-color: #0d0d0d !important;
+        background-color: #F7F3EF !important;
         margin: 0;
         padding: 10px 0;
         width: 100%;

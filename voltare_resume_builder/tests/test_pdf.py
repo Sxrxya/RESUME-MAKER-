@@ -125,6 +125,17 @@ class TestResumeRendering(unittest.TestCase):
         self.assertIn("PROFESSIONAL SUMMARY", html)
         self.assertGreater(len(html), 1000)
 
+    def test_empty_data_does_not_insert_sample_content(self):
+        html = render_resume_html({})
+        for sample in (
+            "FIRSTNAME",
+            "City, State (Or Country If Applying Outside India)",
+            "ABC University",
+            "XYZ Company",
+            "youremail@youremail.com",
+        ):
+            self.assertNotIn(sample, html)
+
     def test_special_chars_escaped(self):
         data = self._make_data()
         data["personal_info"]["first_name"] = "O'Brien & <Co>"

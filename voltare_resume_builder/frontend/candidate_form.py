@@ -97,16 +97,21 @@ SAMPLE_CANDIDATE_DATA = {
 
 
 def init_form_data(st):
-    """Ensure session state is initialized with the official reference template data on first load."""
-    if "first_name" not in st.session_state:
-        for key, val in SAMPLE_CANDIDATE_DATA.items():
-            st.session_state[key] = val
+    """Initialize empty fields and clear any untouched sample defaults from older sessions."""
+    if st.session_state.get("_form_data_initialized"):
+        return
+
+    for key, sample_value in SAMPLE_CANDIDATE_DATA.items():
+        if key not in st.session_state or st.session_state[key] == sample_value:
+            st.session_state[key] = ""
+    st.session_state["_form_data_initialized"] = True
 
 
 def load_sample_data(st):
     """Load sample data into session state."""
     for key, val in SAMPLE_CANDIDATE_DATA.items():
         st.session_state[key] = val
+    st.session_state["_form_data_initialized"] = True
 
 
 def clear_form_data(st):

@@ -75,7 +75,7 @@ with left_col:
             st.rerun()
 
     st.markdown(
-        '*<span style="color:#888;font-size:12px;">Fill in all required fields '
+        '*<span style="color:#6D605C;font-size:12px;">Fill in all required fields '
         '(marked with 🔴). Character limits are strictly enforced.</span>*',
         unsafe_allow_html=True,
     )
@@ -203,7 +203,7 @@ with left_col:
 with right_col:
     st.markdown("## 📄 Live Resume Preview")
     st.markdown(
-        '*<span style="color:#888;font-size:12px;">This preview updates as you type. '
+        '*<span style="color:#6D605C;font-size:12px;">This preview updates as you type. '
         "The exported PDF will match this preview exactly.</span>*",
         unsafe_allow_html=True,
     )
@@ -215,10 +215,10 @@ with right_col:
 # ─────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
-    '<div style="text-align:center;color:#555;font-size:11px;font-family:\'Cormorant Garamond\',serif;">'
+    '<div style="text-align:center;color:#6D605C;font-size:11px;font-family:\'Cormorant Garamond\',serif;">'
     "VOLTARE Consultancy — Official Resume Builder &nbsp;|&nbsp; "
     "All resumes follow the standardized Voltare format &nbsp;|&nbsp; "
-    '<a href="https://www.voltare.in/" style="color:#c9a84c;">voltare.in</a>'
+    '<a href="https://www.voltare.in/" style="color:#7D1128;">voltare.in</a>'
     "</div>",
     unsafe_allow_html=True,
 )

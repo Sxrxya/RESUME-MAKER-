@@ -6,48 +6,48 @@ BRAND_CSS = """
 
 /* Main app background */
 .stApp {
-    background-color: #0d0d0d !important;
+    background-color: #F7F3EF !important;
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background-color: #1a1a1a !important;
-    border-right: 1px solid #2a2a2a;
+    background-color: #F7F3EF !important;
+    border-right: 1px solid #E4D9D3;
 }
 
 section[data-testid="stSidebar"] .stMarkdown h1,
 section[data-testid="stSidebar"] .stMarkdown h2,
 section[data-testid="stSidebar"] .stMarkdown h3 {
-    color: #c9a84c !important;
+    color: #7D1128 !important;
     font-family: 'Cormorant SC', serif !important;
 }
 
 /* Headers */
 h1, h2, h3 {
     font-family: 'Cormorant SC', serif !important;
-    color: #c9a84c !important;
+    color: #7D1128 !important;
     letter-spacing: 1px;
 }
 
 h1 {
     font-size: 2.2rem !important;
-    border-bottom: 2px solid #c9a84c;
+    border-bottom: 2px solid #7D1128;
     padding-bottom: 10px;
     margin-bottom: 20px !important;
 }
 
 /* Body text */
 p, span, label, .stMarkdown {
-    color: #e0e0e0 !important;
+    color: #302725 !important;
     font-family: 'Cormorant Garamond', serif !important;
 }
 
 /* Text inputs */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    border: 1px solid #333333 !important;
+    background-color: #FFFFFF !important;
+    color: #302725 !important;
+    border: 1px solid #D9C9C3 !important;
     border-radius: 4px !important;
     font-family: 'Cormorant Garamond', serif !important;
     font-size: 14px !important;
@@ -56,13 +56,13 @@ p, span, label, .stMarkdown {
 
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
-    border-color: #c9a84c !important;
-    box-shadow: 0 0 0 1px #c9a84c33 !important;
+    border-color: #7D1128 !important;
+    box-shadow: 0 0 0 1px #7D112833 !important;
 }
 
 /* Labels */
 .stTextInput label, .stTextArea label, .stSelectbox label {
-    color: #c9a84c !important;
+    color: #7D1128 !important;
     font-family: 'Cormorant SC', serif !important;
     font-size: 14px !important;
     font-weight: 600 !important;
@@ -71,8 +71,8 @@ p, span, label, .stMarkdown {
 
 /* Buttons */
 .stButton > button {
-    background-color: #c9a84c !important;
-    color: #0d0d0d !important;
+    background-color: #7D1128 !important;
+    color: #FFFFFF !important;
     border: none !important;
     font-family: 'Cormorant SC', serif !important;
     font-weight: 700 !important;
@@ -84,15 +84,20 @@ p, span, label, .stMarkdown {
     text-transform: uppercase;
 }
 
+.stButton > button *,
+.stDownloadButton > button * {
+    color: #FFFFFF !important;
+}
+
 .stButton > button:hover {
-    background-color: #d4b85c !important;
-    box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3) !important;
+    background-color: #641022 !important;
+    box-shadow: 0 4px 12px rgba(125, 17, 40, 0.22) !important;
 }
 
 /* Download button */
 .stDownloadButton > button {
-    background-color: #c9a84c !important;
-    color: #0d0d0d !important;
+    background-color: #7D1128 !important;
+    color: #FFFFFF !important;
     border: none !important;
     font-family: 'Cormorant SC', serif !important;
     font-weight: 700 !important;
@@ -104,19 +109,19 @@ p, span, label, .stMarkdown {
 }
 
 .stDownloadButton > button:hover {
-    background-color: #d4b85c !important;
-    box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4) !important;
+    background-color: #641022 !important;
+    box-shadow: 0 6px 20px rgba(125, 17, 40, 0.26) !important;
 }
 
 /* Tabs */
 .stTabs [data-baseweb="tab-list"] {
-    background-color: #1a1a1a;
+    background-color: #F1EAE5;
     border-radius: 4px;
     gap: 2px;
 }
 
 .stTabs [data-baseweb="tab"] {
-    color: #888888 !important;
+    color: #6D605C !important;
     font-family: 'Cormorant SC', serif !important;
     font-size: 13px !important;
     font-weight: 600;
@@ -125,30 +130,30 @@ p, span, label, .stMarkdown {
 }
 
 .stTabs [aria-selected="true"] {
-    color: #c9a84c !important;
-    border-bottom: 2px solid #c9a84c !important;
-    background-color: #222222 !important;
+    color: #7D1128 !important;
+    border-bottom: 2px solid #7D1128 !important;
+    background-color: #F7F3EF !important;
 }
 
 /* Expander */
 .streamlit-expanderHeader {
-    background-color: #1a1a1a !important;
-    color: #c9a84c !important;
+    background-color: #F1EAE5 !important;
+    color: #7D1128 !important;
     font-family: 'Cormorant SC', serif !important;
-    border: 1px solid #2a2a2a !important;
+    border: 1px solid #E4D9D3 !important;
     border-radius: 4px !important;
 }
 
 .streamlit-expanderContent {
-    background-color: #151515 !important;
-    border: 1px solid #2a2a2a !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E4D9D3 !important;
     border-top: none !important;
 }
 
 /* Character counter */
 .char-counter {
     font-size: 11px !important;
-    color: #666666 !important;
+    color: #6D605C !important;
     font-family: 'Cormorant Garamond', serif !important;
     margin-top: -8px;
     margin-bottom: 8px;
@@ -192,13 +197,13 @@ p, span, label, .stMarkdown {
 /* Section divider */
 .section-divider {
     border: none;
-    border-top: 1px solid #2a2a2a;
+    border-top: 1px solid #E4D9D3;
     margin: 20px 0;
 }
 
 /* Preview container */
 .preview-container {
-    background: #ffffff;
+    background: #F7F3EF;
     border-radius: 4px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -210,16 +215,16 @@ p, span, label, .stMarkdown {
 }
 
 ::-webkit-scrollbar-track {
-    background: #1a1a1a;
+    background: #F7F3EF;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #333333;
+    background: #D9C9C3;
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #c9a84c;
+    background: #7D1128;
 }
 
 /* Columns gap */
@@ -229,21 +234,21 @@ p, span, label, .stMarkdown {
 
 /* Alert/info boxes */
 .stAlert {
-    background-color: #1a1a1a !important;
-    border: 1px solid #2a2a2a !important;
-    color: #e0e0e0 !important;
+    background-color: #F1EAE5 !important;
+    border: 1px solid #E4D9D3 !important;
+    color: #302725 !important;
 }
 
 /* Select box */
 .stSelectbox > div > div {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    border-color: #333333 !important;
+    background-color: #FFFFFF !important;
+    color: #302725 !important;
+    border-color: #D9C9C3 !important;
 }
 
 /* Metric styling */
 [data-testid="stMetricValue"] {
-    color: #c9a84c !important;
+    color: #7D1128 !important;
     font-family: 'Cormorant SC', serif !important;
 }
 
@@ -256,13 +261,13 @@ header {visibility: hidden;}
 .voltare-header {
     text-align: center;
     padding: 20px 0 10px 0;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 1px solid #E4D9D3;
     margin-bottom: 20px;
 }
 
 .voltare-header h1 {
     font-family: 'Cormorant SC', serif !important;
-    color: #c9a84c !important;
+    color: #7D1128 !important;
     font-size: 2.5rem !important;
     letter-spacing: 8px;
     margin: 0 !important;
@@ -271,7 +276,7 @@ header {visibility: hidden;}
 }
 
 .voltare-header .subtitle {
-    color: #888888 !important;
+    color: #6D605C !important;
     font-family: 'Cormorant Garamond', serif !important;
     font-size: 14px !important;
     letter-spacing: 3px;
