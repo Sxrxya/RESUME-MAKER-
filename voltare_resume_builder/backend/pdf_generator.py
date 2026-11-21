@@ -1,8 +1,17 @@
 """PDF generation using Playwright and verification using PyMuPDF."""
+import os
+import sys
 import threading
 
 
 def _generate_pdf(html_content: str, output_path: str) -> str:
+    if sys.platform == "win32":
+        import asyncio
+        try:
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        except Exception:
+            pass
+
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
@@ -10,7 +19,7 @@ def _generate_pdf(html_content: str, output_path: str) -> str:
         try:
             page = browser.new_page()
             page.set_content(html_content, wait_until="networkidle", timeout=60000)
-            page.wait_for_timeout(2000)
+            page.wait_for_timeout(1000)
             page.pdf(
                 path=output_path,
                 format="A4",
@@ -25,11 +34,20 @@ def _generate_pdf(html_content: str, output_path: str) -> str:
 
 
 def generate_pdf_sync(html_content: str, output_path: str) -> str:
-    """Generate a PDF in an isolated thread so Streamlit's loop cannot interfere."""
+    """Generate a PDF in an isolated thread with Proactor event loop on Windows."""
     result = []
     errors = []
 
     def run():
+        if sys.platform == "win32":
+            import asyncio
+            try:
+                asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+                loop = asyncio.ProactorEventLoop()
+                asyncio.set_event_loop(loop)
+            except Exception:
+                pass
+
         try:
             result.append(_generate_pdf(html_content, output_path))
         except Exception as error:

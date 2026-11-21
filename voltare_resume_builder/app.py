@@ -160,9 +160,23 @@ with left_col:
 
                 except Exception as e:
                     st.error(
-                        f"PDF generation failed ({type(e).__name__}): {e!r}. "
-                        "If Chromium is not installed, run "
-                        "`python -m playwright install chromium`."
+                        f"PDF generation encountered an issue ({type(e).__name__}): {e}"
+                    )
+                    # Offer direct HTML resume download as seamless fallback
+                    first_name = resume_data.get("personal_info", {}).get("first_name", "Candidate")
+                    second_name = resume_data.get("personal_info", {}).get("second_name", "")
+                    filename = f"Voltare_Resume_{first_name}_{second_name}.html".replace(" ", "_")
+
+                    st.download_button(
+                        label="⬇️ Download HTML Resume (Print to PDF)",
+                        data=html_content,
+                        file_name=filename,
+                        mime="text/html",
+                        use_container_width=True,
+                    )
+                    st.info(
+                        "💡 Alternative: Open the downloaded file in your browser, press **Ctrl+P**, "
+                        "set paper to **A4**, enable **Background graphics**, and click Save."
                     )
 
             except Exception as e:
