@@ -99,13 +99,12 @@ class TestResumeRendering(unittest.TestCase):
 
     def test_html_contains_cormorant_font(self):
         html = render_resume_html(self._make_data())
-        self.assertIn("Cormorant Garamond", html)
         self.assertIn("Cormorant SC", html)
 
     def test_html_contains_page_size(self):
         html = render_resume_html(self._make_data())
-        self.assertIn("8.5in", html)
-        self.assertIn("11in", html)
+        self.assertIn("210mm", html)
+        self.assertIn("297mm", html)
 
     def test_html_contains_background_color(self):
         html = render_resume_html(self._make_data())

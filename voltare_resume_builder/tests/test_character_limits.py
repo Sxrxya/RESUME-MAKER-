@@ -82,26 +82,29 @@ class TestMaxLengthEnforcement(unittest.TestCase):
 
     def test_exact_max_length_passes(self):
         data = self._make_valid_data()
-        # First name at exactly 20 chars
-        data["personal_info"]["first_name"] = "A" * 20
+        max_c = FIELD_LIMITS["personal"]["first_name"]["max_chars"]
+        data["personal_info"]["first_name"] = "A" * max_c
         result = validate_character_limits(data)
         self.assertTrue(result.is_valid)
 
     def test_one_over_max_length_fails(self):
         data = self._make_valid_data()
-        data["personal_info"]["first_name"] = "A" * 21
+        max_c = FIELD_LIMITS["personal"]["first_name"]["max_chars"]
+        data["personal_info"]["first_name"] = "A" * (max_c + 1)
         result = validate_character_limits(data)
         self.assertFalse(result.is_valid)
 
     def test_summary_at_max(self):
         data = self._make_valid_data()
-        data["professional_summary"]["summary"] = "X" * 450  # exactly max
+        max_c = FIELD_LIMITS["professional_summary"]["summary"]["max_chars"]
+        data["professional_summary"]["summary"] = "X" * max_c
         result = validate_character_limits(data)
         self.assertTrue(result.is_valid)
 
     def test_summary_over_max(self):
         data = self._make_valid_data()
-        data["professional_summary"]["summary"] = "X" * 451
+        max_c = FIELD_LIMITS["professional_summary"]["summary"]["max_chars"]
+        data["professional_summary"]["summary"] = "X" * (max_c + 1)
         result = validate_character_limits(data)
         self.assertFalse(result.is_valid)
 

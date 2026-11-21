@@ -16,7 +16,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PROJECT_ROOT)
 
 from frontend.branding import apply_branding, render_header
-from frontend.candidate_form import render_candidate_form
+from frontend.candidate_form import render_candidate_form, load_sample_data, clear_form_data, init_form_data
 from frontend.live_preview import render_live_preview, get_watermark_base64
 from frontend.components import validation_message
 from backend.resume_renderer import render_resume_html
@@ -50,6 +50,9 @@ if not verify_watermark_exists():
     st.error("⚠️ Original Voltare watermark not found. Please ensure `templates/assets/original_watermark.png` exists.")
     st.stop()
 
+# Initialize form with official reference template data on first load
+init_form_data(st)
+
 # ─────────────────────────────────────────────────────────
 # Two-panel layout
 # ─────────────────────────────────────────────────────────
@@ -60,9 +63,20 @@ left_col, right_col = st.columns([1, 1], gap="large")
 # ─────────────────────────────────────────────────────────
 with left_col:
     st.markdown("## ✍️ Candidate Information")
+
+    col_btn1, col_btn2 = st.columns([1, 1])
+    with col_btn1:
+        if st.button("📋 Load Official Template Data", use_container_width=True):
+            load_sample_data(st)
+            st.rerun()
+    with col_btn2:
+        if st.button("🧹 Clear Form", use_container_width=True):
+            clear_form_data(st)
+            st.rerun()
+
     st.markdown(
         '*<span style="color:#888;font-size:12px;">Fill in all required fields '
-        '(marked with 🔴). Character limits are enforced.</span>*',
+        '(marked with 🔴). Character limits are strictly enforced.</span>*',
         unsafe_allow_html=True,
     )
 
@@ -84,12 +98,19 @@ with left_col:
     if char_validation.is_valid and layout_validation["valid"]:
         validation_message(st, "✅ All validations passed. Resume is ready for export.", is_error=False)
     else:
+        shown_errors = set()
         if not char_validation.is_valid:
             for err in char_validation.errors:
-                validation_message(st, f"❌ {err.section} → {err.field}: {err.message}", is_error=True)
+                msg = f"❌ {err.section}: {err.message}"
+                if msg not in shown_errors:
+                    shown_errors.add(msg)
+                    validation_message(st, msg, is_error=True)
         if not layout_validation["valid"]:
             for err in layout_validation["errors"]:
-                validation_message(st, f"❌ Layout: {err}", is_error=True)
+                msg = f"❌ {err}"
+                if msg not in shown_errors:
+                    shown_errors.add(msg)
+                    validation_message(st, msg, is_error=True)
 
     # PDF Generation button
     all_valid = char_validation.is_valid and layout_validation["valid"]

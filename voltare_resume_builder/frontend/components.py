@@ -18,13 +18,11 @@ def limited_text_input(st, key, label, max_chars, required=False, placeholder=""
     """Text input with character limit enforcement and counter display."""
     display_label = f"{label} {'🔴' if required else ''}"
 
-    # Get from session state or default
-    if value is None:
-        value = st.session_state.get(key, "")
+    if key not in st.session_state:
+        st.session_state[key] = value if value is not None else ""
 
     input_value = st.text_input(
         display_label,
-        value=value,
         max_chars=max_chars,
         placeholder=placeholder,
         key=key,
@@ -53,12 +51,11 @@ def limited_text_area(st, key, label, max_chars, max_lines=None, required=False,
     """Text area with character limit enforcement and counter display."""
     display_label = f"{label} {'🔴' if required else ''}"
 
-    if value is None:
-        value = st.session_state.get(key, "")
+    if key not in st.session_state:
+        st.session_state[key] = value if value is not None else ""
 
     input_value = st.text_area(
         display_label,
-        value=value,
         max_chars=max_chars,
         placeholder=placeholder,
         height=height,
