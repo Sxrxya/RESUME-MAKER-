@@ -21,7 +21,7 @@ LIMITS = _load_limits()
 # Exact reference content from 'Voltare Resume Format.docx (1).pdf'
 SAMPLE_CANDIDATE_DATA = {
     "first_name": "<FIRSTNAME>",
-    "second_name": "<SECONDNAME>",
+    "second_name": "<LASTNAME>",
     "city_country": "City, State (Or Country If Applying Outside India)",
     "linkedin_url": "LinkedIn",
     "phone": "+91 12233 34455",

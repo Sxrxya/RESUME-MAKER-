@@ -6,21 +6,36 @@ import { LIMITS } from '../../constants/limits';
 
 export default function Education({ data, onChange }) {
   const [activeSubTab, setActiveSubTab] = useState('edu_1');
+  const [eduTypes, setEduTypes] = useState({
+    edu_1: 'college',
+    edu_2: 'school', // Defaults nicely: 1=college, 2=school (12th), 3=school (10th)
+    edu_3: 'school',
+  });
+
   const p = LIMITS.education.entry_fields;
 
   const tabs = [
-    { id: 'edu_1', label: 'Education 1' },
-    { id: 'edu_2', label: 'Education 2' },
-    { id: 'edu_3', label: 'Education 3' },
+    { id: 'edu_1', label: '1. College / University' },
+    { id: 'edu_2', label: `2. ${eduTypes.edu_2 === 'college' ? 'College' : 'School'}` },
+    { id: 'edu_3', label: `3. ${eduTypes.edu_3 === 'college' ? 'College' : 'School'}` },
   ];
 
   const idx = activeSubTab === 'edu_1' ? 1 : activeSubTab === 'edu_2' ? 2 : 3;
+  const isSchool = idx > 1 && eduTypes[activeSubTab] === 'school';
+  const isRequired = idx === 1;
+
+  const handleTypeToggle = (type) => {
+    setEduTypes(prev => ({
+      ...prev,
+      [activeSubTab]: type,
+    }));
+  };
 
   return (
     <div className="form-section-card">
       <SectionHeader
         title="Education"
-        description="Exactly 3 education entries required"
+        description="Add your academic background. Degree sits beside institution, specialization below."
       />
 
       <Tabs
@@ -30,15 +45,85 @@ export default function Education({ data, onChange }) {
         variant="sub"
       />
 
-      <div className="grid-2-1">
+      {/* College vs School toggle for Entry 2 and 3 */}
+      {idx > 1 && (
+        <div className="edu-type-toggle-container" style={{ marginBottom: '16px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: '#7D1128', marginRight: '10px' }}>
+            Education Level:
+          </span>
+          <div className="segmented-toggle">
+            <button
+              type="button"
+              className={`toggle-option ${!isSchool ? 'active' : ''}`}
+              onClick={() => handleTypeToggle('college')}
+            >
+              🏛️ College / University
+            </button>
+            <button
+              type="button"
+              className={`toggle-option ${isSchool ? 'active' : ''}`}
+              onClick={() => handleTypeToggle('school')}
+            >
+              🏫 School (12th / 10th)
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Row 1: Institution & Degree beside each other */}
+      <div className="grid-2">
         <LimitedTextInput
           name={`edu_${idx}_university`}
-          label={p.university.label}
+          label={isSchool ? "School Name" : "College / University Name"}
           value={data[`edu_${idx}_university`]}
           onChange={onChange}
           maxChars={p.university.max_chars}
-          required={p.university.required}
-          placeholder={p.university.placeholder}
+          required={isRequired}
+          placeholder={isSchool ? "e.g. Delhi Public School / St. Xavier's" : "e.g. ABC University / Institute of Technology"}
+        />
+        <LimitedTextInput
+          name={`edu_${idx}_program`}
+          label={isSchool ? "Board / Certificate" : "Degree"}
+          value={data[`edu_${idx}_program`]}
+          onChange={onChange}
+          maxChars={p.program.max_chars}
+          required={isRequired}
+          placeholder={isSchool ? "e.g. CBSE Class XII / ICSE Class X" : "e.g. Bachelor of Technology (B.Tech) / B.S."}
+        />
+      </div>
+
+      {/* Row 2: Specialization below the degree & GPA */}
+      <div className="grid-2-1">
+        <LimitedTextInput
+          name={`edu_${idx}_courses`}
+          label={isSchool ? "Stream / Major Subjects" : "Specialization / Major"}
+          value={data[`edu_${idx}_courses`]}
+          onChange={onChange}
+          maxChars={p.relevant_courses.max_chars}
+          required={false}
+          placeholder={isSchool ? "e.g. Science (PCM + CS) or Commerce" : "e.g. Computer Science & Engineering / Data Science"}
+        />
+        <LimitedTextInput
+          name={`edu_${idx}_gpa`}
+          label={isSchool ? "Percentage / Marks" : "GPA / Percentage"}
+          value={data[`edu_${idx}_gpa`]}
+          onChange={onChange}
+          maxChars={p.gpa.max_chars}
+          required={false}
+          placeholder={isSchool ? "e.g. 94.5% / 9.6 CGPA" : "e.g. GPA 8.7 / 3.9"}
+        />
+      </div>
+
+      {/* Row 3: Graduation Date & City */}
+      <div className="grid-2">
+        <LimitedTextInput
+          name={`edu_${idx}_date`}
+          label={isSchool ? "Year of Passing" : "Graduation Date"}
+          value={data[`edu_${idx}_date`]}
+          onChange={onChange}
+          maxChars={p.graduation_date.max_chars}
+          required={isRequired}
+          placeholder="e.g. May 2024"
         />
         <LimitedTextInput
           name={`edu_${idx}_city`}
@@ -46,53 +131,10 @@ export default function Education({ data, onChange }) {
           value={data[`edu_${idx}_city`]}
           onChange={onChange}
           maxChars={p.city_country.max_chars}
-          required={p.city_country.required}
+          required={isRequired}
           placeholder={p.city_country.placeholder}
-        />
-      </div>
-
-      <div className="grid-2-1">
-        <LimitedTextInput
-          name={`edu_${idx}_program`}
-          label={p.program.label}
-          value={data[`edu_${idx}_program`]}
-          onChange={onChange}
-          maxChars={p.program.max_chars}
-          required={p.program.required}
-          placeholder={p.program.placeholder}
-        />
-        <LimitedTextInput
-          name={`edu_${idx}_gpa`}
-          label={p.gpa.label}
-          value={data[`edu_${idx}_gpa`]}
-          onChange={onChange}
-          maxChars={p.gpa.max_chars}
-          required={p.gpa.required}
-          placeholder={p.gpa.placeholder}
-        />
-      </div>
-
-      <div className="grid-1-2">
-        <LimitedTextInput
-          name={`edu_${idx}_date`}
-          label={p.graduation_date.label}
-          value={data[`edu_${idx}_date`]}
-          onChange={onChange}
-          maxChars={p.graduation_date.max_chars}
-          required={p.graduation_date.required}
-          placeholder={p.graduation_date.placeholder}
-        />
-        <LimitedTextInput
-          name={`edu_${idx}_courses`}
-          label={p.relevant_courses.label}
-          value={data[`edu_${idx}_courses`]}
-          onChange={onChange}
-          maxChars={p.relevant_courses.max_chars}
-          required={p.relevant_courses.required}
-          placeholder={p.relevant_courses.placeholder}
         />
       </div>
     </div>
   );
 }
-

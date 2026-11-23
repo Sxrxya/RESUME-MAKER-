@@ -2,7 +2,7 @@ export const CHARS_PER_LINE = 130;
 
 export const SAMPLE_CANDIDATE_DATA = {
   first_name: "<FIRSTNAME>",
-  second_name: "<SECONDNAME>",
+  second_name: "<LASTNAME>",
   city_country: "City, State (Or Country If Applying Outside India)",
   linkedin_url: "LinkedIn",
   phone: "+91 12233 34455",
@@ -84,7 +84,7 @@ export const EMPTY_FORM_DATA = Object.keys(SAMPLE_CANDIDATE_DATA).reduce((acc, k
 export const LIMITS = {
   personal: {
     first_name: { max_chars: 35, required: true, label: "First Name", placeholder: "<FIRSTNAME>" },
-    second_name: { max_chars: 35, required: true, label: "Second Name", placeholder: "<SECONDNAME>" },
+    second_name: { max_chars: 35, required: true, label: "Last Name", placeholder: "<LASTNAME>" },
     city_country: { max_chars: 70, required: true, label: "City, Country", placeholder: "City, State (Or Country If Applying Outside India)" },
     linkedin_url: { max_chars: 60, required: true, label: "LinkedIn URL", placeholder: "LinkedIn" },
     phone: { max_chars: 25, required: true, label: "Phone Number", placeholder: "+91 12233 34455" },
@@ -97,12 +97,12 @@ export const LIMITS = {
   education: {
     num_entries: 3,
     entry_fields: {
-      university: { max_chars: 60, required: true, label: "University Name", placeholder: "ABC University" },
+      university: { max_chars: 60, required: true, label: "Institution / University Name", placeholder: "ABC University / School Name" },
       city_country: { max_chars: 40, required: true, label: "City, Country", placeholder: "City, Country" },
-      program: { max_chars: 60, required: true, label: "Program Name", placeholder: "Program Name" },
-      gpa: { max_chars: 20, required: false, label: "GPA", placeholder: "(GPA – X.X)" },
-      graduation_date: { max_chars: 20, required: true, label: "Graduation Date", placeholder: "mon YYYY" },
-      relevant_courses: { max_chars: 80, required: false, label: "Relevant Courses", placeholder: "{Relevant Courses: if any}" }
+      program: { max_chars: 60, required: true, label: "Degree / Program", placeholder: "e.g. B.Tech / High School Diploma" },
+      gpa: { max_chars: 20, required: false, label: "GPA / Marks / Percentage", placeholder: "(GPA – X.X or XX%)" },
+      graduation_date: { max_chars: 20, required: true, label: "Graduation / Passing Date", placeholder: "mon YYYY" },
+      relevant_courses: { max_chars: 80, required: false, label: "Specialization / Major / Stream", placeholder: "e.g. Computer Science, PCM, Commerce" }
     }
   },
   research_projects: {

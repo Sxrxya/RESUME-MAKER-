@@ -65,9 +65,9 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
     summary_text = _escape_html(prof.get("summary", ""))
     skills_text = _escape_html(prof.get("skills", ""))
 
-    # Build education HTML (ensure all 3 entries render)
+    # Build education HTML (skip empty entries)
     edu_html = ""
-    for i in range(3):
+    for i in range(len(education)):
         edu = education[i] if i < len(education) and education[i] else {}
         uni = _escape_html(edu.get("university", ""))
         edu_city = _escape_html(edu.get("city_country", ""))
@@ -76,26 +76,38 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
         grad_date = _escape_html(edu.get("graduation_date", ""))
         courses = _escape_html(edu.get("relevant_courses", ""))
 
-        program_line = program
+        if not uni and not program and not edu_city:
+            continue
+
+        # Degree near institution name on Row 1
+        inst_parts = [f"<strong>{uni}</strong>"] if uni else []
+        if program:
+            inst_parts.append(f"<em>{program}</em>")
+        inst_line = " — ".join(inst_parts)
+
+        # Specialization below on Row 2 with GPA
+        sub_parts = []
+        if courses:
+            sub_parts.append(f"<em>{courses}</em>")
         if gpa:
-            program_line += f"  {gpa}"
+            sub_parts.append(f"<span>{gpa}</span>")
+        sub_line = "  ".join(sub_parts)
 
         edu_html += f'''
         <div class="edu-entry">
             <div class="entry-row">
-                <span class="entry-left"><strong>{uni}</strong> {f'<span class="courses-inline">{courses}</span>' if courses and i == 0 else ''}</span>
+                <span class="entry-left">{inst_line}</span>
                 <span class="entry-right"><strong>{edu_city}</strong></span>
             </div>
             <div class="entry-row">
-                <span class="entry-left"><em>{program_line}</em></span>
+                <span class="entry-left">{sub_line}</span>
                 <span class="entry-right"><strong><em>{grad_date}</em></strong></span>
             </div>
-            {f'<div class="relevant-courses"><em>{courses}</em></div>' if courses and i > 0 else ''}
         </div>'''
 
-    # Build research HTML (ensure all 3 entries render)
+    # Build research HTML (skip empty entries)
     res_html = ""
-    for i in range(3):
+    for i in range(len(research)):
         res = research[i] if i < len(research) and research[i] else {}
         title = _escape_html(res.get("title", ""))
         org = _escape_html(res.get("organization", ""))
@@ -104,6 +116,9 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
         end = _escape_html(res.get("end_date", ""))
         b1 = _escape_html(res.get("bullet_1", ""))
         b2 = _escape_html(res.get("bullet_2", ""))
+
+        if not title and not org and not b1 and not b2:
+            continue
 
         dates = f"{start} – {end}" if start or end else ""
         heading = ", ".join(
@@ -124,9 +139,9 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
             {f'<div class="bullet">● {b2}</div>' if b2 else ''}
         </div>'''
 
-    # Build experience HTML (ensure all 3 entries render)
+    # Build experience HTML (skip empty entries)
     exp_html = ""
-    for i in range(3):
+    for i in range(len(experience)):
         exp = experience[i] if i < len(experience) and experience[i] else {}
         company = _escape_html(exp.get("company", ""))
         domain = _escape_html(exp.get("domain", ""))
@@ -134,6 +149,9 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
         start = _escape_html(exp.get("start_date", ""))
         end = _escape_html(exp.get("end_date", ""))
         bullets = exp.get("bullets", []) or []
+
+        if not company and not role and not any(bullets):
+            continue
 
         dates = f"{start} – {end}" if start or end else ""
         role_details = ", ".join(value for value in (domain, role) if value)
@@ -188,6 +206,37 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
         ach_html += f'<div class="ach-line">{comm2}</div>\n'
     if interests:
         ach_html += f'<div class="ach-line"><strong>Interests :</strong> {interests}</div>\n'
+
+    summary_section = f'''
+        <div class="section-heading">PROFESSIONAL SUMMARY</div>
+        <div class="section-body">
+            {f'<div class="summary-text">{summary_text}</div>' if summary_text else ''}
+            {f'<div class="skills-line"><strong>Skills:</strong> {skills_text}</div>' if skills_text else ''}
+        </div>''' if (summary_text or skills_text) else ""
+
+    edu_section = f'''
+        <div class="section-heading">EDUCATION</div>
+        <div class="section-body">
+            {edu_html}
+        </div>''' if edu_html.strip() else ""
+
+    res_section = f'''
+        <div class="section-heading">RESEARCH/PROJECT EXPERIENCE</div>
+        <div class="section-body">
+            {res_html}
+        </div>''' if res_html.strip() else ""
+
+    exp_section = f'''
+        <div class="section-heading">PROFESSIONAL EXPERIENCE</div>
+        <div class="section-body">
+            {exp_html}
+        </div>''' if exp_html.strip() else ""
+
+    ach_section = f'''
+        <div class="section-heading">ACHIEVEMENT AND LEADERSHIP</div>
+        <div class="section-body">
+            {ach_html}
+        </div>''' if ach_html.strip() else ""
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -258,6 +307,8 @@ body {{
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }}
 
 .name {{
@@ -390,12 +441,12 @@ body {{
     
     <div class="content">
         <div class="name">{name_display}</div>
-        <div class="contact-info">{contact_line}</div>
+        {f'<div class="contact-info">{contact_line}</div>' if contact_line else '<div class="contact-info"></div>'}
 
         <div class="section-heading">PROFESSIONAL SUMMARY</div>
         <div class="section-body">
-            <div class="summary-text">{summary_text}</div>
-            <div class="skills-line"><strong>Skills:</strong> {skills_text}</div>
+            {f'<div class="summary-text">{summary_text}</div>' if summary_text else ''}
+            {f'<div class="skills-line"><strong>Skills:</strong> {skills_text}</div>' if skills_text else ''}
         </div>
 
         <div class="section-heading">EDUCATION</div>

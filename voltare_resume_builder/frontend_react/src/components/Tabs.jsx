@@ -10,6 +10,7 @@ export default function Tabs({ tabs, activeTab, onChange, variant = "primary" })
       {tabs.map((tab) => {
         const id = typeof tab === 'string' ? tab : tab.id;
         const label = typeof tab === 'string' ? tab : tab.label;
+        const isCompleted = typeof tab === 'object' && tab.completed;
         const isActive = activeTab === id;
 
         return (
@@ -21,11 +22,11 @@ export default function Tabs({ tabs, activeTab, onChange, variant = "primary" })
             className={`${btnClass} ${isActive ? 'active' : ''}`}
             onClick={() => onChange(id)}
           >
-            {label}
+            <span>{label}</span>
+            {isCompleted && <span className="tab-complete-check" title="Section Completed">✓</span>}
           </button>
         );
       })}
     </div>
   );
 }
-

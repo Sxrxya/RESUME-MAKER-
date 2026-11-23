@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Tabs from './components/Tabs';
+import Toast from './components/Toast';
 import PersonalInfo from './components/form/PersonalInfo';
 import ProfessionalSummary from './components/form/ProfessionalSummary';
 import Education from './components/form/Education';
@@ -22,21 +23,90 @@ import {
 export default function App() {
   const [formData, setFormData] = useState(() => ({ ...EMPTY_FORM_DATA }));
   const [activeTab, setActiveTab] = useState('personal');
-  const [validation, setValidation] = useState({
-    is_valid: false,
-    char_errors: [],
-    layout_errors: [],
-  });
+  const [mobileView, setMobileView] = useState('form'); // 'form' or 'preview'
   const [watermarkBase64, setWatermarkBase64] = useState('');
+  const [toastMessage, setToastMessage] = useState(null);
 
-  // Main Form Tabs
+  // Compute section completion status for friendly notifications & badges
+  const sectionStatus = {
+    personal: Boolean(
+      formData.first_name?.trim() &&
+      formData.second_name?.trim() &&
+      formData.city_country?.trim() &&
+      formData.linkedin_url?.trim() &&
+      formData.phone?.trim() &&
+      formData.email?.trim()
+    ),
+    summary: Boolean(
+      formData.summary?.trim() &&
+      formData.skills?.trim() &&
+      estimateLines(formData.summary) <= 5 &&
+      estimateLines(formData.skills) <= 2
+    ),
+    education: Boolean(
+      formData.edu_1_university?.trim() &&
+      formData.edu_1_city?.trim() &&
+      formData.edu_1_program?.trim() &&
+      formData.edu_1_date?.trim()
+    ),
+    research: Boolean(
+      formData.res_1_title?.trim() &&
+      formData.res_1_org?.trim() &&
+      formData.res_1_start?.trim() &&
+      formData.res_1_end?.trim() &&
+      formData.res_1_b1?.trim() &&
+      formData.res_1_b2?.trim()
+    ),
+    experience: Boolean(
+      formData.exp_1_company?.trim() &&
+      formData.exp_1_domain?.trim() &&
+      formData.exp_1_role?.trim() &&
+      formData.exp_1_start?.trim() &&
+      formData.exp_1_end?.trim() &&
+      formData.exp_1_b1?.trim()
+    ),
+    achievements: Boolean(
+      formData.awards?.trim() ||
+      formData.leadership_1?.trim() ||
+      formData.leadership_2?.trim() ||
+      formData.achievement?.trim() ||
+      formData.community_1?.trim() ||
+      formData.community_2?.trim() ||
+      formData.interests?.trim()
+    ),
+  };
+
+  // Section completion friendly names
+  const sectionNames = {
+    personal: 'Personal Information',
+    summary: 'Professional Summary',
+    education: 'Education Details',
+    research: 'Project 1 (Compulsory)',
+    experience: 'Professional Experience',
+    achievements: 'Achievements & Leadership',
+  };
+
+  // Trigger celebration toast whenever a section is freshly completed
+  const prevStatusRef = useRef(sectionStatus);
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    for (const [secKey, isComplete] of Object.entries(sectionStatus)) {
+      if (!prev[secKey] && isComplete) {
+        setToastMessage(`🎉 Great work! ${sectionNames[secKey]} is complete!`);
+        break;
+      }
+    }
+    prevStatusRef.current = sectionStatus;
+  }, [sectionStatus]);
+
+  // Main Form Tabs with completion status indicator
   const formTabs = [
-    { id: 'personal', label: '👤 Personal' },
-    { id: 'summary', label: '📝 Summary' },
-    { id: 'education', label: '🎓 Education' },
-    { id: 'research', label: '🔬 Research' },
-    { id: 'experience', label: '💼 Experience' },
-    { id: 'achievements', label: '🏆 Achievements' },
+    { id: 'personal', label: '👤 Personal', completed: sectionStatus.personal },
+    { id: 'summary', label: '📝 Summary', completed: sectionStatus.summary },
+    { id: 'education', label: '🎓 Education', completed: sectionStatus.education },
+    { id: 'research', label: '🔬 Research', completed: sectionStatus.research },
+    { id: 'experience', label: '💼 Experience', completed: sectionStatus.experience },
+    { id: 'achievements', label: '🏆 Achievements', completed: sectionStatus.achievements },
   ];
 
   // Fetch initial config and watermark from backend if available
@@ -64,19 +134,21 @@ export default function App() {
   // Load official reference data
   const handleLoadOfficialData = () => {
     setFormData({ ...SAMPLE_CANDIDATE_DATA });
+    setToastMessage("📋 Loaded official template data successfully!");
   };
 
   // Clear form
   const handleClearForm = () => {
     setFormData({ ...EMPTY_FORM_DATA });
+    setToastMessage("🧹 Form cleared. Start entering your details!");
   };
 
-  // Client-side instant validation engine mirroring backend logic
+  // Client-side validation ensuring Project 1 is compulsory and Projects 2 & 3 are optional
   const runClientValidation = useCallback((data) => {
     const char_errors = [];
     const layout_errors = [];
 
-    // 1. Required fields & character limits for Personal Info
+    // 1. Personal Info
     const p = LIMITS.personal;
     for (const [key, conf] of Object.entries(p)) {
       const val = data[key] || '';
@@ -99,55 +171,58 @@ export default function App() {
         char_errors.push({ field: key, message: `Exceeds ${conf.max_chars} character limit`, section: 'Professional Summary' });
       }
     }
-    // Summary line count
     const summaryLines = estimateLines(data.summary || '');
     if (summaryLines > 5) {
       const excess = summaryLines - 5;
-      layout_errors.push(`Professional Summary: Exceeds limit by ${excess} line(s). Please shorten by approximately ${excess * CHARS_PER_LINE} characters.`);
+      layout_errors.push(`Professional Summary: Exceeds limit by ${excess} line(s). Please shorten by ~${excess * CHARS_PER_LINE} characters.`);
     }
-    // Skills line count
     const skillsLines = estimateLines(data.skills || '');
     if (skillsLines > 2) {
       const excess = skillsLines - 2;
-      layout_errors.push(`Skills: Exceeds maximum 2 line(s). Please shorten by approximately ${excess * CHARS_PER_LINE} characters.`);
+      layout_errors.push(`Skills: Exceeds maximum 2 line(s). Please shorten by ~${excess * CHARS_PER_LINE} characters.`);
     }
 
-    // 3. Education
+    // 3. Education: Entry 1 required, 2 & 3 optional
     const edu = LIMITS.education.entry_fields;
     for (let i = 1; i <= 3; i++) {
-      for (const [field, conf] of Object.entries(edu)) {
-        const val = data[`edu_${i}_${field}`] || '';
-        if (conf.required && !val.trim()) {
-          char_errors.push({ field: `edu_${i}_${field}`, message: `${conf.label} is required`, section: `Education Entry ${i}` });
+      const hasContent = Boolean(
+        data[`edu_${i}_university`]?.trim() ||
+        data[`edu_${i}_city`]?.trim() ||
+        data[`edu_${i}_program`]?.trim() ||
+        data[`edu_${i}_date`]?.trim()
+      );
+
+      if (i === 1 || hasContent) {
+        for (const [field, conf] of Object.entries(edu)) {
+          const val = data[`edu_${i}_${field}`] || '';
+          if (conf.required && !val.trim()) {
+            char_errors.push({ field: `edu_${i}_${field}`, message: `${conf.label} is required`, section: `Education Entry ${i}` });
+          }
+          if (val.length > conf.max_chars) {
+            char_errors.push({ field: `edu_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Education Entry ${i}` });
+          }
         }
-        if (val.length > conf.max_chars) {
-          char_errors.push({ field: `edu_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Education Entry ${i}` });
-        }
-      }
-      const courses = (data[`edu_${i}_courses`] || '').trim();
-      if (courses.length > 85) {
-        layout_errors.push(`Education Entry ${i}: Relevant courses exceeds limit by ${courses.length - 85} character(s) (Max 85 characters).`);
       }
     }
 
-    // 4. Research Projects
+    // 4. Research Projects: Project 1 compulsory; Projects 2 & 3 optional
     const res = LIMITS.research_projects.entry_fields;
     for (let i = 1; i <= 3; i++) {
-      for (const [field, conf] of Object.entries(res)) {
-        const val = data[`res_${i}_${field}`] || '';
-        if (conf.required && !val.trim()) {
-          char_errors.push({ field: `res_${i}_${field}`, message: `${conf.label} is required`, section: `Research Entry ${i}` });
-        }
-        if (val.length > conf.max_chars) {
-          char_errors.push({ field: `res_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Research Entry ${i}` });
-        }
-      }
-      for (const bNum of [1, 2]) {
-        const bullet = (data[`res_${i}_b${bNum}`] || '').trim();
-        const bLines = estimateLines(bullet);
-        if (bLines > 3) {
-          const excess = bLines - 3;
-          layout_errors.push(`Research Project ${i} (Bullet ${bNum}): Exceeds 3-line limit. Please shorten by approximately ${excess * CHARS_PER_LINE} characters.`);
+      const hasContent = Boolean(
+        data[`res_${i}_title`]?.trim() ||
+        data[`res_${i}_org`]?.trim() ||
+        data[`res_${i}_b1`]?.trim()
+      );
+
+      if (i === 1 || hasContent) {
+        for (const [field, conf] of Object.entries(res)) {
+          const val = data[`res_${i}_${field}`] || '';
+          if (conf.required && !val.trim()) {
+            char_errors.push({ field: `res_${i}_${field}`, message: `${conf.label} is required`, section: `Research Project ${i}` });
+          }
+          if (val.length > conf.max_chars) {
+            char_errors.push({ field: `res_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Research Project ${i}` });
+          }
         }
       }
     }
@@ -157,29 +232,24 @@ export default function App() {
     for (let i = 1; i <= 3; i++) {
       const entryConfig = expEntries[i - 1];
       const fields = entryConfig.fields;
-      for (const [field, conf] of Object.entries(fields)) {
-        let val = '';
-        if (field.startsWith('bullet_')) {
-          const bNum = field.split('_')[1];
-          val = data[`exp_${i}_b${bNum}`] || '';
-        } else {
-          val = data[`exp_${i}_${field}`] || '';
-        }
+      const hasContent = Boolean(data[`exp_${i}_company`]?.trim() || data[`exp_${i}_role`]?.trim() || data[`exp_${i}_b1`]?.trim());
 
-        if (conf.required && !val.trim()) {
-          char_errors.push({ field: `exp_${i}_${field}`, message: `${conf.label} is required`, section: `Experience Entry ${i}` });
-        }
-        if (val.length > conf.max_chars) {
-          char_errors.push({ field: `exp_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Experience Entry ${i}` });
-        }
-      }
+      if (i === 1 || hasContent) {
+        for (const [field, conf] of Object.entries(fields)) {
+          let val = '';
+          if (field.startsWith('bullet_')) {
+            const bNum = field.split('_')[1];
+            val = data[`exp_${i}_b${bNum}`] || '';
+          } else {
+            val = data[`exp_${i}_${field}`] || '';
+          }
 
-      for (let b = 1; b <= entryConfig.num_bullets; b++) {
-        const bullet = (data[`exp_${i}_b${b}`] || '').trim();
-        const bLines = estimateLines(bullet);
-        if (bLines > 3) {
-          const excess = bLines - 3;
-          layout_errors.push(`Professional Experience ${i} (Bullet ${b}): Exceeds 3-line limit. Please shorten by approximately ${excess * CHARS_PER_LINE} characters.`);
+          if (conf.required && !val.trim()) {
+            char_errors.push({ field: `exp_${i}_${field}`, message: `${conf.label} is required`, section: `Experience Entry ${i}` });
+          }
+          if (val.length > conf.max_chars) {
+            char_errors.push({ field: `exp_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Experience Entry ${i}` });
+          }
         }
       }
     }
@@ -193,16 +263,6 @@ export default function App() {
       }
     }
 
-    for (const fieldName of ['leadership_1', 'leadership_2', 'community_1', 'community_2']) {
-      const val = (data[fieldName] || '').trim();
-      const lines = estimateLines(val);
-      if (lines > 3) {
-        const excess = lines - 3;
-        const label = fieldName.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-        layout_errors.push(`Achievements & Leadership (${label}): Exceeds line budget. Please shorten by approximately ${excess * CHARS_PER_LINE} characters.`);
-      }
-    }
-
     return {
       is_valid: char_errors.length === 0 && layout_errors.length === 0,
       char_errors,
@@ -210,37 +270,18 @@ export default function App() {
     };
   }, []);
 
-  // Run validation whenever form data changes
+  // Keep backend validated in sync
   useEffect(() => {
-    // 1. Instant client-side validation
-    const clientVal = runClientValidation(formData);
-    setValidation(clientVal);
-
-    // 2. Validate with backend API for exact engine synchronization
     const timer = setTimeout(() => {
       const structured = toStructuredData(formData);
       fetch('/api/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: structured }),
-      })
-        .then((res) => (res.ok ? res.json() : null))
-        .then((serverVal) => {
-          if (serverVal) {
-            setValidation({
-              is_valid: serverVal.is_valid,
-              char_errors: serverVal.char_errors || [],
-              layout_errors: serverVal.layout_errors || [],
-            });
-          }
-        })
-        .catch(() => {
-          // If server is not responding, client validation remains active
-        });
-    }, 150);
-
+      }).catch(() => {});
+    }, 200);
     return () => clearTimeout(timer);
-  }, [formData, runClientValidation]);
+  }, [formData]);
 
   // Handle fallback HTML download
   const handleDownloadHtml = async () => {
@@ -272,16 +313,37 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Friendly Toast Notification */}
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+
       {/* Top Header */}
       <Header />
 
-      {/* Main Two-Panel Layout */}
+      {/* Mobile/Tablet View Switcher */}
+      <div className="mobile-view-switcher">
+        <button
+          type="button"
+          className={`mobile-toggle-btn ${mobileView === 'form' ? 'active' : ''}`}
+          onClick={() => setMobileView('form')}
+        >
+          ✏️ Edit Information
+        </button>
+        <button
+          type="button"
+          className={`mobile-toggle-btn ${mobileView === 'preview' ? 'active' : ''}`}
+          onClick={() => setMobileView('preview')}
+        >
+          📄 Live Resume Preview
+        </button>
+      </div>
+
+      {/* Main Two-Panel Responsive Layout */}
       <main className="main-layout">
         {/* LEFT PANEL: Candidate Input Form */}
-        <section className="left-panel">
+        <section className={`left-panel ${mobileView !== 'form' ? 'hidden-mobile' : ''}`}>
           <h2>✍️ Candidate Information</h2>
 
-          {/* Action buttons: Load Official Data / Clear */}
+          {/* Action buttons */}
           <div className="form-actions-row">
             <button
               type="button"
@@ -300,12 +362,11 @@ export default function App() {
           </div>
 
           <div className="panel-subnote">
-            Fill in all required fields (marked with{' '}
-            <span style={{ color: '#e63946' }}>🔴</span>). Character limits are
-            strictly enforced.
+            Fill in the required fields marked with{' '}
+            <span style={{ color: '#e63946' }}>🔴</span>. Character limits ensure clean single-page formatting.
           </div>
 
-          {/* Form Tabs */}
+          {/* Form Tabs with completion checkmarks */}
           <Tabs
             tabs={formTabs}
             activeTab={activeTab}
@@ -332,20 +393,20 @@ export default function App() {
             <AchievementsLeadership data={formData} onChange={handleFieldChange} />
           )}
 
-          {/* Validation & Export Section */}
+          {/* Friendly Progress & Export Section */}
           <ValidationExport
             formData={formData}
-            validation={validation}
+            sectionStatus={sectionStatus}
+            onNavigateTab={setActiveTab}
             onDownloadHtml={handleDownloadHtml}
           />
         </section>
 
         {/* RIGHT PANEL: Live Resume Preview */}
-        <section className="right-panel">
+        <section className={`right-panel ${mobileView !== 'preview' ? 'hidden-mobile' : ''}`}>
           <h2>📄 Live Resume Preview</h2>
           <div className="panel-subnote">
-            This preview updates as you type. The exported PDF will match this preview
-            exactly.
+            Updates in real-time as you type. Your downloaded PDF will match this layout exactly.
           </div>
 
           <LiveResumePreview data={formData} watermarkBase64={watermarkBase64} />
