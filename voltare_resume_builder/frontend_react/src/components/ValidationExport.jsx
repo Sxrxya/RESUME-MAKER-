@@ -63,6 +63,31 @@ export default function ValidationExport({
     }
   };
 
+  const handleDirectPrint = async () => {
+    try {
+      const structured = toStructuredData(formData);
+      const res = await fetch('/api/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: structured }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(data.html);
+          printWindow.document.close();
+          printWindow.focus();
+          setTimeout(() => {
+            printWindow.print();
+          }, 400);
+        }
+      }
+    } catch (err) {
+      console.error('Direct print error:', err);
+    }
+  };
+
   return (
     <div className="validation-export-section" style={{ marginTop: '24px' }}>
       <hr className="section-divider" />
@@ -164,17 +189,24 @@ export default function ValidationExport({
           <div className="validation-error">
             PDF compilation note: {generationError}
           </div>
-          <button
-            type="button"
-            className="voltare-btn download-btn"
-            onClick={onDownloadHtml}
-            style={{ marginTop: '10px' }}
-          >
-            ⬇️ Download HTML Resume (Print to PDF)
-          </button>
-          <div className="info-alert">
-            💡 <strong>Alternative:</strong> Open the downloaded file in your browser, press <strong>Ctrl+P</strong>,
-            set paper to <strong>A4</strong>, enable <strong>Background graphics</strong>, and click Save.
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="voltare-btn download-btn"
+              onClick={handleDirectPrint}
+            >
+              🖨️ Instant Print / Save as PDF
+            </button>
+            <button
+              type="button"
+              className="voltare-btn download-btn"
+              onClick={onDownloadHtml}
+            >
+              ⬇️ Download HTML Resume
+            </button>
+          </div>
+          <div className="info-alert" style={{ marginTop: '10px' }}>
+            💡 <strong>Tip:</strong> Click <strong>"Instant Print / Save as PDF"</strong> to print directly, or download the HTML file and open it in your browser with <strong>Ctrl+P</strong>.
           </div>
         </div>
       )}

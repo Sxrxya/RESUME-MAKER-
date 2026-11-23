@@ -1,0 +1,5 @@
+# Complete local development requirements including Streamlit and Playwright
+-r requirements.txt
+streamlit>=1.28.0
+playwright>=1.40.0
+nest-asyncio>=1.5.0
