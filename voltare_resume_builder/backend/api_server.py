@@ -180,6 +180,15 @@ def download_html(payload: ResumePayload):
 REACT_DIST_DIR = os.path.join(PROJECT_ROOT, "frontend_react", "dist")
 if os.path.exists(REACT_DIST_DIR):
     app.mount("/", StaticFiles(directory=REACT_DIST_DIR, html=True), name="static")
+else:
+    @app.get("/")
+    def root_fallback():
+        return {
+            "name": "Voltare Resume Builder API",
+            "status": "online",
+            "docs": "/docs",
+            "message": "Frontend build (dist) not found. Run 'npm run build' inside voltare_resume_builder/frontend_react, or run 'streamlit run app.py' for the Streamlit interface."
+        }
 
 
 if __name__ == "__main__":

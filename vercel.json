@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd voltare_resume_builder/frontend_react && npm install && npm run build",
+  "outputDirectory": "voltare_resume_builder/frontend_react/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
