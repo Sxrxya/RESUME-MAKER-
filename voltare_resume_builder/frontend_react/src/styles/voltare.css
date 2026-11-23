@@ -686,7 +686,7 @@ h3 {
 .resume-content {
   position: relative;
   z-index: 2;
-  padding: 28pt 36pt 20pt 21pt;
+  padding: var(--resume-content-padding, 28pt 36pt 20pt 21pt);
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -709,9 +709,9 @@ h3 {
 .resume-contact-info {
   font-family: 'Times New Roman', Times, serif;
   text-align: center;
-  font-size: 10pt;
+  font-size: var(--resume-font-size, 10pt);
   margin-bottom: 5pt;
-  line-height: 1.2;
+  line-height: var(--resume-line-height, 1.2);
 }
 
 .resume-contact-info a {
@@ -724,7 +724,7 @@ h3 {
   font-size: 11pt;
   font-weight: 700;
   text-transform: uppercase;
-  margin-top: 5pt;
+  margin-top: var(--resume-section-margin-top, 5pt);
   margin-bottom: 0;
   padding-bottom: 1.5pt;
   border-bottom: 1.0pt solid #000000;
@@ -733,38 +733,38 @@ h3 {
 }
 
 .resume-section-body {
-  margin-top: 2.5pt;
+  margin-top: var(--resume-section-body-margin, 2.5pt);
 }
 
 .resume-summary-text {
   font-family: 'Garamond', 'Georgia', serif;
   text-align: justify;
-  font-size: 10pt;
-  line-height: 1.15;
-  margin-bottom: 2pt;
+  font-size: var(--resume-font-size, 10pt);
+  line-height: var(--resume-line-height, 1.15);
+  margin-bottom: var(--resume-summary-margin-bottom, 2pt);
 }
 
 .resume-skills-line {
   font-family: 'Garamond', 'Georgia', serif;
-  font-size: 10pt;
-  margin-bottom: 2pt;
-  line-height: 1.15;
+  font-size: var(--resume-font-size, 10pt);
+  margin-bottom: var(--resume-summary-margin-bottom, 2pt);
+  line-height: var(--resume-line-height, 1.15);
 }
 
 .resume-edu-entry,
 .resume-research-entry,
 .resume-experience-entry {
-  margin-bottom: 2.5pt;
+  margin-bottom: var(--resume-entry-margin-bottom, 2.5pt);
   font-family: 'Times New Roman', Times, serif;
-  font-size: 10pt;
+  font-size: var(--resume-font-size, 10pt);
 }
 
 .resume-entry-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 10pt;
-  line-height: 1.15;
+  font-size: var(--resume-font-size, 10pt);
+  line-height: var(--resume-line-height, 1.15);
 }
 
 .resume-entry-left {
@@ -779,13 +779,9 @@ h3 {
 
 .resume-relevant-courses,
 .resume-additional-info {
-  font-size: 9pt;
+  font-size: 9.5pt;
   font-style: italic;
-  line-height: 1.15;
-}
-
-.resume-additional-info {
-  font-size: 10pt;
+  line-height: var(--resume-line-height, 1.15);
 }
 
 .resume-courses-inline {
@@ -795,18 +791,19 @@ h3 {
 }
 
 .resume-bullet {
-  font-size: 10pt;
-  line-height: 1.15;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: var(--resume-font-size, 10pt);
+  line-height: var(--resume-line-height, 1.15);
+  margin-bottom: var(--resume-bullet-margin-bottom, 0pt);
   padding-left: 10pt;
-  text-indent: 0;
   text-align: justify;
 }
 
 .resume-ach-line {
   font-family: 'Times New Roman', Times, serif;
-  font-size: 10pt;
-  line-height: 1.15;
-  margin-bottom: 1pt;
+  font-size: var(--resume-font-size, 10pt);
+  line-height: var(--resume-line-height, 1.15);
+  margin-bottom: var(--resume-bullet-margin-bottom, 1pt);
   text-align: justify;
 }
 

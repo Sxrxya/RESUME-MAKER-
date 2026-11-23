@@ -21,6 +21,125 @@ def _escape_html(text: str) -> str:
                 .replace('"', "&quot;"))
 
 
+def calculate_resume_density(data: dict) -> dict:
+    """Calculate content density score and return adaptive CSS variables."""
+    personal = data.get("personal_info", {})
+    prof = data.get("professional_summary", {})
+    education = data.get("education", [])
+    research = data.get("research_projects", [])
+    experience = data.get("professional_experience", [])
+    achievements = data.get("achievements_leadership", {})
+
+    total_lines = 0
+
+    # Header lines
+    if personal.get("first_name") or personal.get("second_name"):
+        total_lines += 2
+    if any(personal.get(k) for k in ["city_country", "linkedin_url", "phone", "email"]):
+        total_lines += 1
+
+    # Professional Summary & Skills
+    summary = prof.get("summary", "").strip()
+    if summary:
+        total_lines += max(1, len(summary) // 110 + 1)
+    skills = prof.get("skills", "").strip()
+    if skills:
+        total_lines += max(1, len(skills) // 110 + 1)
+
+    # Education (heading + entries)
+    active_edu = 0
+    for edu in education:
+        if edu.get("university") or edu.get("program"):
+            active_edu += 1
+            total_lines += 2
+            if edu.get("relevant_courses"):
+                total_lines += 1
+    if active_edu:
+        total_lines += 1
+
+    # Research
+    active_res = 0
+    for res in research:
+        if res.get("title") or res.get("organization") or res.get("bullet_1"):
+            active_res += 1
+            total_lines += 1
+            if res.get("additional_info"):
+                total_lines += 1
+            if res.get("bullet_1"):
+                total_lines += max(1, len(res.get("bullet_1", "")) // 110 + 1)
+            if res.get("bullet_2"):
+                total_lines += max(1, len(res.get("bullet_2", "")) // 110 + 1)
+    if active_res:
+        total_lines += 1
+
+    # Experience
+    active_exp = 0
+    for exp in experience:
+        bullets = exp.get("bullets", [])
+        if exp.get("company") or exp.get("role") or any(bullets):
+            active_exp += 1
+            total_lines += 1
+            for b in bullets:
+                if b and isinstance(b, str):
+                    total_lines += max(1, len(b) // 110 + 1)
+    if active_exp:
+        total_lines += 1
+
+    # Achievements
+    active_ach = 0
+    for k in ["awards", "leadership_1", "leadership_2", "achievement", "community_1", "community_2", "interests"]:
+        val = achievements.get(k, "").strip()
+        if val:
+            active_ach += 1
+            total_lines += max(1, len(val) // 110 + 1)
+    if active_ach:
+        total_lines += 1
+
+    # Dynamic scaling tiers to ensure full, balanced vertical distribution on A4
+    if total_lines <= 26:
+        # Low content: spacious scaling (e.g. only 1 experience, fewer projects)
+        return {
+            "density": "spacious",
+            "total_lines": total_lines,
+            "line_height": "1.32",
+            "section_margin_top": "14pt",
+            "section_body_margin": "4.5pt",
+            "entry_margin_bottom": "7pt",
+            "bullet_margin_bottom": "3pt",
+            "content_padding": "34pt 36pt 28pt 21pt",
+            "font_size": "10.2pt",
+            "summary_margin_bottom": "4pt",
+        }
+    elif total_lines <= 38:
+        # Medium content: balanced scaling
+        return {
+            "density": "balanced",
+            "total_lines": total_lines,
+            "line_height": "1.23",
+            "section_margin_top": "9pt",
+            "section_body_margin": "3.5pt",
+            "entry_margin_bottom": "4.5pt",
+            "bullet_margin_bottom": "1.5pt",
+            "content_padding": "28pt 36pt 22pt 21pt",
+            "font_size": "10pt",
+            "summary_margin_bottom": "3pt",
+        }
+    else:
+        # High content: compact baseline to prevent page overflow
+        return {
+            "density": "compact",
+            "total_lines": total_lines,
+            "line_height": "1.15",
+            "section_margin_top": "5pt",
+            "section_body_margin": "2.5pt",
+            "entry_margin_bottom": "2.5pt",
+            "bullet_margin_bottom": "0pt",
+            "content_padding": "26pt 36pt 18pt 21pt",
+            "font_size": "10pt",
+            "summary_margin_bottom": "2pt",
+        }
+
+
 def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: str = "") -> str:
     """Render complete resume as HTML string."""
     
@@ -238,6 +357,9 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
             {ach_html}
         </div>''' if ach_html.strip() else ""
 
+    # Compute adaptive density configuration
+    density = calculate_resume_density(data)
+
     html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -245,6 +367,17 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@700&display=swap');
+
+:root {{
+    --line-height: {density['line_height']};
+    --section-margin-top: {density['section_margin_top']};
+    --section-body-margin: {density['section_body_margin']};
+    --entry-margin-bottom: {density['entry_margin_bottom']};
+    --bullet-margin-bottom: {density['bullet_margin_bottom']};
+    --content-padding: {density['content_padding']};
+    --font-size: {density['font_size']};
+    --summary-margin-bottom: {density['summary_margin_bottom']};
+}}
 
 @page {{
     size: 210mm 297mm;
@@ -263,8 +396,8 @@ html {{
 
 body {{
     font-family: 'Times New Roman', Times, serif;
-    font-size: 10pt;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
     color: #000000;
     background-color: #f7f3ef !important;
     margin: 0;
@@ -303,12 +436,13 @@ body {{
 .content {{
     position: relative;
     z-index: 2;
-    padding: 28pt 36pt 20pt 21pt;
+    padding: var(--content-padding);
     width: 100%;
     height: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
 }}
 
 .name {{
@@ -325,9 +459,9 @@ body {{
 .contact-info {{
     font-family: 'Times New Roman', Times, serif;
     text-align: center;
-    font-size: 10pt;
+    font-size: var(--font-size);
     margin-bottom: 5pt;
-    line-height: 1.2;
+    line-height: var(--line-height);
 }}
 
 .contact-info a {{
@@ -340,7 +474,7 @@ body {{
     font-size: 11pt;
     font-weight: 700;
     text-transform: uppercase;
-    margin-top: 5pt;
+    margin-top: var(--section-margin-top);
     margin-bottom: 0;
     padding-bottom: 1.5pt;
     border-bottom: 1.0pt solid #000000;
@@ -348,36 +482,36 @@ body {{
 }}
 
 .section-body {{
-    margin-top: 2.5pt;
+    margin-top: var(--section-body-margin);
 }}
 
 .summary-text {{
     font-family: 'Garamond', 'Georgia', serif;
     text-align: justify;
-    font-size: 10pt;
-    line-height: 1.15;
-    margin-bottom: 2pt;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    margin-bottom: var(--summary-margin-bottom);
 }}
 
 .skills-line {{
     font-family: 'Garamond', 'Georgia', serif;
-    font-size: 10pt;
-    margin-bottom: 2pt;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    margin-bottom: var(--summary-margin-bottom);
+    line-height: var(--line-height);
 }}
 
 .edu-entry {{
-    margin-bottom: 2.5pt;
+    margin-bottom: var(--entry-margin-bottom);
     font-family: 'Times New Roman', Times, serif;
-    font-size: 10pt;
+    font-size: var(--font-size);
 }}
 
 .entry-row {{
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 10pt;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 }}
 
 .entry-left {{
@@ -393,24 +527,25 @@ body {{
 .relevant-courses {{
     font-size: 9pt;
     font-style: italic;
-    line-height: 1.15;
+    line-height: var(--line-height);
 }}
 
 .research-entry, .experience-entry {{
-    margin-bottom: 2.5pt;
+    margin-bottom: var(--entry-margin-bottom);
     font-family: 'Times New Roman', Times, serif;
-    font-size: 10pt;
+    font-size: var(--font-size);
 }}
 
 .additional-info {{
-    font-size: 10pt;
+    font-size: var(--font-size);
     font-style: italic;
-    line-height: 1.15;
+    line-height: var(--line-height);
 }}
 
 .bullet {{
-    font-size: 10pt;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    margin-bottom: var(--bullet-margin-bottom);
     padding-left: 10pt;
     text-indent: 0;
     text-align: justify;
@@ -418,9 +553,9 @@ body {{
 
 .ach-line {{
     font-family: 'Times New Roman', Times, serif;
-    font-size: 10pt;
-    line-height: 1.15;
-    margin-bottom: 1pt;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    margin-bottom: var(--bullet-margin-bottom);
     text-align: justify;
 }}
 

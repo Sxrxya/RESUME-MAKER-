@@ -216,6 +216,69 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
   const docBaseWidthPx = 596 * (96 / 72);
   const docBaseHeightPx = 842 * (96 / 72);
 
+  // Calculate content volume / estimated lines for dynamic scaling
+  let totalLines = 0;
+  if (data.first_name || data.second_name) totalLines += 2;
+  if (data.city_country || data.linkedin_url || data.phone || data.email) totalLines += 1;
+  if (data.summary) totalLines += Math.max(1, Math.floor(data.summary.length / 110) + 1);
+  if (data.skills) totalLines += Math.max(1, Math.floor(data.skills.length / 110) + 1);
+
+  for (let i = 1; i <= 3; i++) {
+    if (data[`edu_${i}_university`] || data[`edu_${i}_program`]) {
+      totalLines += 3;
+      if (data[`edu_${i}_courses`]) totalLines += 1;
+    }
+  }
+
+  for (let i = 1; i <= 3; i++) {
+    if (data[`res_${i}_title`] || data[`res_${i}_org`] || data[`res_${i}_b1`]) {
+      totalLines += 2;
+      if (data[`res_${i}_b1`]) totalLines += Math.max(1, Math.floor(data[`res_${i}_b1`].length / 110) + 1);
+      if (data[`res_${i}_b2`]) totalLines += Math.max(1, Math.floor(data[`res_${i}_b2`].length / 110) + 1);
+    }
+  }
+
+  for (let i = 1; i <= 3; i++) {
+    if (data[`exp_${i}_company`] || data[`exp_${i}_role`] || data[`exp_${i}_b1`]) {
+      totalLines += 2;
+      if (data[`exp_${i}_b1`]) totalLines += Math.max(1, Math.floor(data[`exp_${i}_b1`].length / 110) + 1);
+      if (data[`exp_${i}_b2`]) totalLines += Math.max(1, Math.floor(data[`exp_${i}_b2`].length / 110) + 1);
+    }
+  }
+
+  ['awards', 'leadership_1', 'leadership_2', 'achievement', 'community_1', 'community_2', 'interests'].forEach((k) => {
+    if (data[k]) totalLines += Math.max(1, Math.floor(data[k].length / 110) + 1);
+  });
+
+  const densityStyles = totalLines <= 26 ? {
+    '--resume-line-height': '1.32',
+    '--resume-section-margin-top': '14pt',
+    '--resume-section-body-margin': '4.5pt',
+    '--resume-entry-margin-bottom': '7pt',
+    '--resume-bullet-margin-bottom': '3pt',
+    '--resume-content-padding': '34pt 36pt 28pt 21pt',
+    '--resume-font-size': '10.2pt',
+    '--resume-summary-margin-bottom': '4pt',
+  } : totalLines <= 38 ? {
+    '--resume-line-height': '1.23',
+    '--resume-section-margin-top': '9pt',
+    '--resume-section-body-margin': '3.5pt',
+    '--resume-entry-margin-bottom': '4.5pt',
+    '--resume-bullet-margin-bottom': '1.5pt',
+    '--resume-content-padding': '28pt 36pt 22pt 21pt',
+    '--resume-font-size': '10pt',
+    '--resume-summary-margin-bottom': '3pt',
+  } : {
+    '--resume-line-height': '1.15',
+    '--resume-section-margin-top': '5pt',
+    '--resume-section-body-margin': '2.5pt',
+    '--resume-entry-margin-bottom': '2.5pt',
+    '--resume-bullet-margin-bottom': '0pt',
+    '--resume-content-padding': '26pt 36pt 18pt 21pt',
+    '--resume-font-size': '10pt',
+    '--resume-summary-margin-bottom': '2pt',
+  };
+
   return (
     <div ref={previewContainerRef} className="preview-outer">
       <div
@@ -242,7 +305,7 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
             left: 0,
           }}
         >
-          <div className="resume-doc">
+          <div className="resume-doc" style={densityStyles}>
             {watermarkSrc && (
               <div className="resume-watermark">
                 <img src={watermarkSrc} alt="watermark" />
