@@ -10,9 +10,9 @@ export default function ProfessionalExperience({ data, onChange }) {
   const expConfigs = LIMITS.professional_experience.entries;
 
   const tabs = [
-    { id: 'exp_1', label: 'Experience 1 (1 bullet)' },
-    { id: 'exp_2', label: 'Experience 2 (2 bullets)' },
-    { id: 'exp_3', label: 'Experience 3 (1 bullet)' },
+    { id: 'exp_1', label: 'Experience 1 (Mandatory - 1 bullet)' },
+    { id: 'exp_2', label: 'Experience 2 (Optional - 2 bullets)' },
+    { id: 'exp_3', label: 'Experience 3 (Optional - 1 bullet)' },
   ];
 
   const idx = activeSubTab === 'exp_1' ? 1 : activeSubTab === 'exp_2' ? 2 : 3;

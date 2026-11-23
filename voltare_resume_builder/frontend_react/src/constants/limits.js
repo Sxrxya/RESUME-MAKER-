@@ -134,24 +134,24 @@ export const LIMITS = {
       {
         num_bullets: 2,
         fields: {
-          company: { max_chars: 50, required: true, label: "Company Name", placeholder: "XYZ Company" },
-          domain: { max_chars: 35, required: true, label: "Domain/Industry", placeholder: "Domain/Industry" },
-          role: { max_chars: 35, required: true, label: "Role Name", placeholder: "Role Name" },
-          start_date: { max_chars: 15, required: true, label: "Start Date", placeholder: "Mon YYYY" },
-          end_date: { max_chars: 15, required: true, label: "End Date", placeholder: "Mon YYYY" },
-          bullet_1: { max_chars: 285, max_lines: 3, required: true, label: "Description 1", placeholder: "First bullet point description..." },
-          bullet_2: { max_chars: 285, max_lines: 3, required: true, label: "Description 2", placeholder: "Second bullet point description..." }
+          company: { max_chars: 50, required: false, label: "Company Name", placeholder: "XYZ Company" },
+          domain: { max_chars: 35, required: false, label: "Domain/Industry", placeholder: "Domain/Industry" },
+          role: { max_chars: 35, required: false, label: "Role Name", placeholder: "Role Name" },
+          start_date: { max_chars: 15, required: false, label: "Start Date", placeholder: "Mon YYYY" },
+          end_date: { max_chars: 15, required: false, label: "End Date", placeholder: "Mon YYYY" },
+          bullet_1: { max_chars: 285, max_lines: 3, required: false, label: "Description 1", placeholder: "First bullet point description..." },
+          bullet_2: { max_chars: 285, max_lines: 3, required: false, label: "Description 2", placeholder: "Second bullet point description..." }
         }
       },
       {
         num_bullets: 1,
         fields: {
-          company: { max_chars: 50, required: true, label: "Company Name", placeholder: "XYZ Company" },
-          domain: { max_chars: 35, required: true, label: "Domain/Industry", placeholder: "Domain/Industry" },
-          role: { max_chars: 35, required: true, label: "Role Name", placeholder: "Role Name" },
-          start_date: { max_chars: 15, required: true, label: "Start Date", placeholder: "Mon YYYY" },
-          end_date: { max_chars: 15, required: true, label: "End Date", placeholder: "Mon YYYY" },
-          bullet_1: { max_chars: 285, max_lines: 3, required: true, label: "Description", placeholder: "Bullet point description..." }
+          company: { max_chars: 50, required: false, label: "Company Name", placeholder: "XYZ Company" },
+          domain: { max_chars: 35, required: false, label: "Domain/Industry", placeholder: "Domain/Industry" },
+          role: { max_chars: 35, required: false, label: "Role Name", placeholder: "Role Name" },
+          start_date: { max_chars: 15, required: false, label: "Start Date", placeholder: "Mon YYYY" },
+          end_date: { max_chars: 15, required: false, label: "End Date", placeholder: "Mon YYYY" },
+          bullet_1: { max_chars: 285, max_lines: 3, required: false, label: "Description", placeholder: "Bullet point description..." }
         }
       }
     ]
