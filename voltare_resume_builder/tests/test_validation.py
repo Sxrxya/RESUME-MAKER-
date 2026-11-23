@@ -117,6 +117,24 @@ class TestRequiredFields(unittest.TestCase):
         result = validate_required_fields(data)
         self.assertFalse(result.is_valid)
 
+    def test_only_experience_1_passes(self):
+        data = _make_data()
+        # Experience 2 and 3 are empty
+        data["professional_experience"][1] = {
+            "company": "", "domain": "", "role": "", "start_date": "", "end_date": "", "bullets": []
+        }
+        data["professional_experience"][2] = {
+            "company": "", "domain": "", "role": "", "start_date": "", "end_date": "", "bullets": []
+        }
+        result = validate_required_fields(data)
+        self.assertTrue(result.is_valid)
+
+    def test_missing_experience_1_fails(self):
+        data = _make_data()
+        data["professional_experience"][0]["company"] = ""
+        result = validate_required_fields(data)
+        self.assertFalse(result.is_valid)
+
 
 class TestLineCountValidation(unittest.TestCase):
     def test_short_summary_passes(self):

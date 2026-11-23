@@ -160,6 +160,29 @@ def validate_required_fields(data: dict) -> ValidationResult:
                 if limit_config.get("required") and not entry.get(field_name, "").strip():
                     result.add_error(f"research_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Research Entry {i+1}")
 
+    # Professional Experience: Entry 1 is mandatory; Entries 2 and 3 are optional
+    exp_entries_config = FIELD_LIMITS.get("professional_experience", {}).get("entries", [])
+    for i, entry in enumerate(data.get("professional_experience", [])):
+        if i < len(exp_entries_config):
+            cfg_fields = exp_entries_config[i].get("fields", {})
+            has_company = bool(entry.get("company", "").strip())
+            has_role = bool(entry.get("role", "").strip())
+            has_bullets = any(b.strip() for b in entry.get("bullets", []) if isinstance(b, str))
+            has_content = has_company or has_role or has_bullets or bool(entry.get("domain", "").strip())
+
+            # Experience 1 is strictly mandatory; Experience 2 and 3 are optional
+            if i == 0 or has_content:
+                for field_name, limit_config in cfg_fields.items():
+                    if limit_config.get("required"):
+                        if field_name.startswith("bullet_"):
+                            b_idx = int(field_name.split("_")[1]) - 1
+                            bullets = entry.get("bullets", [])
+                            val = bullets[b_idx].strip() if b_idx < len(bullets) and isinstance(bullets[b_idx], str) else ""
+                        else:
+                            val = entry.get(field_name, "").strip()
+                        if not val:
+                            result.add_error(f"experience_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Experience Entry {i+1}")
+
     return result
 
 

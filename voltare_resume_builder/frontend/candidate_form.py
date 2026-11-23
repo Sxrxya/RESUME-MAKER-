@@ -350,25 +350,30 @@ def render_professional_experience(st):
     exp_configs = LIMITS["professional_experience"]["entries"]
     entries = []
 
-    tabs = st.tabs(["Experience 1 (1 bullet)", "Experience 2 (2 bullets)", "Experience 3 (1 bullet)"])
+    tabs = st.tabs([
+        "Experience 1 (Mandatory - 1 bullet)",
+        "Experience 2 (Optional - 2 bullets)",
+        "Experience 3 (Optional - 1 bullet)",
+    ])
 
     for i, tab in enumerate(tabs):
         with tab:
             idx = i + 1
             fields = exp_configs[i]["fields"]
             num_bullets = exp_configs[i]["num_bullets"]
+            is_required = (i == 0)
 
             col1, col2 = st.columns([2, 1])
             with col1:
                 company = limited_text_input(
                     st, f"exp_{idx}_company", fields["company"]["label"],
-                    fields["company"]["max_chars"], required=True,
+                    fields["company"]["max_chars"], required=is_required,
                     placeholder=fields["company"]["placeholder"],
                 )
             with col2:
                 domain = limited_text_input(
                     st, f"exp_{idx}_domain", fields["domain"]["label"],
-                    fields["domain"]["max_chars"], required=True,
+                    fields["domain"]["max_chars"], required=is_required,
                     placeholder=fields["domain"]["placeholder"],
                 )
 
@@ -376,19 +381,19 @@ def render_professional_experience(st):
             with col3:
                 role = limited_text_input(
                     st, f"exp_{idx}_role", fields["role"]["label"],
-                    fields["role"]["max_chars"], required=True,
+                    fields["role"]["max_chars"], required=is_required,
                     placeholder=fields["role"]["placeholder"],
                 )
             with col4:
                 start = limited_text_input(
                     st, f"exp_{idx}_start", fields["start_date"]["label"],
-                    fields["start_date"]["max_chars"], required=True,
+                    fields["start_date"]["max_chars"], required=is_required,
                     placeholder=fields["start_date"]["placeholder"],
                 )
             with col5:
                 end = limited_text_input(
                     st, f"exp_{idx}_end", fields["end_date"]["label"],
-                    fields["end_date"]["max_chars"], required=True,
+                    fields["end_date"]["max_chars"], required=is_required,
                     placeholder=fields["end_date"]["placeholder"],
                 )
 
@@ -399,7 +404,7 @@ def render_professional_experience(st):
                     st, f"exp_{idx}_b{b}", fields[bullet_key]["label"],
                     fields[bullet_key]["max_chars"],
                     max_lines=fields[bullet_key].get("max_lines"),
-                    required=True,
+                    required=is_required,
                     placeholder=fields[bullet_key]["placeholder"],
                     height=70,
                 )
