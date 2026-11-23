@@ -1,10 +1,35 @@
 {
-  "buildCommand": "cd voltare_resume_builder/frontend_react && npm install && npm run build",
-  "outputDirectory": "voltare_resume_builder/frontend_react/dist",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "voltare_resume_builder": {
+      "root": "voltare_resume_builder",
+      "framework": "fastapi"
+    },
+    "frontend_react": {
+      "root": "voltare_resume_builder/frontend_react",
+      "framework": "vite",
+      "bindings": [
+        {
+          "type": "service",
+          "service": "voltare_resume_builder",
+          "format": "url",
+          "env": "BACKEND_URL"
+        }
+      ]
+    }
+  },
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "voltare_resume_builder"
+      }
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": {
+        "service": "frontend_react"
+      }
     }
   ]
 }
