@@ -8,6 +8,10 @@ venv/
 .venv/
 env/
 
+# Node.js
+node_modules/
+dist/
+
 # Cache and temporary files
 .pytest_cache/
 *.log

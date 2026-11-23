@@ -1,0 +1,12 @@
+{
+  "name": "voltare-resume-builder",
+  "version": "1.0.0",
+  "description": "VOLTARE — Official Resume Builder (React Frontend & Python Backend)",
+  "scripts": {
+    "dev:frontend": "npm --prefix voltare_resume_builder/frontend_react run dev",
+    "build:frontend": "npm --prefix voltare_resume_builder/frontend_react run build",
+    "server": "python -m uvicorn backend.api_server:app --app-dir voltare_resume_builder --host 0.0.0.0 --port 8000 --reload",
+    "start": "python -m uvicorn backend.api_server:app --app-dir voltare_resume_builder --host 0.0.0.0 --port 8000"
+  }
+}
+

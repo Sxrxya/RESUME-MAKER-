@@ -112,7 +112,20 @@ python -m playwright install chromium
 ```
 *Chromium is required for generating PDF files from the app.*
 
-### 3. Launch the Streamlit application:
+### 3. Launch the Application:
+
+#### Option A: React Application (Modern)
+```bash
+# Terminal 1: Start backend API
+python -m uvicorn backend.api_server:app --port 8000 --reload
+
+# Terminal 2: Start React frontend
+cd frontend_react
+npm run dev
+```
+Open `http://localhost:3000` in your browser.
+
+#### Option B: Streamlit Application (Legacy)
 ```bash
 python -m streamlit run app.py
 ```

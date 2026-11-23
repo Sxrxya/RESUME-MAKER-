@@ -55,21 +55,36 @@ Candidates enter their information into predefined input fields. The application
 
 ## 💻 Quick Start
 
-### 1. Install Dependencies
+### Option 1: Modern React.js Application (Recommended)
+
+1. **Install Dependencies**:
+   ```bash
+   cd voltare_resume_builder/frontend_react
+   npm install
+   ```
+
+2. **Run Backend API Server**:
+   ```bash
+   python -m uvicorn backend.api_server:app --app-dir voltare_resume_builder --port 8000 --reload
+   ```
+
+3. **Run React Frontend**:
+   ```bash
+   cd voltare_resume_builder/frontend_react
+   npm run dev
+   ```
+   Open `http://localhost:3000` in your browser.
+
+*(Or run `python -m uvicorn backend.api_server:app --app-dir voltare_resume_builder --port 8000` to serve the built React app directly on `http://localhost:8000`).*
+
+---
+
+### Option 2: Streamlit Application (Legacy)
 
 ```bash
 cd voltare_resume_builder
-pip install -r requirements.txt
-playwright install chromium
+python -m streamlit run app.py
 ```
-
-### 2. Run the Application
-
-```bash
-streamlit run app.py
-```
-
-Open `http://localhost:8501` in your browser.
 
 ---
 
