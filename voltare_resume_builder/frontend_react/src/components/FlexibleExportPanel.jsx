@@ -2,145 +2,131 @@ import React from 'react';
 
 export default function FlexibleExportPanel({
   validation,
+  sectionStatus = {},
   onNavigateTab,
   onDownloadPdf,
   isGeneratingPdf = false,
 }) {
-  const { progressPercent, canDownloadPdf, errors, warnings, budget } = validation;
+  const { progressPercent, canDownloadPdf } = validation;
+
+  const sections = [
+    { id: 'personal', name: 'Personal Details', complete: Boolean(sectionStatus.personal), required: true },
+    { id: 'summary', name: 'Professional Summary', complete: Boolean(sectionStatus.summary), required: true },
+    { id: 'education', name: 'Education (2 Required)', complete: Boolean(sectionStatus.education), required: true },
+    { id: 'projects', name: 'Projects (1 Required)', complete: Boolean(sectionStatus.projects), required: true },
+    { id: 'skills', name: 'Skills Matrix', complete: Boolean(sectionStatus.skills), required: false },
+    { id: 'experience', name: 'Work Experience', complete: Boolean(sectionStatus.experience), required: false },
+    { id: 'certifications', name: 'Certifications', complete: Boolean(sectionStatus.certifications), required: false },
+    { id: 'custom', name: 'Custom Section', complete: Boolean(sectionStatus.custom), required: false },
+  ];
+
+  const requiredSections = sections.filter(s => s.required);
+  const completedRequired = requiredSections.filter(s => s.complete).length;
 
   return (
-    <div className="validation-export-container" style={{ marginTop: '24px' }}>
-      <div className="validation-card">
-        {/* Progress header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '18px' }}>{canDownloadPdf ? '✅' : '🎯'}</span>
-            <strong style={{ fontSize: '15px' }}>
-              {canDownloadPdf ? 'Resume Ready for Download!' : 'Resume Completion Progress'}
-            </strong>
-          </div>
-          <span style={{
-            fontSize: '13px',
-            fontWeight: 700,
-            padding: '3px 10px',
-            borderRadius: '12px',
-            backgroundColor: canDownloadPdf ? '#e8f5e9' : '#fff3e0',
-            color: canDownloadPdf ? '#2e7d32' : '#e65100',
-            border: `1px solid ${canDownloadPdf ? 'rgba(46, 125, 50, 0.3)' : 'rgba(230, 81, 0, 0.3)'}`
-          }}>
-            {progressPercent}% Complete
-          </span>
-        </div>
+    <div className="validation-export-section" style={{ marginTop: '24px' }}>
+      <hr className="section-divider" />
+      <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        📋 Resume Progress & Export
+      </h3>
 
-        {/* Progress Bar */}
-        <div style={{ height: '8px', background: '#eee6e2', borderRadius: '4px', overflow: 'hidden', marginBottom: '14px' }}>
+      {/* Progress Bar & Status */}
+      <div className="progress-container" style={{ margin: '14px 0 16px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px', fontWeight: 600 }}>
+          <span style={{ color: canDownloadPdf ? '#1e824c' : '#7D1128' }}>
+            {canDownloadPdf
+              ? "🎉 Ready for Download! All Required Standards Met."
+              : `${completedRequired} of ${requiredSections.length} Required Parts Completed`}
+          </span>
+          <span style={{ color: '#6D605C' }}>{progressPercent}% Complete</span>
+        </div>
+        <div className="progress-bar-track">
           <div
+            className="progress-bar-fill"
             style={{
-              height: '100%',
               width: `${progressPercent}%`,
-              backgroundColor: canDownloadPdf ? '#2e7d32' : '#2a6f97',
-              borderRadius: '4px',
+              backgroundColor: canDownloadPdf ? '#2ecc71' : '#7D1128',
               transition: 'width 0.3s ease',
             }}
           />
         </div>
-
-        {/* Requirements Checklist */}
-        <div style={{ fontSize: '12.5px', marginBottom: '14px', lineHeight: 1.5 }}>
-          <div style={{ fontWeight: 600, color: '#444', marginBottom: '4px' }}>
-            Mandatory Standards for PDF Generation (80% minimum required):
-          </div>
-          <ul style={{ paddingLeft: '18px', margin: 0, color: '#555' }}>
-            <li>Personal Contact Details completed</li>
-            <li>Professional Summary with at least <strong>150 characters</strong></li>
-            <li>At least <strong>2 Education qualifications</strong> entered</li>
-            <li>At least <strong>1 Project</strong> with descriptive bullet point</li>
-            <li>Work Experience is <em>optional</em> (freshers can have 0)</li>
-          </ul>
-        </div>
-
-        {/* Errors list if any */}
-        {errors.length > 0 && (
-          <div style={{
-            backgroundColor: '#ffebee',
-            border: '1px solid #ef9a9a',
-            borderRadius: '6px',
-            padding: '10px 14px',
-            marginBottom: '14px',
-            fontSize: '12.5px'
-          }}>
-            <strong style={{ color: '#c62828', display: 'block', marginBottom: '4px' }}>
-              ⚠️ Missing Requirements ({errors.length}):
-            </strong>
-            <ul style={{ margin: 0, paddingLeft: '16px', color: '#b71c1c' }}>
-              {errors.map((err, idx) => (
-                <li key={idx}>
-                  {err.message}
-                  {err.section && (
-                    <button
-                      type="button"
-                      onClick={() => onNavigateTab(err.section)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#1565c0',
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                        padding: '0 4px',
-                        fontSize: '11.5px',
-                        fontWeight: 600
-                      }}
-                    >
-                      [Go to section]
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="voltare-btn"
-            disabled={!canDownloadPdf || isGeneratingPdf}
-            onClick={onDownloadPdf}
-            style={{
-              flex: '1 1 220px',
-              backgroundColor: canDownloadPdf ? '#2e7d32' : '#9e9e9e',
-              cursor: canDownloadPdf ? 'pointer' : 'not-allowed',
-              opacity: canDownloadPdf ? 1 : 0.65,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              fontSize: '14px',
-              fontWeight: 700
-            }}
-            title={canDownloadPdf ? "Export strictly single-page vector A4 PDF" : "Reach at least 80% completion and fix mandatory errors to download"}
-          >
-            {isGeneratingPdf ? (
-              <>
-                <span className="spinner" />
-                <span>Generating Strict Single-Page PDF...</span>
-              </>
-            ) : (
-              <>
-                <span>📥 Download Single-Page PDF</span>
-                {canDownloadPdf && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.25)', padding: '2px 6px', borderRadius: '4px' }}>Strict A4</span>}
-              </>
-            )}
-          </button>
-        </div>
-
-        {!canDownloadPdf && (
-          <div style={{ fontSize: '11.5px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
-            🔒 PDF download unlocks automatically once 80% completion and mandatory fields are satisfied.
-          </div>
-        )}
       </div>
+
+      {/* Section completion boxes with green checkmarks (Identical to Standard Mode) */}
+      <div className="section-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', marginBottom: '16px' }}>
+        {sections.map((s) => (
+          <div
+            key={s.id}
+            className={`section-status-pill ${s.complete ? 'done' : 'pending'}`}
+            onClick={() => onNavigateTab(s.id)}
+            role="button"
+            tabIndex={0}
+            title={s.complete ? `${s.name} is completed!` : `Click to complete ${s.name}`}
+          >
+            <span className="pill-icon">{s.complete ? '✅' : '⏳'}</span>
+            <span className="pill-name">{s.name}</span>
+            {s.complete && <span className="pill-badge">Done</span>}
+          </div>
+        ))}
+      </div>
+
+      {/* Clean friendly guidance box instead of messy red error lists */}
+      {!canDownloadPdf ? (
+        <div className="friendly-hint-box" style={{ marginBottom: '14px' }}>
+          <span style={{ fontSize: '18px' }}>💡</span>
+          <div>
+            <strong>Almost there!</strong> Complete the required sections above (marked with ⏳) to reach 80% completion and unlock single-page PDF download.
+          </div>
+        </div>
+      ) : (
+        <div className="friendly-success-box" style={{ marginBottom: '14px' }}>
+          <span style={{ fontSize: '18px' }}>🎉</span>
+          <div>
+            <strong>Awesome work!</strong> All required criteria are satisfied and your single-page resume is ready for download.
+          </div>
+        </div>
+      )}
+
+      {/* PDF Download Button */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className="voltare-btn"
+          disabled={!canDownloadPdf || isGeneratingPdf}
+          onClick={onDownloadPdf}
+          style={{
+            flex: '1 1 220px',
+            backgroundColor: canDownloadPdf ? '#2e7d32' : '#9e9e9e',
+            cursor: canDownloadPdf ? 'pointer' : 'not-allowed',
+            opacity: canDownloadPdf ? 1 : 0.65,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: 700
+          }}
+          title={canDownloadPdf ? "Export strictly single-page vector A4 PDF" : "Complete required sections (marked with ⏳) to unlock download"}
+        >
+          {isGeneratingPdf ? (
+            <>
+              <span className="spinner" />
+              <span>Generating Strict Single-Page PDF...</span>
+            </>
+          ) : (
+            <>
+              <span>📥 Download Single-Page PDF</span>
+              {canDownloadPdf && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.25)', padding: '2px 6px', borderRadius: '4px' }}>Strict A4</span>}
+            </>
+          )}
+        </button>
+      </div>
+
+      {!canDownloadPdf && (
+        <div style={{ fontSize: '11.5px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
+          🔒 PDF download unlocks automatically once 80% completion and mandatory fields are satisfied.
+        </div>
+      )}
     </div>
   );
 }

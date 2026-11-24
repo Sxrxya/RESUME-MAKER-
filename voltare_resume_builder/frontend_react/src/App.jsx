@@ -717,6 +717,7 @@ export default function App() {
               {/* Flexible Progress & Export Panel */}
               <FlexibleExportPanel
                 validation={flexibleValidation}
+                sectionStatus={flexSectionStatus}
                 onNavigateTab={setActiveFlexTab}
                 onDownloadPdf={handleDownloadFlexiblePdf}
               />
