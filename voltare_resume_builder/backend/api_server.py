@@ -23,6 +23,8 @@ from backend.validation import validate_all
 from backend.layout_engine import validate_layout, get_validation_summary
 from backend.watermark_extractor import get_watermark_path, get_watermark_base64, verify_watermark_exists
 from backend.pdf_generator import generate_pdf_sync, verify_pdf
+from backend.flexible_validation import validate_flexible_resume
+from backend.flexible_renderer import render_flexible_html
 from frontend.candidate_form import SAMPLE_CANDIDATE_DATA, LIMITS
 
 app = FastAPI(
@@ -174,6 +176,48 @@ def download_html(payload: ResumePayload):
         "Content-Disposition": f'attachment; filename="{filename}"'
     }
     return Response(content=html_content, media_type="text/html", headers=headers)
+
+
+@app.post("/api/validate-flexible")
+def validate_flexible_endpoint(payload: ResumePayload):
+    """Validate flexible resume data and return budget metrics."""
+    result = validate_flexible_resume(payload.data)
+    return {
+        "is_valid": result.is_valid,
+        "errors": [{"field": e.field, "message": e.message, "section": e.section} for e in result.errors],
+        "warnings": result.warnings,
+        "progress_percent": result.progress_percent,
+        "can_download_pdf": result.can_download_pdf,
+        "capacity_percent": result.capacity_percent,
+        "density_mode": result.density_mode,
+        "trim_suggestion": result.trim_suggestion,
+    }
+
+
+@app.post("/api/render-flexible-html")
+def render_flexible_html_endpoint(payload: ResumePayload):
+    """Render standalone HTML for flexible resume with embedded watermark."""
+    watermark_b64 = get_watermark_base64()
+    html_content = render_flexible_html(payload.data, watermark_base64=watermark_b64)
+    return {"html": html_content}
+
+
+@app.post("/api/download-flexible-html")
+def download_flexible_html(payload: ResumePayload):
+    """Download the standalone flexible HTML resume for printing or archiving."""
+    resume_data = payload.data
+    watermark_b64 = get_watermark_base64()
+    html_content = render_flexible_html(resume_data, watermark_base64=watermark_b64)
+
+    first_name = resume_data.get("personal", {}).get("first_name", "Candidate")
+    last_name = resume_data.get("personal", {}).get("last_name", "")
+    filename = f"Voltare_Flexible_Resume_{first_name}_{last_name}.html".replace(" ", "_")
+
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"'
+    }
+    return Response(content=html_content, media_type="text/html", headers=headers)
+
 
 
 # Serve built React static files if dist exists

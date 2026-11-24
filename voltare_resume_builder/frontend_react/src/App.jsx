@@ -11,6 +11,17 @@ import ProfessionalExperience from './components/form/ProfessionalExperience';
 import AchievementsLeadership from './components/form/AchievementsLeadership';
 import ValidationExport from './components/ValidationExport';
 import LiveResumePreview from './components/LiveResumePreview';
+import ModeSwitcher from './components/ModeSwitcher';
+import PageBudgetTracker from './components/PageBudgetTracker';
+import FlexiblePersonalInfo from './components/flexible_form/FlexiblePersonalInfo';
+import FlexibleSummary from './components/flexible_form/FlexibleSummary';
+import FlexibleEducation from './components/flexible_form/FlexibleEducation';
+import FlexibleProjects from './components/flexible_form/FlexibleProjects';
+import FlexibleSkills from './components/flexible_form/FlexibleSkills';
+import FlexibleExperience from './components/flexible_form/FlexibleExperience';
+import FlexibleCertifications from './components/flexible_form/FlexibleCertifications';
+import FlexibleResumePreview from './components/FlexibleResumePreview';
+import FlexibleExportPanel from './components/FlexibleExportPanel';
 import {
   EMPTY_FORM_DATA,
   SAMPLE_CANDIDATE_DATA,
@@ -19,15 +30,66 @@ import {
   estimateLines,
   CHARS_PER_LINE
 } from './constants/limits';
+import {
+  SAMPLE_FLEXIBLE_DATA,
+  EMPTY_FLEXIBLE_DATA,
+  FLEXIBLE_LIMITS
+} from './constants/flexibleLimits';
+import { validateFlexibleResume } from './utils/flexibleValidation';
 
 export default function App() {
+  const [resumeMode, setResumeMode] = useState('standard'); // 'standard' | 'flexible'
   const [formData, setFormData] = useState(() => ({ ...EMPTY_FORM_DATA }));
+  const [flexibleData, setFlexibleData] = useState(() => ({ ...SAMPLE_FLEXIBLE_DATA }));
   const [activeTab, setActiveTab] = useState('personal');
+  const [activeFlexTab, setActiveFlexTab] = useState('personal');
   const [mobileView, setMobileView] = useState('form'); // 'form' or 'preview'
   const [watermarkBase64, setWatermarkBase64] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Compute section completion status for friendly notifications & badges
+  // Flexible validation & 1-page budget analysis
+  const flexibleValidation = validateFlexibleResume(flexibleData);
+
+  // Flexible section completion status
+  const flexSectionStatus = {
+    personal: Boolean(
+      flexibleData.personal?.first_name?.trim() &&
+      flexibleData.personal?.last_name?.trim() &&
+      flexibleData.personal?.email?.trim() &&
+      flexibleData.personal?.phone?.trim() &&
+      flexibleData.personal?.city_state?.trim()
+    ),
+    summary: Boolean(
+      flexibleData.summary?.trim() &&
+      flexibleData.summary.trim().length >= FLEXIBLE_LIMITS.summaryMinChars
+    ),
+    education: Boolean(
+      (flexibleData.education || []).filter(e => e.institution?.trim() && e.degree?.trim()).length >= 2
+    ),
+    projects: Boolean(
+      (flexibleData.projects || []).filter(p => p.title?.trim() && p.bullet_1?.trim()).length >= 1
+    ),
+    skills: Boolean(
+      flexibleData.skills?.languages?.trim() ||
+      flexibleData.skills?.frameworks?.trim() ||
+      flexibleData.skills?.tools_cloud?.trim() ||
+      flexibleData.skills?.concepts?.trim()
+    ),
+    experience: Boolean((flexibleData.experience || []).length > 0),
+    certifications: Boolean(flexibleData.certifications?.trim()),
+  };
+
+  const flexibleTabs = [
+    { id: 'personal', label: '👤 Personal', completed: flexSectionStatus.personal },
+    { id: 'summary', label: '📝 Summary', completed: flexSectionStatus.summary },
+    { id: 'education', label: '🎓 Education', completed: flexSectionStatus.education },
+    { id: 'projects', label: '🚀 Projects', completed: flexSectionStatus.projects },
+    { id: 'skills', label: '🛠️ Skills', completed: flexSectionStatus.skills },
+    { id: 'experience', label: '💼 Experience', completed: flexSectionStatus.experience },
+    { id: 'certifications', label: '🏆 Certifications', completed: flexSectionStatus.certifications },
+  ];
+
+  // Compute standard section completion status
   const sectionStatus = {
     personal: Boolean(
       formData.first_name?.trim() &&
@@ -160,6 +222,94 @@ export default function App() {
   const handleClearForm = () => {
     setFormData({ ...EMPTY_FORM_DATA });
     setToastMessage("🧹 Form cleared. Start entering your details!");
+  };
+
+  // Update a single flexible section
+  const handleFlexibleSectionChange = (section, value) => {
+    setFlexibleData((prev) => ({
+      ...prev,
+      [section]: value,
+    }));
+  };
+
+  // Load Fresher Preset (0 Experience, rich projects & skills)
+  const handleLoadFresherData = () => {
+    setFlexibleData({
+      personal: {
+        first_name: "Sneha",
+        last_name: "Kulkarni",
+        email: "sneha.kulkarni@email.com",
+        phone: "+91 91234 56789",
+        city_state: "Pune, Maharashtra",
+        linkedin: "linkedin.com/in/snehakulkarni",
+        portfolio: "github.com/snehakulkarni"
+      },
+      summary: "Motivated Computer Science graduate with hands-on expertise in developing high-throughput web applications, algorithmic optimization, and backend architectures. Proficient in Python, JavaScript, and cloud databases. Eager to contribute clean code, problem-solving skills, and rapid adaptability to collaborative software development teams.",
+      skills: {
+        languages: "Python, JavaScript, TypeScript, C++, SQL",
+        frameworks: "React, Vite, Node.js, FastAPI, Express.js",
+        tools_cloud: "Docker, Git, PostgreSQL, MongoDB, Redis, Linux",
+        concepts: "Object-Oriented Design, RESTful APIs, Data Structures & Algorithms, CI/CD"
+      },
+      education: [
+        {
+          institution: "Pune Institute of Computer Technology (PICT)",
+          location: "Pune, India",
+          degree: "Bachelor of Engineering in Information Technology",
+          grad_date: "2020 – 2024",
+          gpa: "CGPA: 9.1 / 10",
+          highlights: "Coursework: Database Management Systems, Computer Networks, Cloud Computing"
+        },
+        {
+          institution: "Modern Junior College",
+          location: "Pune, India",
+          degree: "Higher Secondary Certificate (HSC - Science)",
+          grad_date: "2018 – 2020",
+          gpa: "Score: 94.2%",
+          highlights: "Distinction in Mathematics and Physics; School Science Club Secretary"
+        }
+      ],
+      projects: [
+        {
+          title: "Intelligent Document Querying & Summarization Engine",
+          tech_stack: "Python, FastAPI, LangChain, FAISS, Streamlit",
+          role_or_org: "Undergraduate Capstone Project",
+          date_range: "Aug 2023 – Apr 2024",
+          bullet_1: "Developed a vector-search document retrieval system processing PDF and DOCX files with sub-second semantic search latency.",
+          bullet_2: "Integrated conversational summarization pipelines reducing manual document analysis time by 65% for research teams.",
+          link: "github.com/snehakulkarni/doc-query"
+        },
+        {
+          title: "Real-Time Microservices Financial Tracker",
+          tech_stack: "React, Node.js, Express, PostgreSQL, Docker",
+          role_or_org: "Personal Engineering Project",
+          date_range: "Dec 2023 – Feb 2024",
+          bullet_1: "Engineered secure RESTful endpoints with JWT authentication and role-based access for multi-currency expense management.",
+          bullet_2: "Optimized complex SQL aggregation queries using composite indexes, cutting database response times by 35%.",
+          link: "github.com/snehakulkarni/fin-tracker"
+        }
+      ],
+      experience: [], // 0 experience! Pure fresher case
+      certifications: "Winner - Smart Pune Hackathon 2023, HackerRank 5-Star Python Certification"
+    });
+    setToastMessage("🎓 Loaded Fresher Preset! Notice how 0 experience automatically auto-expands to fill the page.");
+  };
+
+  // Load Experienced Preset
+  const handleLoadExperiencedData = () => {
+    setFlexibleData({ ...SAMPLE_FLEXIBLE_DATA });
+    setToastMessage("💼 Loaded Experienced Preset with internships & projects!");
+  };
+
+  // Clear flexible form
+  const handleClearFlexibleForm = () => {
+    setFlexibleData({ ...EMPTY_FLEXIBLE_DATA });
+    setToastMessage("🧹 Flexible form cleared. Start adding your details!");
+  };
+
+  // Download flexible PDF via strict vector print
+  const handleDownloadFlexiblePdf = () => {
+    window.print();
   };
 
   // Client-side validation ensuring Project 1 is compulsory and Projects 2 & 3 are optional
@@ -330,6 +480,16 @@ export default function App() {
     }
   };
 
+  const handleModeChange = (newMode) => {
+    if (newMode === resumeMode) return;
+    setResumeMode(newMode);
+    if (newMode === 'flexible') {
+      setToastMessage("✨ Switched to Voltare Flexible Resume Builder (Dynamic 1-Page Layout)");
+    } else {
+      setToastMessage("📄 Switched to Standard Voltare Resume Format (Official Strict Template)");
+    }
+  };
+
   return (
     <div className="app-container">
       {/* Friendly Toast Notification */}
@@ -337,6 +497,9 @@ export default function App() {
 
       {/* Top Header */}
       <Header />
+
+      {/* Top Mode Selector: Standard vs Flexible */}
+      <ModeSwitcher currentMode={resumeMode} onSelectMode={handleModeChange} />
 
       {/* Mobile/Tablet View Switcher */}
       <div className="mobile-view-switcher">
@@ -360,86 +523,202 @@ export default function App() {
       <main className="main-layout">
         {/* LEFT PANEL: Candidate Input Form */}
         <section className={`left-panel ${mobileView !== 'form' ? 'hidden-mobile' : ''}`}>
-          <h2>✍️ Candidate Information</h2>
+          {resumeMode === 'standard' ? (
+            /* STANDARD MODE FORM */
+            <>
+              <h2>✍️ Candidate Information</h2>
 
-          {/* Action buttons */}
-          <div className="form-actions-row" style={{ flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="voltare-btn"
-              style={{ backgroundColor: '#2a6f97', flex: '1 1 200px' }}
-              onClick={handleFillRemainingWithTemplate}
-              title="Preserves what you typed (name, contacts) and fills empty sections with template data so your resume looks full immediately"
-            >
-              🪄 Keep My Info & Fill Rest
-            </button>
-            <button
-              type="button"
-              className="voltare-btn"
-              style={{ flex: '1 1 180px' }}
-              onClick={handleLoadOfficialData}
-            >
-              📋 Load Full Sample
-            </button>
-            <button
-              type="button"
-              className="voltare-btn secondary"
-              style={{ flex: '0 1 120px' }}
-              onClick={handleClearForm}
-            >
-              🧹 Clear
-            </button>
-          </div>
+              {/* Action buttons */}
+              <div className="form-actions-row" style={{ flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="voltare-btn"
+                  style={{ backgroundColor: '#2a6f97', flex: '1 1 200px' }}
+                  onClick={handleFillRemainingWithTemplate}
+                  title="Preserves what you typed (name, contacts) and fills empty sections with template data so your resume looks full immediately"
+                >
+                  🪄 Keep My Info & Fill Rest
+                </button>
+                <button
+                  type="button"
+                  className="voltare-btn"
+                  style={{ flex: '1 1 180px' }}
+                  onClick={handleLoadOfficialData}
+                >
+                  📋 Load Full Sample
+                </button>
+                <button
+                  type="button"
+                  className="voltare-btn secondary"
+                  style={{ flex: '0 1 120px' }}
+                  onClick={handleClearForm}
+                >
+                  🧹 Clear
+                </button>
+              </div>
 
-          <div className="panel-subnote">
-            Fill in the required fields marked with{' '}
-            <span style={{ color: '#e63946' }}>🔴</span>. Character limits ensure clean single-page formatting.
-          </div>
+              <div className="panel-subnote">
+                Fill in the required fields marked with{' '}
+                <span style={{ color: '#e63946' }}>🔴</span>. Character limits ensure clean single-page formatting.
+              </div>
 
-          {/* Form Tabs with completion checkmarks */}
-          <Tabs
-            tabs={formTabs}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-          />
+              {/* Form Tabs with completion checkmarks */}
+              <Tabs
+                tabs={formTabs}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+              />
 
-          {/* Form Tab Panels */}
-          {activeTab === 'personal' && (
-            <PersonalInfo data={formData} onChange={handleFieldChange} />
-          )}
-          {activeTab === 'summary' && (
-            <ProfessionalSummary data={formData} onChange={handleFieldChange} />
-          )}
-          {activeTab === 'education' && (
-            <Education data={formData} onChange={handleFieldChange} />
-          )}
-          {activeTab === 'research' && (
-            <ResearchProjects data={formData} onChange={handleFieldChange} />
-          )}
-          {activeTab === 'experience' && (
-            <ProfessionalExperience data={formData} onChange={handleFieldChange} />
-          )}
-          {activeTab === 'achievements' && (
-            <AchievementsLeadership data={formData} onChange={handleFieldChange} />
-          )}
+              {/* Form Tab Panels */}
+              {activeTab === 'personal' && (
+                <PersonalInfo data={formData} onChange={handleFieldChange} />
+              )}
+              {activeTab === 'summary' && (
+                <ProfessionalSummary data={formData} onChange={handleFieldChange} />
+              )}
+              {activeTab === 'education' && (
+                <Education data={formData} onChange={handleFieldChange} />
+              )}
+              {activeTab === 'research' && (
+                <ResearchProjects data={formData} onChange={handleFieldChange} />
+              )}
+              {activeTab === 'experience' && (
+                <ProfessionalExperience data={formData} onChange={handleFieldChange} />
+              )}
+              {activeTab === 'achievements' && (
+                <AchievementsLeadership data={formData} onChange={handleFieldChange} />
+              )}
 
-          {/* Friendly Progress & Export Section */}
-          <ValidationExport
-            formData={formData}
-            sectionStatus={sectionStatus}
-            onNavigateTab={setActiveTab}
-            onDownloadHtml={handleDownloadHtml}
-          />
+              {/* Friendly Progress & Export Section */}
+              <ValidationExport
+                formData={formData}
+                sectionStatus={sectionStatus}
+                onNavigateTab={setActiveTab}
+                onDownloadHtml={handleDownloadHtml}
+              />
+            </>
+          ) : (
+            /* FLEXIBLE MODE FORM */
+            <>
+              <h2>✍️ Modular Resume Builder</h2>
+
+              {/* Action buttons */}
+              <div className="form-actions-row" style={{ flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="voltare-btn"
+                  style={{ backgroundColor: '#2e7d32', flex: '1 1 200px' }}
+                  onClick={handleLoadFresherData}
+                  title="Loads a fresher profile with 0 experience, 2 projects, and auto-expanded spacing"
+                >
+                  🎓 Fresher Preset (0 Exp)
+                </button>
+                <button
+                  type="button"
+                  className="voltare-btn"
+                  style={{ backgroundColor: '#2a6f97', flex: '1 1 180px' }}
+                  onClick={handleLoadExperiencedData}
+                  title="Loads an experienced candidate profile with internship and projects"
+                >
+                  💼 Experienced Preset
+                </button>
+                <button
+                  type="button"
+                  className="voltare-btn secondary"
+                  style={{ flex: '0 1 110px' }}
+                  onClick={handleClearFlexibleForm}
+                >
+                  🧹 Clear
+                </button>
+              </div>
+
+              <div className="panel-subnote">
+                Modular layout. Professional Summary requires <strong>150+ chars</strong>. Freshers can leave Experience at 0 without penalty.
+              </div>
+
+              {/* Real-Time Single-Page Budget Tracker */}
+              <PageBudgetTracker budget={flexibleValidation.budget} />
+
+              {/* Flexible Form Tabs */}
+              <Tabs
+                tabs={flexibleTabs}
+                activeTab={activeFlexTab}
+                onChange={setActiveFlexTab}
+              />
+
+              {/* Flexible Tab Panels */}
+              {activeFlexTab === 'personal' && (
+                <FlexiblePersonalInfo
+                  personal={flexibleData.personal}
+                  onChange={(val) => handleFlexibleSectionChange('personal', val)}
+                />
+              )}
+              {activeFlexTab === 'summary' && (
+                <FlexibleSummary
+                  summary={flexibleData.summary}
+                  onChange={(val) => handleFlexibleSectionChange('summary', val)}
+                />
+              )}
+              {activeFlexTab === 'education' && (
+                <FlexibleEducation
+                  education={flexibleData.education}
+                  onChange={(val) => handleFlexibleSectionChange('education', val)}
+                />
+              )}
+              {activeFlexTab === 'projects' && (
+                <FlexibleProjects
+                  projects={flexibleData.projects}
+                  onChange={(val) => handleFlexibleSectionChange('projects', val)}
+                />
+              )}
+              {activeFlexTab === 'skills' && (
+                <FlexibleSkills
+                  skills={flexibleData.skills}
+                  onChange={(val) => handleFlexibleSectionChange('skills', val)}
+                />
+              )}
+              {activeFlexTab === 'experience' && (
+                <FlexibleExperience
+                  experience={flexibleData.experience}
+                  onChange={(val) => handleFlexibleSectionChange('experience', val)}
+                />
+              )}
+              {activeFlexTab === 'certifications' && (
+                <FlexibleCertifications
+                  certifications={flexibleData.certifications}
+                  onChange={(val) => handleFlexibleSectionChange('certifications', val)}
+                />
+              )}
+
+              {/* Flexible Progress & Export Panel */}
+              <FlexibleExportPanel
+                validation={flexibleValidation}
+                onNavigateTab={setActiveFlexTab}
+                onDownloadPdf={handleDownloadFlexiblePdf}
+              />
+            </>
+          )}
         </section>
 
         {/* RIGHT PANEL: Live Resume Preview */}
         <section className={`right-panel ${mobileView !== 'preview' ? 'hidden-mobile' : ''}`}>
-          <h2>📄 Live Resume Preview</h2>
-          <div className="panel-subnote">
-            Updates in real-time as you type. Your downloaded PDF will match this layout exactly.
-          </div>
-
-          <LiveResumePreview data={formData} watermarkBase64={watermarkBase64} />
+          {resumeMode === 'standard' ? (
+            <>
+              <h2>📄 Standard Voltare Resume Format</h2>
+              <div className="panel-subnote">
+                Official Voltare template with fixed coordinates and calibrated styling.
+              </div>
+              <LiveResumePreview data={formData} watermarkBase64={watermarkBase64} />
+            </>
+          ) : (
+            <>
+              <h2>📄 Live Flexible Resume Preview</h2>
+              <div className="panel-subnote">
+                Dynamic auto-fill layout. Automatically expands for freshers or squeezes for experienced profiles.
+              </div>
+              <FlexibleResumePreview data={flexibleData} watermarkBase64={watermarkBase64} />
+            </>
+          )}
         </section>
       </main>
 

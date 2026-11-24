@@ -874,3 +874,693 @@ h3 {
   margin-top: 12px;
   font-size: 13px;
 }
+
+/* Mode Switcher Banner */
+.mode-switcher-container {
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.mode-switcher-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--color-muted);
+  margin-bottom: 12px;
+}
+
+.mode-icon {
+  font-size: 16px;
+}
+
+.mode-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .mode-cards-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  font-family: inherit;
+}
+
+.mode-card:hover {
+  border-color: #b09a93;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.mode-card.selected {
+  background: #fff;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 14px rgba(125, 17, 40, 0.12);
+}
+
+.mode-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.mode-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mode-card.selected .mode-title {
+  color: var(--color-primary);
+}
+
+.mode-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.badge-standard {
+  background: #fbebee;
+  color: var(--color-primary);
+  border: 1px solid rgba(125, 17, 40, 0.2);
+}
+
+.badge-flexible {
+  background: #e8f4f8;
+  color: #1d5f82;
+  border: 1px solid rgba(29, 95, 130, 0.25);
+}
+
+.mode-desc {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+  flex-grow: 1;
+}
+
+.mode-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mode-pill {
+  font-size: 11px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--color-text);
+}
+
+.mode-card.selected .mode-pill {
+  border-color: var(--color-border-input);
+  background: #fbf9f7;
+}
+
+/* Page Budget & Capacity Bar */
+.page-budget-tracker {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.budget-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.budget-title {
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.budget-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.badge-spacious { background: #e3f2fd; color: #1565c0; }
+.badge-balanced { background: #e8f5e9; color: #2e7d32; }
+.badge-compact { background: #fff3e0; color: #e65100; }
+.badge-overflow { background: #ffebee; color: #c62828; }
+
+.budget-bar-track {
+  height: 8px;
+  background: #eee6e2;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.budget-overflow-alert {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: #c62828;
+  background: #fff5f5;
+  border-left: 3px solid #c62828;
+  padding: 6px 10px;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+
+/* Modular Form Elements */
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.req-badge {
+  font-size: 11px;
+  background: #fbebee;
+  color: #c62828;
+  border: 1px solid rgba(198, 40, 40, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.optional-badge {
+  font-size: 11px;
+  background: #e8f4f8;
+  color: #1565c0;
+  border: 1px solid rgba(21, 101, 192, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.entries-count-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-muted);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.threshold-meter-container {
+  margin: 8px 0 12px 0;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.threshold-meter-track {
+  height: 6px;
+  background: #eee6e2;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.threshold-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.threshold-meter-fill.fill-ready {
+  background: #2e7d32;
+}
+
+.threshold-meter-fill.fill-warning {
+  background: #f57c00;
+}
+
+.threshold-meter-label {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.char-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.badge-satisfied {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+
+.badge-needed {
+  background: #fff3e0;
+  color: #e65100;
+  border: 1px solid rgba(230, 81, 0, 0.3);
+}
+
+.modular-entry-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.modular-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1eae5;
+}
+
+.entry-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-required {
+  font-size: 11px;
+  color: #c62828;
+  font-weight: 700;
+}
+
+.tag-optional {
+  font-size: 11px;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.entry-remove-btn {
+  background: none;
+  border: 1px solid #e0c8c3;
+  color: #c62828;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.entry-remove-btn:hover {
+  background: #ffebee;
+  border-color: #c62828;
+}
+
+.add-entry-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #ffffff;
+  border: 1.5px dashed #2a6f97;
+  color: #2a6f97;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.add-entry-btn:hover {
+  background: #f0f7fa;
+}
+
+.fresher-notice-card {
+  display: flex;
+  gap: 12px;
+  background: #eef7fc;
+  border: 1px solid #bce1f5;
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.fresher-notice-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.fresher-notice-content {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #10415a;
+}
+
+/* Flexible Resume Preview Sheet & Dynamic Density */
+.flexible-resume-sheet {
+  box-sizing: border-box;
+  width: 794px;
+  min-height: 1123px;
+  max-height: 1123px;
+  padding: 38px 44px;
+  background-color: #ffffff;
+  color: #222222;
+  font-family: var(--font-serif);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background-size: 500px auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Density: Spacious (Low content, e.g. Freshers with 0 experience) */
+.flexible-resume-sheet.density-spacious {
+  --flex-sec-gap: 16px;
+  --flex-item-gap: 9px;
+  --flex-line-height: 1.28;
+  --flex-font-size: 14px;
+  --flex-h2-margin: 6px;
+}
+
+/* Density: Balanced (Optimal single page) */
+.flexible-resume-sheet.density-balanced {
+  --flex-sec-gap: 12px;
+  --flex-item-gap: 7px;
+  --flex-line-height: 1.20;
+  --flex-font-size: 13.5px;
+  --flex-h2-margin: 5px;
+}
+
+/* Density: Compact (High content, multi-projects & experience) */
+.flexible-resume-sheet.density-compact {
+  --flex-sec-gap: 9px;
+  --flex-item-gap: 4px;
+  --flex-line-height: 1.14;
+  --flex-font-size: 13px;
+  --flex-h2-margin: 4px;
+}
+
+/* Density: Overflow (Approaching boundary) */
+.flexible-resume-sheet.density-overflow {
+  --flex-sec-gap: 7px;
+  --flex-item-gap: 3px;
+  --flex-line-height: 1.10;
+  --flex-font-size: 12.5px;
+  --flex-h2-margin: 3px;
+}
+
+.flex-resume-header {
+  text-align: center;
+  margin-bottom: var(--flex-sec-gap);
+  border-bottom: 1.5px solid var(--color-primary);
+  padding-bottom: 8px;
+}
+
+.flex-candidate-name {
+  font-family: var(--font-sc) !important;
+  font-size: 26px !important;
+  font-weight: 700;
+  color: var(--color-primary) !important;
+  letter-spacing: 2.5px;
+  margin: 0 0 4px 0 !important;
+  line-height: 1.1;
+  text-transform: uppercase;
+  border: none !important;
+}
+
+.flex-contact-line {
+  font-size: 12.5px;
+  color: #333333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.2;
+}
+
+.flex-bullet-sep {
+  color: var(--color-primary);
+  font-size: 9px;
+  opacity: 0.8;
+}
+
+.flex-resume-section {
+  margin-bottom: var(--flex-sec-gap);
+  page-break-inside: avoid;
+}
+
+.flex-section-title {
+  font-family: var(--font-sc) !important;
+  font-size: 13.5px !important;
+  font-weight: 700;
+  color: var(--color-primary) !important;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-primary) !important;
+  margin: 0 0 var(--flex-h2-margin) 0 !important;
+  padding: 0 0 2px 0 !important;
+  line-height: 1.2;
+}
+
+.flex-summary-body {
+  font-size: var(--flex-font-size);
+  line-height: var(--flex-line-height);
+  margin: 0;
+  text-align: justify;
+  color: #2b2b2b;
+}
+
+.flex-skills-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: var(--flex-font-size);
+  line-height: var(--flex-line-height);
+}
+
+.flex-skill-row {
+  display: flex;
+  gap: 6px;
+}
+
+.flex-skill-label {
+  font-weight: 700;
+  color: #111;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.flex-skill-val {
+  color: #333;
+}
+
+.flex-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--flex-item-gap);
+}
+
+.flex-item-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-item-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--flex-font-size);
+  line-height: var(--flex-line-height);
+}
+
+.flex-item-subline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: calc(var(--flex-font-size) - 0.5px);
+  color: #444;
+  line-height: var(--flex-line-height);
+}
+
+.flex-item-title {
+  font-weight: 700;
+  color: #111;
+}
+
+.flex-tech-stack {
+  font-weight: normal;
+  color: #444;
+}
+
+.flex-item-location, .flex-item-date {
+  font-weight: 600;
+  color: #444;
+  font-size: calc(var(--flex-font-size) - 0.5px);
+  white-space: nowrap;
+}
+
+.flex-item-role {
+  font-style: italic;
+  color: #333;
+}
+
+.flex-project-link {
+  font-size: calc(var(--flex-font-size) - 1px);
+  margin: 1px 0;
+}
+
+.flex-project-link a {
+  color: #1d5f82;
+  text-decoration: none;
+}
+
+.flex-project-link a:hover {
+  text-decoration: underline;
+}
+
+.flex-bullets-list {
+  margin: 3px 0 0 16px;
+  padding: 0;
+  font-size: var(--flex-font-size);
+  line-height: var(--flex-line-height);
+  color: #2b2b2b;
+}
+
+.flex-bullets-list li {
+  margin-bottom: 2px;
+}
+
+.flex-edu-highlights {
+  font-size: calc(var(--flex-font-size) - 1px);
+  color: #555;
+  margin-top: 2px;
+}
+
+.flex-cert-text {
+  font-size: var(--flex-font-size);
+  line-height: var(--flex-line-height);
+  margin: 0;
+  color: #2b2b2b;
+}
+
+/* Strict A4 Vector Print Rules for PDF Generation */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .voltare-header,
+  .mode-switcher-container,
+  .mobile-view-switcher,
+  .left-panel,
+  .panel-subnote,
+  .voltare-footer,
+  .voltare-toast-container,
+  .right-panel > h2,
+  .right-panel > .panel-subnote {
+    display: none !important;
+  }
+
+  .app-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .main-layout {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .right-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .preview-scaler-wrapper {
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .preview-sheet-outer {
+    transform: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .flexible-resume-sheet,
+  .resume-sheet {
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+
+
