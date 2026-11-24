@@ -137,6 +137,25 @@ export default function App() {
     setToastMessage("📋 Loaded official template data successfully!");
   };
 
+  // Keep candidate's entered information and fill in all remaining empty sections with official template data
+  const handleFillRemainingWithTemplate = () => {
+    setFormData((prev) => {
+      const merged = { ...SAMPLE_CANDIDATE_DATA };
+      // Preserve any non-empty fields user already filled
+      Object.keys(prev).forEach((key) => {
+        if (prev[key] && String(prev[key]).trim() !== '') {
+          merged[key] = prev[key];
+        }
+      });
+      // If user typed personal details but phone was left blank, provide a clean default
+      if (!merged.phone || !merged.phone.trim()) {
+        merged.phone = "+91 98765 43210";
+      }
+      return merged;
+    });
+    setToastMessage("🪄 Kept your info & filled remaining sections with official Voltare template!");
+  };
+
   // Clear form
   const handleClearForm = () => {
     setFormData({ ...EMPTY_FORM_DATA });
@@ -344,20 +363,31 @@ export default function App() {
           <h2>✍️ Candidate Information</h2>
 
           {/* Action buttons */}
-          <div className="form-actions-row">
+          <div className="form-actions-row" style={{ flexWrap: 'wrap' }}>
             <button
               type="button"
               className="voltare-btn"
+              style={{ backgroundColor: '#2a6f97', flex: '1 1 200px' }}
+              onClick={handleFillRemainingWithTemplate}
+              title="Preserves what you typed (name, contacts) and fills empty sections with template data so your resume looks full immediately"
+            >
+              🪄 Keep My Info & Fill Rest
+            </button>
+            <button
+              type="button"
+              className="voltare-btn"
+              style={{ flex: '1 1 180px' }}
               onClick={handleLoadOfficialData}
             >
-              📋 Load Official Template Data
+              📋 Load Full Sample
             </button>
             <button
               type="button"
               className="voltare-btn secondary"
+              style={{ flex: '0 1 120px' }}
               onClick={handleClearForm}
             >
-              🧹 Clear Form
+              🧹 Clear
             </button>
           </div>
 
