@@ -4,6 +4,7 @@ import { validateFlexibleResume } from '../utils/flexibleValidation';
 export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   const previewContainerRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [spacingBalance, setSpacingBalance] = useState('auto'); // 'auto' | 'spacious' | 'compact'
 
   // Auto-scale preview sheet to fit device screen width cleanly
   useEffect(() => {
@@ -71,36 +72,51 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   let dynamicSecGap = '14px';
   let dynamicPadding = '38px 44px';
 
-  if (capacity < 65) {
+  if (spacingBalance === 'spacious') {
     dynamicFontSize = '15px';
-    dynamicLineHeight = 1.36;
+    dynamicLineHeight = 1.38;
     dynamicItemGap = '12px';
     dynamicSecGap = '24px';
     dynamicPadding = '46px 46px';
-  } else if (capacity < 82) {
-    dynamicFontSize = '14.2px';
-    dynamicLineHeight = 1.28;
-    dynamicItemGap = '9px';
-    dynamicSecGap = '18px';
-    dynamicPadding = '42px 45px';
-  } else if (capacity <= 93) {
-    dynamicFontSize = '13.6px';
-    dynamicLineHeight = 1.20;
-    dynamicItemGap = '7px';
-    dynamicSecGap = '13px';
-    dynamicPadding = '38px 44px';
-  } else if (capacity <= 100) {
-    dynamicFontSize = '13px';
-    dynamicLineHeight = 1.15;
-    dynamicItemGap = '5px';
-    dynamicSecGap = '9px';
-    dynamicPadding = '34px 42px';
+  } else if (spacingBalance === 'compact') {
+    dynamicFontSize = '12.8px';
+    dynamicLineHeight = 1.14;
+    dynamicItemGap = '4px';
+    dynamicSecGap = '8px';
+    dynamicPadding = '32px 40px';
   } else {
-    dynamicFontSize = '12.4px';
-    dynamicLineHeight = 1.10;
-    dynamicItemGap = '3px';
-    dynamicSecGap = '6px';
-    dynamicPadding = '28px 38px';
+    // 'auto' mode: calculates based on content capacity
+    if (capacity < 65) {
+      dynamicFontSize = '15px';
+      dynamicLineHeight = 1.36;
+      dynamicItemGap = '12px';
+      dynamicSecGap = '24px';
+      dynamicPadding = '46px 46px';
+    } else if (capacity < 82) {
+      dynamicFontSize = '14.2px';
+      dynamicLineHeight = 1.28;
+      dynamicItemGap = '9px';
+      dynamicSecGap = '18px';
+      dynamicPadding = '42px 45px';
+    } else if (capacity <= 93) {
+      dynamicFontSize = '13.6px';
+      dynamicLineHeight = 1.20;
+      dynamicItemGap = '7px';
+      dynamicSecGap = '13px';
+      dynamicPadding = '38px 44px';
+    } else if (capacity <= 100) {
+      dynamicFontSize = '13px';
+      dynamicLineHeight = 1.15;
+      dynamicItemGap = '5px';
+      dynamicSecGap = '9px';
+      dynamicPadding = '34px 42px';
+    } else {
+      dynamicFontSize = '12.4px';
+      dynamicLineHeight = 1.10;
+      dynamicItemGap = '3px';
+      dynamicSecGap = '6px';
+      dynamicPadding = '28px 38px';
+    }
   }
 
   // Has at least 1 filled experience?
@@ -131,6 +147,69 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
 
   return (
     <div className="preview-scaler-wrapper" ref={previewContainerRef}>
+      {/* Page Auto-Fit Spacing Controls */}
+      <div className="preview-toolbar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: '#6D605C', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          📐 Page Layout:
+        </span>
+        <div style={{ display: 'inline-flex', background: '#ffffff', border: '1px solid #E4D9D3', borderRadius: '20px', padding: '2px' }}>
+          <button
+            type="button"
+            onClick={() => setSpacingBalance('auto')}
+            style={{
+              padding: '4px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              borderRadius: '16px',
+              border: 'none',
+              background: spacingBalance === 'auto' ? '#7D1128' : 'transparent',
+              color: spacingBalance === 'auto' ? '#ffffff' : '#444',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            title="Automatically scales font size, line height, and section gaps so content fills the entire A4 page"
+          >
+            ✨ Full Page Auto-Fill
+          </button>
+          <button
+            type="button"
+            onClick={() => setSpacingBalance('spacious')}
+            style={{
+              padding: '4px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              borderRadius: '16px',
+              border: 'none',
+              background: spacingBalance === 'spacious' ? '#7D1128' : 'transparent',
+              color: spacingBalance === 'spacious' ? '#ffffff' : '#444',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            title="Expands font size and section gaps for minimal/low content resumes"
+          >
+            🌱 Extra Spacious
+          </button>
+          <button
+            type="button"
+            onClick={() => setSpacingBalance('compact')}
+            style={{
+              padding: '4px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              borderRadius: '16px',
+              border: 'none',
+              background: spacingBalance === 'compact' ? '#7D1128' : 'transparent',
+              color: spacingBalance === 'compact' ? '#ffffff' : '#444',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            title="Squeezes margins and line height for dense resumes"
+          >
+            📦 Compact
+          </button>
+        </div>
+      </div>
+
       <div
         className="preview-sheet-outer"
         style={{
@@ -166,7 +245,12 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
           </header>
 
           {/* DYNAMIC AUTO-JUSTIFIED SECTIONS CONTAINER */}
-          <div className="flex-sections-container">
+          <div
+            className="flex-sections-container"
+            style={{
+              justifyContent: spacingBalance === 'compact' ? 'flex-start' : 'space-between',
+            }}
+          >
             {/* PROFESSIONAL SUMMARY */}
             {data.summary?.trim() && (
               <section className="flex-resume-section">
