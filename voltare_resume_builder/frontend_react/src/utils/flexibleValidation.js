@@ -340,94 +340,6 @@ export function validateFlexibleResume(data) {
 
   const progressPercent = Math.min(100, score);
 
-  // Intelligent Production-Grade Page-Fill Advisor
-  // When resume capacity is under 85%, diagnose content deficits and give specific, actionable advice to fill 1 A4 page naturally
-  const recommendations = [];
-  if (capacityPercent < 85) {
-    // 1. Check Projects for missing 2nd bullet or 2nd project
-    const p1 = projects[0] || {};
-    if (validProjectCount >= 1 && (!p1.bullet_2 || !p1.bullet_2.trim())) {
-      recommendations.push({
-        section: 'projects',
-        tab: 'projects',
-        title: 'Add 2nd bullet to Project #1',
-        impact: '+8% Page Fill',
-        message: 'Project #1 has only 1 bullet point. Add another bullet point describing your architecture, metrics, or results.'
-      });
-    }
-    if (projects.length < 2 || !projects[1]?.title?.trim()) {
-      recommendations.push({
-        section: 'projects',
-        tab: 'projects',
-        title: 'Add a 2nd Technical or Academic Project',
-        impact: '+15% Page Fill',
-        message: 'Adding a 2nd project showcases your breadth of experience and fills the remaining page space cleanly.'
-      });
-    }
-
-    // 2. Check Skills matrix categories
-    const emptySkillCategories = [];
-    if (!skills.concepts?.trim()) emptySkillCategories.push('Core Competencies');
-    if (!skills.tools_cloud?.trim()) emptySkillCategories.push('Tools & Software');
-    if (!skills.languages?.trim()) emptySkillCategories.push('Languages & Tech');
-    if (!skills.frameworks?.trim()) emptySkillCategories.push('Domain Knowledge');
-
-    if (emptySkillCategories.length > 0) {
-      recommendations.push({
-        section: 'skills',
-        tab: 'skills',
-        title: `Complete Skills Matrix (${emptySkillCategories.slice(0, 2).join(', ')})`,
-        impact: `+${Math.min(16, emptySkillCategories.length * 4)}% Page Fill`,
-        message: `You have unfilled skill categories (${emptySkillCategories.join(', ')}). Filling them provides a rich, balanced matrix.`
-      });
-    }
-
-    // 3. Check Education coursework / highlights
-    const needsEduHighlights = education.some((e, i) => i < 2 && (!e.highlights || !e.highlights.trim()));
-    if (needsEduHighlights) {
-      recommendations.push({
-        section: 'education',
-        tab: 'education',
-        title: 'Add Coursework or Academic Honors to Education',
-        impact: '+6% Page Fill',
-        message: 'Add relevant coursework, academic distinctions, or capstone details under your degree entries to enrich your academic profile.'
-      });
-    }
-
-    // 4. Check Custom Section
-    if (!custom.title?.trim() || !custom.subhead_1?.title?.trim()) {
-      recommendations.push({
-        section: 'custom',
-        tab: 'custom',
-        title: 'Add a Custom Section (Leadership, Awards, or Research)',
-        impact: '+16% Page Fill',
-        message: 'Create a tailored section with your own custom heading, 2 subheadings, and bullet points to complete your 1-page document.'
-      });
-    }
-
-    // 5. Check Certifications
-    if (!data.certifications?.trim()) {
-      recommendations.push({
-        section: 'certifications',
-        tab: 'certifications',
-        title: 'Add Certifications & Honors',
-        impact: '+5% Page Fill',
-        message: 'List professional credentials (e.g. AWS, Coursera, HackerRank, University Honors) to demonstrate continuous skill development.'
-      });
-    }
-
-    // 6. Check Summary length
-    if (summary.length >= 150 && summary.length < 280) {
-      recommendations.push({
-        section: 'summary',
-        tab: 'summary',
-        title: 'Enrich Professional Summary',
-        impact: '+5% Page Fill',
-        message: `Your summary is concise (${summary.length} chars). Expanding by 1-2 sentences highlighting your domains of expertise will strengthen the opening.`
-      });
-    }
-  }
-
   // Criteria for enabling PDF Download Button:
   // 1. Completion score must be >= 80%
   // 2. Zero critical errors (mandatory fields satisfied & summary >= 150 chars)
@@ -439,7 +351,6 @@ export function validateFlexibleResume(data) {
     isValid: errors.length === 0,
     errors,
     warnings,
-    recommendations,
     progressPercent,
     isEligibleForExport,
     canDownloadPdf,
@@ -449,7 +360,6 @@ export function validateFlexibleResume(data) {
       capacityPercent,
       densityMode,
       trimAdvice,
-      recommendations,
       sectionBreakdown
     }
   };

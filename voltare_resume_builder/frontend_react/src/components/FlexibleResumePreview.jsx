@@ -107,33 +107,6 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
 
   return (
     <div className="preview-scaler-wrapper" ref={previewContainerRef}>
-      {/* Real-time Adaptive Balance Pill */}
-      {layoutMetrics && layoutMetrics.balance && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '10px',
-          fontSize: '12px',
-          color: '#6D605C'
-        }}>
-          <span>
-            📐 <strong>Page Composition:</strong> {layoutMetrics.layout.mode === 'expanded' ? '🌱 Adaptive Expansion' : layoutMetrics.layout.mode === 'compressed' ? '📦 Adaptive Compression' : '⚖️ Balanced Cadence'}
-          </span>
-          <span style={{
-            background: layoutMetrics.balance.status === 'optimal' ? '#e8f5e9' : layoutMetrics.balance.status === 'top-heavy' ? '#fff3e0' : '#f0edea',
-            color: layoutMetrics.balance.status === 'optimal' ? '#2e7d32' : layoutMetrics.balance.status === 'top-heavy' ? '#e65100' : '#444',
-            padding: '2px 8px',
-            borderRadius: '10px',
-            fontWeight: 600,
-            fontSize: '11px'
-          }}>
-            Score: {Math.round(layoutMetrics.balance.balanceScore * 100)}% ({layoutMetrics.balance.status})
-          </span>
-        </div>
-      )}
-
       <div
         className="preview-sheet-outer"
         style={{
