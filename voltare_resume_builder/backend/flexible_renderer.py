@@ -57,20 +57,20 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
     # Skills
     skills = data.get("skills", {})
     skill_rows = []
-    if skills.get("languages"):
-        skill_rows.append(f"<div class='skill-row'><strong>Languages:</strong> <span>{_escape(skills.get('languages'))}</span></div>")
-    if skills.get("frameworks"):
-        skill_rows.append(f"<div class='skill-row'><strong>Frameworks & Web:</strong> <span>{_escape(skills.get('frameworks'))}</span></div>")
-    if skills.get("tools_cloud"):
-        skill_rows.append(f"<div class='skill-row'><strong>Tools & Cloud:</strong> <span>{_escape(skills.get('tools_cloud'))}</span></div>")
     if skills.get("concepts"):
-        skill_rows.append(f"<div class='skill-row'><strong>Core Concepts:</strong> <span>{_escape(skills.get('concepts'))}</span></div>")
+        skill_rows.append(f"<div class='skill-row'><strong>Core Competencies:</strong> <span>{_escape(skills.get('concepts'))}</span></div>")
+    if skills.get("tools_cloud"):
+        skill_rows.append(f"<div class='skill-row'><strong>Tools &amp; Software:</strong> <span>{_escape(skills.get('tools_cloud'))}</span></div>")
+    if skills.get("languages"):
+        skill_rows.append(f"<div class='skill-row'><strong>Languages &amp; Tech:</strong> <span>{_escape(skills.get('languages'))}</span></div>")
+    if skills.get("frameworks"):
+        skill_rows.append(f"<div class='skill-row'><strong>Domain Knowledge:</strong> <span>{_escape(skills.get('frameworks'))}</span></div>")
 
     skills_html = ""
     if skill_rows:
         skills_html = f"""
         <section class="sec">
-            <h2 class="sec-title">Technical Skills</h2>
+            <h2 class="sec-title">Skills</h2>
             <div class="skills-box">
                 {''.join(skill_rows)}
             </div>
@@ -284,10 +284,9 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             {watermark_css}
         }}
         .sections-box {{
-            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: var(--gap, 14px);
         }}
         .sheet.density-spacious {{
             --gap: 16px;

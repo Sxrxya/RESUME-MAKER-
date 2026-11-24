@@ -24,6 +24,7 @@ class FlexibleValidationResult:
     is_valid: bool = True
     errors: List[FlexibleValidationError] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
+    recommendations: List[Dict[str, str]] = field(default_factory=list)
     progress_percent: int = 0
     can_download_pdf: bool = False
     capacity_percent: int = 0

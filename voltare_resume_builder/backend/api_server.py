@@ -186,6 +186,7 @@ def validate_flexible_endpoint(payload: ResumePayload):
         "is_valid": result.is_valid,
         "errors": [{"field": e.field, "message": e.message, "section": e.section} for e in result.errors],
         "warnings": result.warnings,
+        "recommendations": result.recommendations,
         "progress_percent": result.progress_percent,
         "can_download_pdf": result.can_download_pdf,
         "capacity_percent": result.capacity_percent,

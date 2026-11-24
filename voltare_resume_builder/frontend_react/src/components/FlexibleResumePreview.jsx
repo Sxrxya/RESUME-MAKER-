@@ -4,7 +4,6 @@ import { validateFlexibleResume } from '../utils/flexibleValidation';
 export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   const previewContainerRef = useRef(null);
   const [scale, setScale] = useState(1);
-  const [spacingBalance, setSpacingBalance] = useState('auto'); // 'auto' | 'spacious' | 'compact'
 
   // Auto-scale preview sheet to fit device screen width cleanly
   useEffect(() => {
@@ -58,66 +57,9 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
     );
   }
 
-  // Determine active density mode and auto-fit scaling
+  // Natural executive styling: clean, uniform, professional
   const validation = validateFlexibleResume(data);
   const density = validation.budget?.densityMode || 'balanced';
-  const capacity = validation.budget?.capacityPercent || 75;
-
-  // Continuous auto-fill scaling:
-  // Dynamically calculates leading, font size, gaps, and padding based on exact content volume
-  // So low-content resumes expand to fill 100% of the single page, and dense resumes squeeze gracefully.
-  let dynamicFontSize = '13.6px';
-  let dynamicLineHeight = 1.22;
-  let dynamicItemGap = '7px';
-  let dynamicSecGap = '14px';
-  let dynamicPadding = '38px 44px';
-
-  if (spacingBalance === 'spacious') {
-    dynamicFontSize = '15px';
-    dynamicLineHeight = 1.38;
-    dynamicItemGap = '12px';
-    dynamicSecGap = '24px';
-    dynamicPadding = '46px 46px';
-  } else if (spacingBalance === 'compact') {
-    dynamicFontSize = '12.8px';
-    dynamicLineHeight = 1.14;
-    dynamicItemGap = '4px';
-    dynamicSecGap = '8px';
-    dynamicPadding = '32px 40px';
-  } else {
-    // 'auto' mode: calculates based on content capacity
-    if (capacity < 65) {
-      dynamicFontSize = '15px';
-      dynamicLineHeight = 1.36;
-      dynamicItemGap = '12px';
-      dynamicSecGap = '24px';
-      dynamicPadding = '46px 46px';
-    } else if (capacity < 82) {
-      dynamicFontSize = '14.2px';
-      dynamicLineHeight = 1.28;
-      dynamicItemGap = '9px';
-      dynamicSecGap = '18px';
-      dynamicPadding = '42px 45px';
-    } else if (capacity <= 93) {
-      dynamicFontSize = '13.6px';
-      dynamicLineHeight = 1.20;
-      dynamicItemGap = '7px';
-      dynamicSecGap = '13px';
-      dynamicPadding = '38px 44px';
-    } else if (capacity <= 100) {
-      dynamicFontSize = '13px';
-      dynamicLineHeight = 1.15;
-      dynamicItemGap = '5px';
-      dynamicSecGap = '9px';
-      dynamicPadding = '34px 42px';
-    } else {
-      dynamicFontSize = '12.4px';
-      dynamicLineHeight = 1.10;
-      dynamicItemGap = '3px';
-      dynamicSecGap = '6px';
-      dynamicPadding = '28px 38px';
-    }
-  }
 
   // Has at least 1 filled experience?
   const experienceList = (Array.isArray(data.experience) ? data.experience : []).filter(
@@ -151,87 +93,6 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
 
   return (
     <div className="preview-scaler-wrapper" ref={previewContainerRef}>
-      {/* Page Auto-Fit Spacing Controls */}
-      <div className="preview-toolbar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: '#6D605C', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          📐 Spacing:
-        </span>
-        <div style={{ display: 'inline-flex', background: '#ffffff', border: '1px solid #E4D9D3', borderRadius: '20px', padding: '2px' }}>
-          <button
-            type="button"
-            onClick={() => setSpacingBalance('auto')}
-            style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              fontWeight: 600,
-              borderRadius: '16px',
-              border: 'none',
-              background: spacingBalance === 'auto' ? '#7D1128' : 'transparent',
-              color: spacingBalance === 'auto' ? '#ffffff' : '#444',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            title="Uniform, balanced section gaps with auto-scaled typography"
-          >
-            ✨ Balanced Flow
-          </button>
-          <button
-            type="button"
-            onClick={() => setSpacingBalance('spacious')}
-            style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              fontWeight: 600,
-              borderRadius: '16px',
-              border: 'none',
-              background: spacingBalance === 'spacious' ? '#7D1128' : 'transparent',
-              color: spacingBalance === 'spacious' ? '#ffffff' : '#444',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            title="Extra spacious gaps and larger font for low-content resumes"
-          >
-            🌱 Extra Spacious
-          </button>
-          <button
-            type="button"
-            onClick={() => setSpacingBalance('fill')}
-            style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              fontWeight: 600,
-              borderRadius: '16px',
-              border: 'none',
-              background: spacingBalance === 'fill' ? '#7D1128' : 'transparent',
-              color: spacingBalance === 'fill' ? '#ffffff' : '#444',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            title="Stretches sections from top to bottom margin of A4 sheet"
-          >
-            📐 Full Page Fill
-          </button>
-          <button
-            type="button"
-            onClick={() => setSpacingBalance('compact')}
-            style={{
-              padding: '4px 12px',
-              fontSize: '12px',
-              fontWeight: 600,
-              borderRadius: '16px',
-              border: 'none',
-              background: spacingBalance === 'compact' ? '#7D1128' : 'transparent',
-              color: spacingBalance === 'compact' ? '#ffffff' : '#444',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            title="Squeezes margins and line height for dense resumes"
-          >
-            📦 Compact
-          </button>
-        </div>
-      </div>
-
       <div
         className="preview-sheet-outer"
         style={{
@@ -243,11 +104,11 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
           className={`flexible-resume-sheet density-${density}`}
           id="flexible-resume-print-area"
           style={{
-            padding: dynamicPadding,
-            '--flex-font-size': dynamicFontSize,
-            '--flex-line-height': dynamicLineHeight,
-            '--flex-item-gap': dynamicItemGap,
-            '--flex-sec-gap': dynamicSecGap,
+            padding: '38px 44px',
+            '--flex-font-size': '13.5px',
+            '--flex-line-height': 1.22,
+            '--flex-item-gap': '6px',
+            '--flex-sec-gap': '14px',
           }}
         >
           {/* Centered Soft-Mask Watermark Overlay */}
@@ -272,15 +133,8 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
             )}
           </header>
 
-          {/* UNIFORM & HARMONIOUS SECTIONS CONTAINER */}
-          <div
-            className="flex-sections-container"
-            style={{
-              gap: dynamicSecGap,
-              justifyContent: spacingBalance === 'fill' ? 'space-between' : 'flex-start',
-              flex: spacingBalance === 'fill' ? 1 : 'none',
-            }}
-          >
+          {/* NATURAL UNIFORM SECTIONS CONTAINER */}
+          <div className="flex-sections-container">
             {/* PROFESSIONAL SUMMARY */}
             {data.summary?.trim() && (
               <section className="flex-resume-section">
@@ -289,33 +143,33 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
               </section>
             )}
 
-            {/* TECHNICAL SKILLS */}
+            {/* SKILLS (General & Professional for all applicants) */}
             {hasSkills && (
               <section className="flex-resume-section">
-                <h2 className="flex-section-title">Technical Skills</h2>
+                <h2 className="flex-section-title">Skills</h2>
                 <div className="flex-skills-matrix">
+                  {skills.concepts?.trim() && (
+                    <div className="flex-skill-row">
+                      <strong className="flex-skill-label">Core Competencies:</strong>
+                      <span className="flex-skill-val">{skills.concepts.trim()}</span>
+                    </div>
+                  )}
+                  {skills.tools_cloud?.trim() && (
+                    <div className="flex-skill-row">
+                      <strong className="flex-skill-label">Tools & Software:</strong>
+                      <span className="flex-skill-val">{skills.tools_cloud.trim()}</span>
+                    </div>
+                  )}
                   {skills.languages?.trim() && (
                     <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Languages:</strong>
+                      <strong className="flex-skill-label">Languages & Tech:</strong>
                       <span className="flex-skill-val">{skills.languages.trim()}</span>
                     </div>
                   )}
                   {skills.frameworks?.trim() && (
                     <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Frameworks & Web:</strong>
+                      <strong className="flex-skill-label">Domain Knowledge:</strong>
                       <span className="flex-skill-val">{skills.frameworks.trim()}</span>
-                    </div>
-                  )}
-                  {skills.tools_cloud?.trim() && (
-                    <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Tools & Cloud:</strong>
-                      <span className="flex-skill-val">{skills.tools_cloud.trim()}</span>
-                    </div>
-                  )}
-                  {skills.concepts?.trim() && (
-                    <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Core Concepts:</strong>
-                      <span className="flex-skill-val">{skills.concepts.trim()}</span>
                     </div>
                   )}
                 </div>

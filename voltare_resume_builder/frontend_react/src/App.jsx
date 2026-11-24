@@ -655,7 +655,13 @@ export default function App() {
               </div>
 
               {/* Real-Time Single-Page Budget Tracker */}
-              <PageBudgetTracker budget={flexibleValidation.budget} />
+              <PageBudgetTracker
+                budget={flexibleValidation.budget}
+                onNavigateSection={(sec) => {
+                  const tabName = sec === 'custom_section' ? 'custom' : sec;
+                  setActiveFlexTab(tabName);
+                }}
+              />
 
               {/* Flexible Form Tabs */}
               <Tabs

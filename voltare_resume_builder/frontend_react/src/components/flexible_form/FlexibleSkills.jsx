@@ -11,54 +11,54 @@ export default function FlexibleSkills({ skills = {}, onChange }) {
   return (
     <div className="form-section">
       <div className="section-title-row">
-        <h3>🛠️ Technical Skills <span className="req-badge">Modular Matrix</span></h3>
+        <h3>🛠️ Skills <span className="req-badge">Modular Matrix</span></h3>
       </div>
 
       <p className="section-help-text">
-        Organize your competencies into structured categories. These render as a crisp, scannable technical skill matrix.
+        Organize your competencies into structured categories. Works for technical, business, management, design, and operational candidates.
       </p>
 
       <div className="form-group">
-        <label>Programming & Scripting Languages</label>
-        <input
-          type="text"
-          className="voltare-input"
-          value={skills.languages || ''}
-          onChange={(e) => handleChange('languages', e.target.value)}
-          placeholder="e.g. Python, JavaScript, TypeScript, SQL, C++, Java"
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Frameworks, Libraries & Web Technologies</label>
-        <input
-          type="text"
-          className="voltare-input"
-          value={skills.frameworks || ''}
-          onChange={(e) => handleChange('frameworks', e.target.value)}
-          placeholder="e.g. React.js, Vite, Node.js, FastAPI, Express.js, Tailwind CSS"
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Tools, Databases & Cloud Infrastructure</label>
-        <input
-          type="text"
-          className="voltare-input"
-          value={skills.tools_cloud || ''}
-          onChange={(e) => handleChange('tools_cloud', e.target.value)}
-          placeholder="e.g. Docker, Git, PostgreSQL, MongoDB, Redis, AWS (S3, EC2), Linux"
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Core Concepts & Methodologies</label>
+        <label>Core Competencies & Functional Skills</label>
         <input
           type="text"
           className="voltare-input"
           value={skills.concepts || ''}
           onChange={(e) => handleChange('concepts', e.target.value)}
-          placeholder="e.g. RESTful APIs, Microservices, System Design, Data Structures, CI/CD"
+          placeholder="e.g. Problem Solving, Project Management, Data Analysis, System Design, Strategic Planning"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Tools, Software & Platforms</label>
+        <input
+          type="text"
+          className="voltare-input"
+          value={skills.tools_cloud || ''}
+          onChange={(e) => handleChange('tools_cloud', e.target.value)}
+          placeholder="e.g. Git, Docker, Excel, PostgreSQL, Tableau, Figma, AWS, Linux, Jira"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Languages & Frameworks</label>
+        <input
+          type="text"
+          className="voltare-input"
+          value={skills.languages || ''}
+          onChange={(e) => handleChange('languages', e.target.value)}
+          placeholder="e.g. Python, SQL, JavaScript, React, Node.js / English, Spanish"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Domain Knowledge & Methodologies (Optional)</label>
+        <input
+          type="text"
+          className="voltare-input"
+          value={skills.frameworks || ''}
+          onChange={(e) => handleChange('frameworks', e.target.value)}
+          placeholder="e.g. Agile/Scrum, RESTful APIs, Financial Modeling, CI/CD, Product Strategy"
         />
       </div>
     </div>
