@@ -1,9 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { validateFlexibleResume } from '../utils/flexibleValidation';
+import { optimizePageLayout, applyLayoutToDOM } from '../utils/layout/layoutOptimizer';
 
 export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   const previewContainerRef = useRef(null);
+  const sheetRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [layoutMetrics, setLayoutMetrics] = useState(null);
 
   // Auto-scale preview sheet to fit device screen width cleanly
   useEffect(() => {
@@ -87,12 +90,50 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
     (customSection.subhead_1?.title?.trim() || customSection.subhead_2?.title?.trim())
   );
 
+  // Adaptive Page Composition: Measures rendered geometry & dynamically balances vertical distribution
+  useLayoutEffect(() => {
+    if (sheetRef.current) {
+      const result = optimizePageLayout(sheetRef.current);
+      if (result && result.layout) {
+        applyLayoutToDOM(sheetRef.current, result.layout);
+        setLayoutMetrics(result);
+      }
+    }
+  }, [data]);
+
   const watermarkSrc = watermarkBase64
     ? `data:image/png;base64,${watermarkBase64}`
     : "/original_watermark.png";
 
   return (
     <div className="preview-scaler-wrapper" ref={previewContainerRef}>
+      {/* Real-time Adaptive Balance Pill */}
+      {layoutMetrics && layoutMetrics.balance && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '10px',
+          fontSize: '12px',
+          color: '#6D605C'
+        }}>
+          <span>
+            📐 <strong>Page Composition:</strong> {layoutMetrics.layout.mode === 'expanded' ? '🌱 Adaptive Expansion' : layoutMetrics.layout.mode === 'compressed' ? '📦 Adaptive Compression' : '⚖️ Balanced Cadence'}
+          </span>
+          <span style={{
+            background: layoutMetrics.balance.status === 'optimal' ? '#e8f5e9' : layoutMetrics.balance.status === 'top-heavy' ? '#fff3e0' : '#f0edea',
+            color: layoutMetrics.balance.status === 'optimal' ? '#2e7d32' : layoutMetrics.balance.status === 'top-heavy' ? '#e65100' : '#444',
+            padding: '2px 8px',
+            borderRadius: '10px',
+            fontWeight: 600,
+            fontSize: '11px'
+          }}>
+            Score: {Math.round(layoutMetrics.balance.balanceScore * 100)}% ({layoutMetrics.balance.status})
+          </span>
+        </div>
+      )}
+
       <div
         className="preview-sheet-outer"
         style={{
@@ -101,14 +142,11 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
         }}
       >
         <div
+          ref={sheetRef}
           className={`flexible-resume-sheet density-${density}`}
           id="flexible-resume-print-area"
           style={{
             padding: '38px 44px',
-            '--flex-font-size': '13.5px',
-            '--flex-line-height': 1.22,
-            '--flex-item-gap': '6px',
-            '--flex-sec-gap': '14px',
           }}
         >
           {/* Centered Soft-Mask Watermark Overlay */}

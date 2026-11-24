@@ -239,6 +239,41 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             </section>
             """
 
+    # Adaptive Page Composition: calculate exact parameters matching client-side engine
+    capacity = validation.capacity_percent
+    if capacity < 75:
+        slack_ratio = min(1.0, max(0.0, (75 - capacity) / 45))
+        padding_y = int(38 + 8 * slack_ratio)
+        sec_gap = int(14 + 7 * slack_ratio)
+        item_gap = int(6 + 4 * slack_ratio)
+        lh = round(1.22 + 0.10 * slack_ratio, 2)
+        summary_lh = round(1.24 + 0.12 * slack_ratio, 2)
+        bullet_gap = int(3 + 3 * slack_ratio)
+        skill_gap = int(3 + 3 * slack_ratio)
+        fs = round(13.5 + 0.6 * slack_ratio, 1)
+        h2_margin = int(4 + 3 * slack_ratio)
+    elif capacity > 95:
+        comp_ratio = min(1.0, max(0.0, (capacity - 95) / 25))
+        padding_y = int(38 - 8 * comp_ratio)
+        sec_gap = int(14 - 5 * comp_ratio)
+        item_gap = int(6 - 3 * comp_ratio)
+        lh = round(1.22 - 0.08 * comp_ratio, 2)
+        summary_lh = round(1.24 - 0.08 * comp_ratio, 2)
+        bullet_gap = max(1, int(3 - 1.5 * comp_ratio))
+        skill_gap = max(2, int(3 - 1 * comp_ratio))
+        fs = round(13.5 - 0.8 * comp_ratio, 1)
+        h2_margin = int(4 - 1 * comp_ratio)
+    else:
+        padding_y = 38
+        sec_gap = 14
+        item_gap = 6
+        lh = 1.22
+        summary_lh = 1.24
+        bullet_gap = 3
+        skill_gap = 3
+        fs = 13.5
+        h2_margin = 4
+
     watermark_css = f"background-image: url('data:image/png;base64,{watermark_base64}');" if watermark_base64 else ""
 
     return f"""<!DOCTYPE html>
@@ -271,7 +306,7 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             height: 1123px;
             max-height: 1123px;
             margin: 20px auto;
-            padding: 38px 44px;
+            padding: {padding_y}px 44px;
             background: #fff;
             position: relative;
             overflow: hidden;
@@ -281,6 +316,14 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             background-position: center;
             display: flex;
             flex-direction: column;
+            --gap: {sec_gap}px;
+            --item-gap: {item_gap}px;
+            --lh: {lh};
+            --summary-lh: {summary_lh};
+            --bullet-gap: {bullet_gap}px;
+            --skill-gap: {skill_gap}px;
+            --fs: {fs}px;
+            --h2-margin: {h2_margin}px;
             {watermark_css}
         }}
         .sections-box {{
@@ -339,7 +382,7 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             line-height: 1.2;
         }}
         .sec {{
-            margin-bottom: var(--gap);
+            margin-bottom: 0;
             page-break-inside: avoid;
         }}
         .sec-title {{
@@ -351,19 +394,19 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             text-transform: uppercase;
             border-bottom: 1px solid #7D1128;
             padding-bottom: 2px;
-            margin-bottom: 4px;
+            margin-bottom: var(--h2-margin, 4px);
             line-height: 1.2;
         }}
         .summary-body {{
             font-size: var(--fs);
-            line-height: var(--lh);
+            line-height: var(--summary-lh, var(--lh));
             text-align: justify;
             color: #2b2b2b;
         }}
         .skills-box {{
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: var(--skill-gap, 3px);
             font-size: var(--fs);
             line-height: var(--lh);
         }}
@@ -429,7 +472,7 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             color: #2b2b2b;
         }}
         .bullets li {{
-            margin-bottom: 2px;
+            margin-bottom: var(--bullet-gap, 2px);
         }}
         .edu-hl {{
             font-size: calc(var(--fs) - 1px);
@@ -464,5 +507,33 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             {custom_html}
         </div>
     </div>
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {{
+        const sheet = document.querySelector('.sheet');
+        if (!sheet) return;
+        const targetHeight = 1123;
+        const currentHeight = sheet.scrollHeight;
+        const diff = targetHeight - currentHeight;
+        if (diff > 35 && diff < 340) {{
+            const ratio = Math.min(1.0, diff / 300);
+            sheet.style.setProperty('--lh', (1.22 + 0.10 * ratio).toFixed(2));
+            sheet.style.setProperty('--summary-lh', (1.24 + 0.12 * ratio).toFixed(2));
+            sheet.style.setProperty('--gap', Math.round(14 + 7 * ratio) + 'px');
+            sheet.style.setProperty('--item-gap', Math.round(6 + 4 * ratio) + 'px');
+            sheet.style.setProperty('--bullet-gap', Math.round(3 + 3 * ratio) + 'px');
+            sheet.style.paddingTop = Math.round(38 + 8 * ratio) + 'px';
+            sheet.style.paddingBottom = Math.round(38 + 8 * ratio) + 'px';
+        }} else if (diff < -5) {{
+            const ratio = Math.min(1.0, Math.abs(diff) / 120);
+            sheet.style.setProperty('--lh', (1.22 - 0.08 * ratio).toFixed(2));
+            sheet.style.setProperty('--summary-lh', (1.24 - 0.08 * ratio).toFixed(2));
+            sheet.style.setProperty('--gap', Math.round(14 - 5 * ratio) + 'px');
+            sheet.style.setProperty('--item-gap', Math.round(6 - 3 * ratio) + 'px');
+            sheet.style.setProperty('--bullet-gap', '1.5px');
+            sheet.style.paddingTop = Math.round(38 - 8 * ratio) + 'px';
+            sheet.style.paddingBottom = Math.round(38 - 8 * ratio) + 'px';
+        }}
+    }});
+    </script>
 </body>
 </html>"""

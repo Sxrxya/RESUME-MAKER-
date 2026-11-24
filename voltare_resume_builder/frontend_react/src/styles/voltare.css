@@ -1309,83 +1309,11 @@ h3 {
 .flex-sections-container {
   display: flex;
   flex-direction: column;
-  gap: var(--flex-sec-gap, 16px);
-}
-
-/* Density: Spacious (Low content, e.g. Freshers with 0 experience) */
-.flexible-resume-sheet.density-spacious {
-  --flex-sec-gap: 16px;
-  --flex-item-gap: 9px;
-  --flex-line-height: 1.28;
-  --flex-font-size: 14px;
-  --flex-h2-margin: 6px;
-}
-
-/* Density: Balanced (Optimal single page) */
-.flexible-resume-sheet.density-balanced {
-  --flex-sec-gap: 12px;
-  --flex-item-gap: 7px;
-  --flex-line-height: 1.20;
-  --flex-font-size: 13.5px;
-  --flex-h2-margin: 5px;
-}
-
-/* Density: Compact (High content, multi-projects & experience) */
-.flexible-resume-sheet.density-compact {
-  --flex-sec-gap: 9px;
-  --flex-item-gap: 4px;
-  --flex-line-height: 1.14;
-  --flex-font-size: 13px;
-  --flex-h2-margin: 4px;
-}
-
-/* Density: Overflow (Approaching boundary) */
-.flexible-resume-sheet.density-overflow {
-  --flex-sec-gap: 7px;
-  --flex-item-gap: 3px;
-  --flex-line-height: 1.10;
-  --flex-font-size: 12.5px;
-  --flex-h2-margin: 3px;
-}
-
-.flex-resume-header {
-  text-align: center;
-  margin-bottom: var(--flex-sec-gap);
-  border-bottom: 1.5px solid var(--color-primary);
-  padding-bottom: 8px;
-}
-
-.flex-candidate-name {
-  font-family: var(--font-sc) !important;
-  font-size: 26px !important;
-  font-weight: 700;
-  color: var(--color-primary) !important;
-  letter-spacing: 2.5px;
-  margin: 0 0 4px 0 !important;
-  line-height: 1.1;
-  text-transform: uppercase;
-  border: none !important;
-}
-
-.flex-contact-line {
-  font-size: 12.5px;
-  color: #333333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  line-height: 1.2;
-}
-
-.flex-bullet-sep {
-  color: var(--color-primary);
-  font-size: 9px;
-  opacity: 0.8;
+  gap: var(--flex-sec-gap, 14px);
 }
 
 .flex-resume-section {
-  margin-bottom: var(--flex-sec-gap);
+  margin-bottom: 0;
   page-break-inside: avoid;
 }
 
@@ -1397,14 +1325,14 @@ h3 {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   border-bottom: 1px solid var(--color-primary) !important;
-  margin: 0 0 var(--flex-h2-margin) 0 !important;
+  margin: 0 0 var(--flex-h2-margin, 5px) 0 !important;
   padding: 0 0 2px 0 !important;
   line-height: 1.2;
 }
 
 .flex-summary-body {
-  font-size: var(--flex-font-size);
-  line-height: var(--flex-line-height);
+  font-size: var(--flex-font-size, 13.5px);
+  line-height: var(--flex-summary-lh, var(--flex-line-height, 1.22));
   margin: 0;
   text-align: justify;
   color: #2b2b2b;
@@ -1413,9 +1341,9 @@ h3 {
 .flex-skills-matrix {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: var(--flex-font-size);
-  line-height: var(--flex-line-height);
+  gap: var(--flex-skill-row-gap, 3px);
+  font-size: var(--flex-font-size, 13.5px);
+  line-height: var(--flex-line-height, 1.22);
 }
 
 .flex-skill-row {
@@ -1507,7 +1435,7 @@ h3 {
 }
 
 .flex-bullets-list li {
-  margin-bottom: 2px;
+  margin-bottom: var(--flex-bullet-gap, 3px);
 }
 
 .flex-edu-highlights {
