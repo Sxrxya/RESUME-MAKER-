@@ -231,6 +231,24 @@ export function validateFlexibleResume(data) {
   }
   sectionBreakdown.certifications = { points: certPoints, label: 'Certifications' };
 
+  // 8. Custom Section (Optional with 2 subheads & bullets)
+  const custom = data.custom_section || {};
+  let customPoints = 0;
+  if (custom.title?.trim()) {
+    customPoints += 22; // section header
+    if (custom.subhead_1?.title?.trim()) {
+      customPoints += 18;
+      if (custom.subhead_1.bullet_1?.trim()) customPoints += estimateTextHeight(custom.subhead_1.bullet_1, 13) + 4;
+      if (custom.subhead_1.bullet_2?.trim()) customPoints += estimateTextHeight(custom.subhead_1.bullet_2, 13) + 4;
+    }
+    if (custom.subhead_2?.title?.trim()) {
+      customPoints += 18;
+      if (custom.subhead_2.bullet_1?.trim()) customPoints += estimateTextHeight(custom.subhead_2.bullet_1, 13) + 4;
+      if (custom.subhead_2.bullet_2?.trim()) customPoints += estimateTextHeight(custom.subhead_2.bullet_2, 13) + 4;
+    }
+  }
+  sectionBreakdown.custom_section = { points: customPoints, label: custom.title || 'Custom Section' };
+
   // Calculate Total Vertical Budget Points
   const totalUsedPoints = Object.values(sectionBreakdown).reduce((sum, sec) => sum + sec.points, 0);
   const capacityPercent = Math.round((totalUsedPoints / TOTAL_A4_POINTS) * 100);

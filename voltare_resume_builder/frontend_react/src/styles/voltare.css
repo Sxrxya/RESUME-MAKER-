@@ -1269,9 +1269,9 @@ h3 {
 .flexible-resume-sheet {
   box-sizing: border-box;
   width: 794px;
+  height: 1123px;
   min-height: 1123px;
   max-height: 1123px;
-  padding: 38px 44px;
   background-color: #ffffff;
   color: #222222;
   font-family: var(--font-serif);
@@ -1281,6 +1281,15 @@ h3 {
   background-size: 500px auto;
   background-repeat: no-repeat;
   background-position: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-sections-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* Density: Spacious (Low content, e.g. Freshers with 0 experience) */

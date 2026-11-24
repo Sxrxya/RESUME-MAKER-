@@ -20,6 +20,7 @@ import FlexibleProjects from './components/flexible_form/FlexibleProjects';
 import FlexibleSkills from './components/flexible_form/FlexibleSkills';
 import FlexibleExperience from './components/flexible_form/FlexibleExperience';
 import FlexibleCertifications from './components/flexible_form/FlexibleCertifications';
+import FlexibleCustomSection from './components/flexible_form/FlexibleCustomSection';
 import FlexibleResumePreview from './components/FlexibleResumePreview';
 import FlexibleExportPanel from './components/FlexibleExportPanel';
 import {
@@ -77,6 +78,7 @@ export default function App() {
     ),
     experience: Boolean((flexibleData.experience || []).length > 0),
     certifications: Boolean(flexibleData.certifications?.trim()),
+    custom: Boolean(flexibleData.custom_section?.title?.trim()),
   };
 
   const flexibleTabs = [
@@ -87,6 +89,7 @@ export default function App() {
     { id: 'skills', label: '🛠️ Skills', completed: flexSectionStatus.skills },
     { id: 'experience', label: '💼 Experience', completed: flexSectionStatus.experience },
     { id: 'certifications', label: '🏆 Certifications', completed: flexSectionStatus.certifications },
+    { id: 'custom', label: '✨ Custom Section', completed: flexSectionStatus.custom },
   ];
 
   // Compute standard section completion status
@@ -290,7 +293,22 @@ export default function App() {
         }
       ],
       experience: [], // 0 experience! Pure fresher case
-      certifications: "Winner - Smart Pune Hackathon 2023, HackerRank 5-Star Python Certification"
+      certifications: "Winner - Smart Pune Hackathon 2023, HackerRank 5-Star Python Certification",
+      custom_section: {
+        title: "Leadership & Extra-Curricular Activities",
+        subhead_1: {
+          title: "Lead Organizer, National Tech Symposium",
+          subtitle_or_date: "2023 – 2024",
+          bullet_1: "Spearheaded planning and execution for an inter-college symposium hosting 1,200+ attendees and 18 technical challenges.",
+          bullet_2: "Coordinated corporate outreach, securing industry partnerships and workshop sponsorships."
+        },
+        subhead_2: {
+          title: "Core Member, Open Source Student Society",
+          subtitle_or_date: "2022 – 2023",
+          bullet_1: "Conducted hands-on workshops introducing 150+ students to Git, GitHub, and open-source contribution workflows.",
+          bullet_2: "Organized bi-weekly coding competitions and collaborative hackathon preparation tracks."
+        }
+      }
     });
     setToastMessage("🎓 Loaded Fresher Preset! Notice how 0 experience automatically auto-expands to fill the page.");
   };
@@ -687,6 +705,12 @@ export default function App() {
                 <FlexibleCertifications
                   certifications={flexibleData.certifications}
                   onChange={(val) => handleFlexibleSectionChange('certifications', val)}
+                />
+              )}
+              {activeFlexTab === 'custom' && (
+                <FlexibleCustomSection
+                  customSection={flexibleData.custom_section}
+                  onChange={(val) => handleFlexibleSectionChange('custom_section', val)}
                 />
               )}
 

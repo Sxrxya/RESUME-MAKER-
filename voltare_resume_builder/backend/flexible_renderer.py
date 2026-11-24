@@ -203,6 +203,42 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
         </section>
         """
 
+    # Custom Section (with user's custom heading, 2 subheads, and bullets)
+    custom = data.get("custom_section", {})
+    custom_title = custom.get("title", "").strip()
+    custom_html = ""
+    if custom_title:
+        sub_blocks = []
+        for sub_key in ["subhead_1", "subhead_2"]:
+            sub = custom.get(sub_key, {})
+            stitle = _escape(sub.get("title", "").strip())
+            sdate = _escape(sub.get("subtitle_or_date", "").strip())
+            sdate_html = f'<span class="date">{sdate}</span>' if sdate else ''
+            b1 = _escape(sub.get("bullet_1", "").strip())
+            b2 = _escape(sub.get("bullet_2", "").strip())
+
+            if stitle or b1:
+                bullets = []
+                if b1: bullets.append(f"<li>{b1}</li>")
+                if b2: bullets.append(f"<li>{b2}</li>")
+                sub_blocks.append(f"""
+                <div class="item">
+                    <div class="topline">
+                        <strong>{stitle}</strong>
+                        {sdate_html}
+                    </div>
+                    <ul class="bullets">{''.join(bullets)}</ul>
+                </div>
+                """)
+
+        if sub_blocks:
+            custom_html = f"""
+            <section class="sec">
+                <h2 class="sec-title">{_escape(custom_title)}</h2>
+                <div class="items">{''.join(sub_blocks)}</div>
+            </section>
+            """
+
     watermark_css = f"background-image: url('data:image/png;base64,{watermark_base64}');" if watermark_base64 else ""
 
     return f"""<!DOCTYPE html>
@@ -243,7 +279,15 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             background-size: 500px auto;
             background-repeat: no-repeat;
             background-position: center;
+            display: flex;
+            flex-direction: column;
             {watermark_css}
+        }}
+        .sections-box {{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }}
         .sheet.density-spacious {{
             --gap: 16px;
@@ -411,12 +455,15 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             <h1>{full_name}</h1>
             <div class="contact">{contact_html}</div>
         </header>
-        {summary_html}
-        {skills_html}
-        {projects_html}
-        {exp_html}
-        {edu_html}
-        {certs_html}
+        <div class="sections-box">
+            {summary_html}
+            {skills_html}
+            {projects_html}
+            {exp_html}
+            {edu_html}
+            {certs_html}
+            {custom_html}
+        </div>
     </div>
 </body>
 </html>"""

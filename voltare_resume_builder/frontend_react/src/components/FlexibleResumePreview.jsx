@@ -60,6 +60,48 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   // Determine active density mode and auto-fit scaling
   const validation = validateFlexibleResume(data);
   const density = validation.budget?.densityMode || 'balanced';
+  const capacity = validation.budget?.capacityPercent || 75;
+
+  // Continuous auto-fill scaling:
+  // Dynamically calculates leading, font size, gaps, and padding based on exact content volume
+  // So low-content resumes expand to fill 100% of the single page, and dense resumes squeeze gracefully.
+  let dynamicFontSize = '13.6px';
+  let dynamicLineHeight = 1.22;
+  let dynamicItemGap = '7px';
+  let dynamicSecGap = '14px';
+  let dynamicPadding = '38px 44px';
+
+  if (capacity < 65) {
+    dynamicFontSize = '15px';
+    dynamicLineHeight = 1.36;
+    dynamicItemGap = '12px';
+    dynamicSecGap = '24px';
+    dynamicPadding = '46px 46px';
+  } else if (capacity < 82) {
+    dynamicFontSize = '14.2px';
+    dynamicLineHeight = 1.28;
+    dynamicItemGap = '9px';
+    dynamicSecGap = '18px';
+    dynamicPadding = '42px 45px';
+  } else if (capacity <= 93) {
+    dynamicFontSize = '13.6px';
+    dynamicLineHeight = 1.20;
+    dynamicItemGap = '7px';
+    dynamicSecGap = '13px';
+    dynamicPadding = '38px 44px';
+  } else if (capacity <= 100) {
+    dynamicFontSize = '13px';
+    dynamicLineHeight = 1.15;
+    dynamicItemGap = '5px';
+    dynamicSecGap = '9px';
+    dynamicPadding = '34px 42px';
+  } else {
+    dynamicFontSize = '12.4px';
+    dynamicLineHeight = 1.10;
+    dynamicItemGap = '3px';
+    dynamicSecGap = '6px';
+    dynamicPadding = '28px 38px';
+  }
 
   // Has at least 1 filled experience?
   const experienceList = (Array.isArray(data.experience) ? data.experience : []).filter(
@@ -80,6 +122,13 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   const skills = data.skills || {};
   const hasSkills = Boolean(skills.languages?.trim() || skills.frameworks?.trim() || skills.tools_cloud?.trim() || skills.concepts?.trim());
 
+  // Custom Section
+  const customSection = data.custom_section || {};
+  const hasCustom = Boolean(
+    customSection.title?.trim() &&
+    (customSection.subhead_1?.title?.trim() || customSection.subhead_2?.title?.trim())
+  );
+
   return (
     <div className="preview-scaler-wrapper" ref={previewContainerRef}>
       <div
@@ -93,6 +142,11 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
           className={`flexible-resume-sheet density-${density}`}
           id="flexible-resume-print-area"
           style={{
+            padding: dynamicPadding,
+            '--flex-font-size': dynamicFontSize,
+            '--flex-line-height': dynamicLineHeight,
+            '--flex-item-gap': dynamicItemGap,
+            '--flex-sec-gap': dynamicSecGap,
             backgroundImage: watermarkBase64 ? `url(data:image/png;base64,${watermarkBase64})` : 'none',
           }}
         >
@@ -111,154 +165,194 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
             )}
           </header>
 
-          {/* PROFESSIONAL SUMMARY */}
-          {data.summary?.trim() && (
-            <section className="flex-resume-section">
-              <h2 className="flex-section-title">Professional Summary</h2>
-              <p className="flex-summary-body">{data.summary.trim()}</p>
-            </section>
-          )}
+          {/* DYNAMIC AUTO-JUSTIFIED SECTIONS CONTAINER */}
+          <div className="flex-sections-container">
+            {/* PROFESSIONAL SUMMARY */}
+            {data.summary?.trim() && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">Professional Summary</h2>
+                <p className="flex-summary-body">{data.summary.trim()}</p>
+              </section>
+            )}
 
-          {/* TECHNICAL SKILLS */}
-          {hasSkills && (
-            <section className="flex-resume-section">
-              <h2 className="flex-section-title">Technical Skills</h2>
-              <div className="flex-skills-matrix">
-                {skills.languages?.trim() && (
-                  <div className="flex-skill-row">
-                    <strong className="flex-skill-label">Languages:</strong>
-                    <span className="flex-skill-val">{skills.languages.trim()}</span>
-                  </div>
-                )}
-                {skills.frameworks?.trim() && (
-                  <div className="flex-skill-row">
-                    <strong className="flex-skill-label">Frameworks & Web:</strong>
-                    <span className="flex-skill-val">{skills.frameworks.trim()}</span>
-                  </div>
-                )}
-                {skills.tools_cloud?.trim() && (
-                  <div className="flex-skill-row">
-                    <strong className="flex-skill-label">Tools & Cloud:</strong>
-                    <span className="flex-skill-val">{skills.tools_cloud.trim()}</span>
-                  </div>
-                )}
-                {skills.concepts?.trim() && (
-                  <div className="flex-skill-row">
-                    <strong className="flex-skill-label">Core Concepts:</strong>
-                    <span className="flex-skill-val">{skills.concepts.trim()}</span>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
+            {/* TECHNICAL SKILLS */}
+            {hasSkills && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">Technical Skills</h2>
+                <div className="flex-skills-matrix">
+                  {skills.languages?.trim() && (
+                    <div className="flex-skill-row">
+                      <strong className="flex-skill-label">Languages:</strong>
+                      <span className="flex-skill-val">{skills.languages.trim()}</span>
+                    </div>
+                  )}
+                  {skills.frameworks?.trim() && (
+                    <div className="flex-skill-row">
+                      <strong className="flex-skill-label">Frameworks & Web:</strong>
+                      <span className="flex-skill-val">{skills.frameworks.trim()}</span>
+                    </div>
+                  )}
+                  {skills.tools_cloud?.trim() && (
+                    <div className="flex-skill-row">
+                      <strong className="flex-skill-label">Tools & Cloud:</strong>
+                      <span className="flex-skill-val">{skills.tools_cloud.trim()}</span>
+                    </div>
+                  )}
+                  {skills.concepts?.trim() && (
+                    <div className="flex-skill-row">
+                      <strong className="flex-skill-label">Core Concepts:</strong>
+                      <span className="flex-skill-val">{skills.concepts.trim()}</span>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
 
-          {/* PROJECT EXPERIENCE (1-3 projects) */}
-          {projectsList.length > 0 && (
-            <section className="flex-resume-section">
-              <h2 className="flex-section-title">Projects</h2>
-              <div className="flex-items-list">
-                {projectsList.map((proj, idx) => (
-                  <div key={idx} className="flex-item-block">
-                    <div className="flex-item-topline">
-                      <div className="flex-item-heading">
-                        <strong className="flex-item-title">{proj.title || "Project Title"}</strong>
-                        {proj.tech_stack?.trim() && (
-                          <span className="flex-tech-stack"> | <em>{proj.tech_stack.trim()}</em></span>
+            {/* PROJECT EXPERIENCE (1-3 projects) */}
+            {projectsList.length > 0 && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">Projects</h2>
+                <div className="flex-items-list">
+                  {projectsList.map((proj, idx) => (
+                    <div key={idx} className="flex-item-block">
+                      <div className="flex-item-topline">
+                        <div className="flex-item-heading">
+                          <strong className="flex-item-title">{proj.title || "Project Title"}</strong>
+                          {proj.tech_stack?.trim() && (
+                            <span className="flex-tech-stack"> | <em>{proj.tech_stack.trim()}</em></span>
+                          )}
+                        </div>
+                        {proj.date_range?.trim() && (
+                          <span className="flex-item-date">{proj.date_range.trim()}</span>
                         )}
                       </div>
-                      {proj.date_range?.trim() && (
-                        <span className="flex-item-date">{proj.date_range.trim()}</span>
-                      )}
-                    </div>
 
-                    {proj.link?.trim() && (
-                      <div className="flex-project-link">
-                        <a href={`https://${proj.link.replace(/^https?:\/\//, '')}`} target="_blank" rel="noopener noreferrer">
-                          {proj.link.replace(/^https?:\/\//, '')}
-                        </a>
+                      {proj.link?.trim() && (
+                        <div className="flex-project-link">
+                          <a href={`https://${proj.link.replace(/^https?:\/\//, '')}`} target="_blank" rel="noopener noreferrer">
+                            {proj.link.replace(/^https?:\/\//, '')}
+                          </a>
+                        </div>
+                      )}
+
+                      <ul className="flex-bullets-list">
+                        {proj.bullet_1?.trim() && <li>{proj.bullet_1.trim()}</li>}
+                        {proj.bullet_2?.trim() && <li>{proj.bullet_2.trim()}</li>}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* PROFESSIONAL EXPERIENCE (Rendered ONLY if candidate added experience) */}
+            {hasExperience && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">Professional Experience</h2>
+                <div className="flex-items-list">
+                  {experienceList.map((exp, idx) => (
+                    <div key={idx} className="flex-item-block">
+                      <div className="flex-item-topline">
+                        <strong className="flex-item-title">{exp.company || "Company"}</strong>
+                        {exp.location?.trim() && (
+                          <span className="flex-item-location">{exp.location.trim()}</span>
+                        )}
                       </div>
-                    )}
-
-                    <ul className="flex-bullets-list">
-                      {proj.bullet_1?.trim() && <li>{proj.bullet_1.trim()}</li>}
-                      {proj.bullet_2?.trim() && <li>{proj.bullet_2.trim()}</li>}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* PROFESSIONAL EXPERIENCE (Rendered ONLY if candidate added experience) */}
-          {hasExperience && (
-            <section className="flex-resume-section">
-              <h2 className="flex-section-title">Professional Experience</h2>
-              <div className="flex-items-list">
-                {experienceList.map((exp, idx) => (
-                  <div key={idx} className="flex-item-block">
-                    <div className="flex-item-topline">
-                      <strong className="flex-item-title">{exp.company || "Company"}</strong>
-                      {exp.location?.trim() && (
-                        <span className="flex-item-location">{exp.location.trim()}</span>
-                      )}
+                      <div className="flex-item-subline">
+                        <span className="flex-item-role">{exp.role || "Role"}</span>
+                        {(exp.start_date || exp.end_date) && (
+                          <span className="flex-item-date">
+                            {exp.start_date || ""} – {exp.end_date || ""}
+                          </span>
+                        )}
+                      </div>
+                      <ul className="flex-bullets-list">
+                        {exp.bullet_1?.trim() && <li>{exp.bullet_1.trim()}</li>}
+                        {exp.bullet_2?.trim() && <li>{exp.bullet_2.trim()}</li>}
+                        {exp.bullet_3?.trim() && <li>{exp.bullet_3.trim()}</li>}
+                      </ul>
                     </div>
-                    <div className="flex-item-subline">
-                      <span className="flex-item-role">{exp.role || "Role"}</span>
-                      {(exp.start_date || exp.end_date) && (
-                        <span className="flex-item-date">
-                          {exp.start_date || ""} – {exp.end_date || ""}
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* EDUCATION (2-3 entries) */}
+            {educationList.length > 0 && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">Education</h2>
+                <div className="flex-items-list">
+                  {educationList.map((edu, idx) => (
+                    <div key={idx} className="flex-item-block">
+                      <div className="flex-item-topline">
+                        <strong className="flex-item-title">{edu.institution || "Institution Name"}</strong>
+                        {edu.location?.trim() && (
+                          <span className="flex-item-location">{edu.location.trim()}</span>
+                        )}
+                      </div>
+                      <div className="flex-item-subline">
+                        <span className="flex-item-role">
+                          {edu.degree || "Degree"}
+                          {edu.gpa?.trim() && <span className="flex-edu-gpa"> ({edu.gpa.trim()})</span>}
                         </span>
+                        {edu.grad_date?.trim() && (
+                          <span className="flex-item-date">{edu.grad_date.trim()}</span>
+                        )}
+                      </div>
+                      {edu.highlights?.trim() && (
+                        <div className="flex-edu-highlights">{edu.highlights.trim()}</div>
                       )}
                     </div>
-                    <ul className="flex-bullets-list">
-                      {exp.bullet_1?.trim() && <li>{exp.bullet_1.trim()}</li>}
-                      {exp.bullet_2?.trim() && <li>{exp.bullet_2.trim()}</li>}
-                      {exp.bullet_3?.trim() && <li>{exp.bullet_3.trim()}</li>}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+                  ))}
+                </div>
+              </section>
+            )}
 
-          {/* EDUCATION (2-3 entries) */}
-          {educationList.length > 0 && (
-            <section className="flex-resume-section">
-              <h2 className="flex-section-title">Education</h2>
-              <div className="flex-items-list">
-                {educationList.map((edu, idx) => (
-                  <div key={idx} className="flex-item-block">
-                    <div className="flex-item-topline">
-                      <strong className="flex-item-title">{edu.institution || "Institution Name"}</strong>
-                      {edu.location?.trim() && (
-                        <span className="flex-item-location">{edu.location.trim()}</span>
-                      )}
-                    </div>
-                    <div className="flex-item-subline">
-                      <span className="flex-item-role">
-                        {edu.degree || "Degree"}
-                        {edu.gpa?.trim() && <span className="flex-edu-gpa"> ({edu.gpa.trim()})</span>}
-                      </span>
-                      {edu.grad_date?.trim() && (
-                        <span className="flex-item-date">{edu.grad_date.trim()}</span>
-                      )}
-                    </div>
-                    {edu.highlights?.trim() && (
-                      <div className="flex-edu-highlights">{edu.highlights.trim()}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+            {/* CERTIFICATIONS / HONORS (Optional) */}
+            {data.certifications?.trim() && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">Certifications & Honors</h2>
+                <p className="flex-cert-text">{data.certifications.trim()}</p>
+              </section>
+            )}
 
-          {/* CERTIFICATIONS / HONORS (Optional) */}
-          {data.certifications?.trim() && (
-            <section className="flex-resume-section">
-              <h2 className="flex-section-title">Certifications & Honors</h2>
-              <p className="flex-cert-text">{data.certifications.trim()}</p>
-            </section>
-          )}
+            {/* CUSTOM SECTION (With user's own heading, 2 subheads & bullets) */}
+            {hasCustom && (
+              <section className="flex-resume-section">
+                <h2 className="flex-section-title">{customSection.title.trim()}</h2>
+                <div className="flex-items-list">
+                  {customSection.subhead_1?.title?.trim() && (
+                    <div className="flex-item-block">
+                      <div className="flex-item-topline">
+                        <strong className="flex-item-title">{customSection.subhead_1.title.trim()}</strong>
+                        {customSection.subhead_1.subtitle_or_date?.trim() && (
+                          <span className="flex-item-date">{customSection.subhead_1.subtitle_or_date.trim()}</span>
+                        )}
+                      </div>
+                      <ul className="flex-bullets-list">
+                        {customSection.subhead_1.bullet_1?.trim() && <li>{customSection.subhead_1.bullet_1.trim()}</li>}
+                        {customSection.subhead_1.bullet_2?.trim() && <li>{customSection.subhead_1.bullet_2.trim()}</li>}
+                      </ul>
+                    </div>
+                  )}
+                  {customSection.subhead_2?.title?.trim() && (
+                    <div className="flex-item-block">
+                      <div className="flex-item-topline">
+                        <strong className="flex-item-title">{customSection.subhead_2.title.trim()}</strong>
+                        {customSection.subhead_2.subtitle_or_date?.trim() && (
+                          <span className="flex-item-date">{customSection.subhead_2.subtitle_or_date.trim()}</span>
+                        )}
+                      </div>
+                      <ul className="flex-bullets-list">
+                        {customSection.subhead_2.bullet_1?.trim() && <li>{customSection.subhead_2.bullet_1.trim()}</li>}
+                        {customSection.subhead_2.bullet_2?.trim() && <li>{customSection.subhead_2.bullet_2.trim()}</li>}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
       </div>
     </div>

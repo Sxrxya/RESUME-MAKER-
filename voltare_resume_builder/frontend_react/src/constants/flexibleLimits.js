@@ -90,7 +90,22 @@ export const SAMPLE_FLEXIBLE_DATA = {
       bullet_2: "Implemented automated CI/CD pipelines via GitHub Actions and wrote unit test suites increasing test coverage from 62% to 88%."
     }
   ],
-  certifications: "AWS Certified Cloud Practitioner, HackerRank Problem Solving (Gold Badge)"
+  certifications: "AWS Certified Cloud Practitioner, HackerRank Problem Solving (Gold Badge)",
+  custom_section: {
+    title: "Leadership & Community Initiatives",
+    subhead_1: {
+      title: "Lead Organizer, National Tech Symposium",
+      subtitle_or_date: "2023 – 2024",
+      bullet_1: "Spearheaded planning and execution for an inter-college symposium hosting 1,200+ attendees and 18 technical challenges.",
+      bullet_2: "Coordinated corporate outreach, securing industry partnerships and workshop sponsorships."
+    },
+    subhead_2: {
+      title: "Core Member, Open Source Student Society",
+      subtitle_or_date: "2022 – 2023",
+      bullet_1: "Conducted hands-on workshops introducing 150+ students to Git, GitHub, and contributing to open-source software.",
+      bullet_2: "Organized bi-weekly coding competitions and collaborative hackathon preparation tracks."
+    }
+  }
 };
 
 export const EMPTY_FLEXIBLE_DATA = {
@@ -140,5 +155,20 @@ export const EMPTY_FLEXIBLE_DATA = {
     }
   ],
   experience: [],
-  certifications: ""
+  certifications: "",
+  custom_section: {
+    title: "",
+    subhead_1: {
+      title: "",
+      subtitle_or_date: "",
+      bullet_1: "",
+      bullet_2: ""
+    },
+    subhead_2: {
+      title: "",
+      subtitle_or_date: "",
+      bullet_1: "",
+      bullet_2: ""
+    }
+  }
 };

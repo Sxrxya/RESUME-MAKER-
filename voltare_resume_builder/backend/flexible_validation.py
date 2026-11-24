@@ -170,6 +170,25 @@ def validate_flexible_resume(data: Dict[str, Any]) -> FlexibleValidationResult:
                     total_points += estimate_text_points(exp.get("bullet_2"), 13) + 4
                 active_exp += 1
 
+    # 7. Custom Section (Optional with 2 subheadings and bullets)
+    custom = data.get("custom_section", {})
+    if custom.get("title", "").strip():
+        total_points += 22
+        sub1 = custom.get("subhead_1", {})
+        if sub1.get("title", "").strip():
+            total_points += 18
+            if sub1.get("bullet_1"):
+                total_points += estimate_text_points(sub1.get("bullet_1"), 13) + 4
+            if sub1.get("bullet_2"):
+                total_points += estimate_text_points(sub1.get("bullet_2"), 13) + 4
+        sub2 = custom.get("subhead_2", {})
+        if sub2.get("title", "").strip():
+            total_points += 18
+            if sub2.get("bullet_1"):
+                total_points += estimate_text_points(sub2.get("bullet_1"), 13) + 4
+            if sub2.get("bullet_2"):
+                total_points += estimate_text_points(sub2.get("bullet_2"), 13) + 4
+
     # Capacity and Density
     capacity_percent = round((total_points / TOTAL_A4_POINTS) * 100)
     density_mode = "balanced"
