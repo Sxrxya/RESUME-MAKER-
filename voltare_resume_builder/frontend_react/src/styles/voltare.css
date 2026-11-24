@@ -1278,18 +1278,38 @@ h3 {
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  background-size: 500px auto;
-  background-repeat: no-repeat;
-  background-position: center;
   display: flex;
   flex-direction: column;
 }
 
+.flex-resume-watermark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 540px;
+  height: 500px;
+  opacity: 0.95;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.flex-resume-watermark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.flex-resume-header,
 .flex-sections-container {
-  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.flex-sections-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: var(--flex-sec-gap, 16px);
 }
 
 /* Density: Spacious (Low content, e.g. Freshers with 0 experience) */

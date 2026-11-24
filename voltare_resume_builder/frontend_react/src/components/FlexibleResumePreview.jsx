@@ -145,12 +145,16 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
     (customSection.subhead_1?.title?.trim() || customSection.subhead_2?.title?.trim())
   );
 
+  const watermarkSrc = watermarkBase64
+    ? `data:image/png;base64,${watermarkBase64}`
+    : "/original_watermark.png";
+
   return (
     <div className="preview-scaler-wrapper" ref={previewContainerRef}>
       {/* Page Auto-Fit Spacing Controls */}
       <div className="preview-toolbar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '12px', fontWeight: 700, color: '#6D605C', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          📐 Page Layout:
+          📐 Spacing:
         </span>
         <div style={{ display: 'inline-flex', background: '#ffffff', border: '1px solid #E4D9D3', borderRadius: '20px', padding: '2px' }}>
           <button
@@ -167,9 +171,9 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
               cursor: 'pointer',
               transition: 'all 0.2s'
             }}
-            title="Automatically scales font size, line height, and section gaps so content fills the entire A4 page"
+            title="Uniform, balanced section gaps with auto-scaled typography"
           >
-            ✨ Full Page Auto-Fill
+            ✨ Balanced Flow
           </button>
           <button
             type="button"
@@ -185,9 +189,27 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
               cursor: 'pointer',
               transition: 'all 0.2s'
             }}
-            title="Expands font size and section gaps for minimal/low content resumes"
+            title="Extra spacious gaps and larger font for low-content resumes"
           >
             🌱 Extra Spacious
+          </button>
+          <button
+            type="button"
+            onClick={() => setSpacingBalance('fill')}
+            style={{
+              padding: '4px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              borderRadius: '16px',
+              border: 'none',
+              background: spacingBalance === 'fill' ? '#7D1128' : 'transparent',
+              color: spacingBalance === 'fill' ? '#ffffff' : '#444',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            title="Stretches sections from top to bottom margin of A4 sheet"
+          >
+            📐 Full Page Fill
           </button>
           <button
             type="button"
@@ -226,9 +248,15 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
             '--flex-line-height': dynamicLineHeight,
             '--flex-item-gap': dynamicItemGap,
             '--flex-sec-gap': dynamicSecGap,
-            backgroundImage: watermarkBase64 ? `url(data:image/png;base64,${watermarkBase64})` : 'none',
           }}
         >
+          {/* Centered Soft-Mask Watermark Overlay */}
+          {watermarkSrc && (
+            <div className="flex-resume-watermark">
+              <img src={watermarkSrc} alt="Voltare Watermark" />
+            </div>
+          )}
+
           {/* HEADER */}
           <header className="flex-resume-header">
             <h1 className="flex-candidate-name">{fullName}</h1>
@@ -244,11 +272,13 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
             )}
           </header>
 
-          {/* DYNAMIC AUTO-JUSTIFIED SECTIONS CONTAINER */}
+          {/* UNIFORM & HARMONIOUS SECTIONS CONTAINER */}
           <div
             className="flex-sections-container"
             style={{
-              justifyContent: spacingBalance === 'compact' ? 'flex-start' : 'space-between',
+              gap: dynamicSecGap,
+              justifyContent: spacingBalance === 'fill' ? 'space-between' : 'flex-start',
+              flex: spacingBalance === 'fill' ? 1 : 'none',
             }}
           >
             {/* PROFESSIONAL SUMMARY */}
