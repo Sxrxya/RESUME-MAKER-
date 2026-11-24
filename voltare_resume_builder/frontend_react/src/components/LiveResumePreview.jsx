@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
   const previewContainerRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [isAutoFitActive, setIsAutoFitActive] = useState(false);
 
   // Auto-scale preview sheet to fit device screen width cleanly
   useEffect(() => {
@@ -250,8 +251,10 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
     if (data[k]) totalLines += Math.max(1, Math.floor(data[k].length / 110) + 1);
   });
 
-  const densityStyles = totalLines <= 26 ? {
-    '--resume-line-height': '1.32',
+  const effectiveLines = isAutoFitActive ? Math.min(totalLines, 20) : totalLines;
+
+  const densityStyles = effectiveLines <= 26 ? {
+    '--resume-line-height': '1.34',
     '--resume-section-margin-top': '14pt',
     '--resume-section-body-margin': '4.5pt',
     '--resume-entry-margin-bottom': '7pt',
@@ -259,7 +262,7 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
     '--resume-content-padding': '34pt 36pt 28pt 21pt',
     '--resume-font-size': '10.2pt',
     '--resume-summary-margin-bottom': '4pt',
-  } : totalLines <= 38 ? {
+  } : effectiveLines <= 38 ? {
     '--resume-line-height': '1.23',
     '--resume-section-margin-top': '9pt',
     '--resume-section-body-margin': '3.5pt',
@@ -280,7 +283,7 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
   };
 
   return (
-    <div ref={previewContainerRef} className="preview-outer">
+    <div ref={previewContainerRef} className="preview-scaler-wrapper">
       <div
         className="preview-scale-wrapper"
         style={{
@@ -398,6 +401,25 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* AUTO-FIT TO FULL PAGE BUTTON */}
+      <div className="resume-fit-controls-bar">
+        <div>
+          <button
+            type="button"
+            className={`resume-fit-btn ${isAutoFitActive ? 'active' : ''}`}
+            onClick={() => setIsAutoFitActive(prev => !prev)}
+            title="Intelligently scales line-heights, margins, and gaps to fill the full A4 page perfectly"
+          >
+            {isAutoFitActive ? '✓ Page Fit: Expanded' : '📐 Auto-Fit to Page Fully'}
+          </button>
+        </div>
+        <div className="resume-fit-desc">
+          {isAutoFitActive
+            ? '✨ Full page distribution active: elements adapted to utilize full A4 page.'
+            : 'Unused space at the bottom? Click to intelligently distribute and fit to full page.'}
         </div>
       </div>
     </div>

@@ -13,13 +13,13 @@
 
 import { FLEXIBLE_LIMITS } from '../constants/flexibleLimits';
 
-const TOTAL_A4_POINTS = 720; // usable vertical space on single A4 at standard print margins
-const CHARS_PER_LINE = 110;  // average characters per line at ~10pt font in standard body column
+const TOTAL_A4_POINTS = 792; // Usable vertical points on single A4 at calibrated executive print margins (842pt - 50pt padding)
+const CHARS_PER_LINE = 110;  // Average characters per line at ~9.9pt font in standard body column
 
 /**
  * Estimates the vertical height (in points) of a text block given characters per line.
  */
-function estimateTextHeight(text, linePitch = 13) {
+function estimateTextHeight(text, linePitch = 12) {
   if (!text || !text.trim()) return 0;
   const lines = Math.ceil(text.trim().length / CHARS_PER_LINE) || 1;
   return lines * linePitch;
@@ -35,7 +35,7 @@ export function validateFlexibleResume(data) {
 
   // 1. Personal Info Validation (MANDATORY)
   const personal = data.personal || {};
-  let personalPoints = 46; // Base header height (name + contact line)
+  let personalPoints = 36; // Base header height (candidate name + contact line)
   if (!personal.first_name?.trim()) {
     errors.push({ field: 'first_name', section: 'personal', message: 'First name is required.' });
   }
@@ -57,7 +57,7 @@ export function validateFlexibleResume(data) {
 
   // 2. Professional Summary (MANDATORY: Minimum 150 chars)
   const summary = data.summary?.trim() || '';
-  let summaryPoints = 20; // Section heading
+  let summaryPoints = 16; // Section heading
   if (!summary) {
     errors.push({ field: 'summary', section: 'summary', message: 'Professional Summary is required.' });
   } else if (summary.length < FLEXIBLE_LIMITS.summaryMinChars) {
@@ -73,12 +73,12 @@ export function validateFlexibleResume(data) {
       message: `Summary is quite long (${summary.length} chars). Consider condensing to prevent page overflow.`
     });
   }
-  summaryPoints += estimateTextHeight(summary, 14);
+  summaryPoints += estimateTextHeight(summary, 12);
   sectionBreakdown.summary = { points: summaryPoints, label: 'Professional Summary' };
 
   // 3. Education (2 MANDATORY, 1 OPTIONAL, MAX 3)
   const education = Array.isArray(data.education) ? data.education : [];
-  let educationPoints = 22; // Section heading
+  let educationPoints = 18; // Section heading
   let validEduCount = 0;
 
   education.forEach((edu, index) => {
@@ -113,9 +113,9 @@ export function validateFlexibleResume(data) {
     }
 
     if (hasAnyField || isRequired) {
-      educationPoints += 32; // Title line + date/degree
+      educationPoints += 24; // Title line + date/degree
       if (edu.highlights?.trim()) {
-        educationPoints += estimateTextHeight(edu.highlights, 12);
+        educationPoints += estimateTextHeight(edu.highlights, 11);
       }
     }
   });
@@ -131,7 +131,7 @@ export function validateFlexibleResume(data) {
 
   // 4. Projects (1 MANDATORY, MAX 3)
   const projects = Array.isArray(data.projects) ? data.projects : [];
-  let projectsPoints = 22; // Section heading
+  let projectsPoints = 18; // Section heading
   let validProjectCount = 0;
 
   projects.forEach((proj, index) => {
@@ -163,9 +163,9 @@ export function validateFlexibleResume(data) {
     }
 
     if (hasAny || isRequired) {
-      projectsPoints += 20; // Title & tech stack header
-      if (proj.bullet_1?.trim()) projectsPoints += estimateTextHeight(proj.bullet_1, 13) + 4;
-      if (proj.bullet_2?.trim()) projectsPoints += estimateTextHeight(proj.bullet_2, 13) + 4;
+      projectsPoints += 18; // Title & tech stack header
+      if (proj.bullet_1?.trim()) projectsPoints += estimateTextHeight(proj.bullet_1, 12) + 2;
+      if (proj.bullet_2?.trim()) projectsPoints += estimateTextHeight(proj.bullet_2, 12) + 2;
     }
   });
 
@@ -176,17 +176,17 @@ export function validateFlexibleResume(data) {
 
   // 5. Skills Section
   const skills = data.skills || {};
-  let skillsPoints = 22; // Section heading
+  let skillsPoints = 18; // Section heading
   let hasSkills = Boolean(
     skills.languages?.trim() ||
     skills.frameworks?.trim() ||
     skills.tools_cloud?.trim() ||
     skills.concepts?.trim()
   );
-  if (skills.languages?.trim()) skillsPoints += 14;
-  if (skills.frameworks?.trim()) skillsPoints += 14;
-  if (skills.tools_cloud?.trim()) skillsPoints += 14;
-  if (skills.concepts?.trim()) skillsPoints += 14;
+  if (skills.languages?.trim()) skillsPoints += 11;
+  if (skills.frameworks?.trim()) skillsPoints += 11;
+  if (skills.tools_cloud?.trim()) skillsPoints += 11;
+  if (skills.concepts?.trim()) skillsPoints += 11;
   sectionBreakdown.skills = { points: skillsPoints, label: 'Skills' };
 
   // 6. Professional Experience (100% OPTIONAL: 0 to 3 entries)
@@ -195,7 +195,7 @@ export function validateFlexibleResume(data) {
   let activeExpCount = 0;
 
   if (experience.length > 0) {
-    experiencePoints = 22; // Section heading only if experience exists
+    experiencePoints = 18; // Section heading only if experience exists
     experience.forEach((exp, index) => {
       const expNum = index + 1;
       const hasAny = Boolean(
@@ -210,10 +210,10 @@ export function validateFlexibleResume(data) {
         if (!exp.role?.trim()) {
           errors.push({ field: `exp_${expNum}_role`, section: 'experience', message: `Experience #${expNum}: Job title / Role is required.` });
         }
-        experiencePoints += 20; // Company & Role line
-        if (exp.bullet_1?.trim()) experiencePoints += estimateTextHeight(exp.bullet_1, 13) + 4;
-        if (exp.bullet_2?.trim()) experiencePoints += estimateTextHeight(exp.bullet_2, 13) + 4;
-        if (exp.bullet_3?.trim()) experiencePoints += estimateTextHeight(exp.bullet_3, 13) + 4;
+        experiencePoints += 18; // Company & Role line
+        if (exp.bullet_1?.trim()) experiencePoints += estimateTextHeight(exp.bullet_1, 12) + 2;
+        if (exp.bullet_2?.trim()) experiencePoints += estimateTextHeight(exp.bullet_2, 12) + 2;
+        if (exp.bullet_3?.trim()) experiencePoints += estimateTextHeight(exp.bullet_3, 12) + 2;
         activeExpCount++;
       }
     });
@@ -227,7 +227,7 @@ export function validateFlexibleResume(data) {
   // 7. Certifications / Honors (Optional)
   let certPoints = 0;
   if (data.certifications?.trim()) {
-    certPoints = 20 + estimateTextHeight(data.certifications, 13);
+    certPoints = 16 + estimateTextHeight(data.certifications, 12);
   }
   sectionBreakdown.certifications = { points: certPoints, label: 'Certifications' };
 
@@ -235,16 +235,16 @@ export function validateFlexibleResume(data) {
   const custom = data.custom_section || {};
   let customPoints = 0;
   if (custom.title?.trim()) {
-    customPoints += 22; // section header
+    customPoints += 18; // section header
     if (custom.subhead_1?.title?.trim()) {
-      customPoints += 18;
-      if (custom.subhead_1.bullet_1?.trim()) customPoints += estimateTextHeight(custom.subhead_1.bullet_1, 13) + 4;
-      if (custom.subhead_1.bullet_2?.trim()) customPoints += estimateTextHeight(custom.subhead_1.bullet_2, 13) + 4;
+      customPoints += 14;
+      if (custom.subhead_1.bullet_1?.trim()) customPoints += estimateTextHeight(custom.subhead_1.bullet_1, 12) + 2;
+      if (custom.subhead_1.bullet_2?.trim()) customPoints += estimateTextHeight(custom.subhead_1.bullet_2, 12) + 2;
     }
     if (custom.subhead_2?.title?.trim()) {
-      customPoints += 18;
-      if (custom.subhead_2.bullet_1?.trim()) customPoints += estimateTextHeight(custom.subhead_2.bullet_1, 13) + 4;
-      if (custom.subhead_2.bullet_2?.trim()) customPoints += estimateTextHeight(custom.subhead_2.bullet_2, 13) + 4;
+      customPoints += 14;
+      if (custom.subhead_2.bullet_1?.trim()) customPoints += estimateTextHeight(custom.subhead_2.bullet_1, 12) + 2;
+      if (custom.subhead_2.bullet_2?.trim()) customPoints += estimateTextHeight(custom.subhead_2.bullet_2, 12) + 2;
     }
   }
   sectionBreakdown.custom_section = { points: customPoints, label: custom.title || 'Custom Section' };
@@ -289,12 +289,6 @@ export function validateFlexibleResume(data) {
         ? `Experience takes ${Math.round((largest.points / totalUsedPoints) * 100)}% of your page. Condense bullet points to fit on 1 page.`
         : `Summary is using substantial space. Shorten by ~${excessLines * CHARS_PER_LINE} characters.`
     };
-
-    warnings.push({
-      field: 'page_overflow',
-      section: 'layout',
-      message: `⚠️ Single Page Budget Exceeded (~${excessLines} line${excessLines > 1 ? 's' : ''} over). ${trimAdvice.suggestion}`
-    });
   }
 
   // Completion Percentage Engine (0% - 100%)
@@ -343,8 +337,7 @@ export function validateFlexibleResume(data) {
   // Criteria for enabling PDF Download Button:
   // 1. Completion score must be >= 80%
   // 2. Zero critical errors (mandatory fields satisfied & summary >= 150 chars)
-  // 3. Not drastically overflowing (>108% capacity)
-  const isEligibleForExport = progressPercent >= 80 && errors.length === 0 && capacityPercent <= 108;
+  const isEligibleForExport = progressPercent >= 80 && errors.length === 0;
   const canDownloadPdf = isEligibleForExport;
 
   return {

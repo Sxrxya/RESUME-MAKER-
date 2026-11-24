@@ -178,6 +178,54 @@ def download_html(payload: ResumePayload):
     return Response(content=html_content, media_type="text/html", headers=headers)
 
 
+@app.post("/api/generate-flexible-pdf")
+def generate_flexible_pdf_endpoint(payload: ResumePayload):
+    """
+    Generate single-page PDF for Mode 2 & Mode 3 using backend Playwright engine.
+    """
+    resume_data = payload.data
+    validation = validate_flexible_resume(resume_data)
+
+    if not validation.is_valid:
+        errors = [f"{e.section}: {e.message}" for e in validation.errors]
+        raise HTTPException(status_code=400, detail={"message": "Validation failed", "errors": errors})
+
+    try:
+        watermark_b64 = get_watermark_base64()
+        html_content = render_flexible_html(resume_data, watermark_base64=watermark_b64)
+        output_filename = "voltare_flexible_resume.pdf"
+        output_path = os.path.join(GENERATED_DIR, output_filename)
+
+        generate_pdf_sync(html_content, output_path)
+
+        first_name = resume_data.get("personal", {}).get("first_name", "Candidate")
+        last_name = resume_data.get("personal", {}).get("last_name", "")
+        download_name = f"Voltare_Resume_{first_name}_{last_name}.pdf".replace(" ", "_")
+
+        return {
+            "success": True,
+            "filename": download_name,
+            "download_url": f"/api/download-flexible-pdf?fn={download_name}",
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/download-flexible-pdf")
+def download_flexible_pdf(fn: Optional[str] = None):
+    """Download the generated flexible PDF file."""
+    output_path = os.path.join(GENERATED_DIR, "voltare_flexible_resume.pdf")
+    if not os.path.exists(output_path):
+        raise HTTPException(status_code=404, detail="Generated PDF not found. Please generate it first.")
+
+    filename = fn or "Voltare_Resume.pdf"
+    return FileResponse(
+        path=output_path,
+        media_type="application/pdf",
+        filename=filename,
+    )
+
+
 @app.post("/api/validate-flexible")
 def validate_flexible_endpoint(payload: ResumePayload):
     """Validate flexible resume data and return budget metrics."""

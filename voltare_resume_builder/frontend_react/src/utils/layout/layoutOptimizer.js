@@ -25,7 +25,7 @@ import { detectOverflowDetails } from './overflowDetection';
  * @param {HTMLElement} sheetEl - The DOM sheet element (.flexible-resume-sheet)
  * @returns {Object} Optimized layout solution, visual balance, and CSS parameters
  */
-export function optimizePageLayout(sheetEl) {
+export function optimizePageLayout(sheetEl, forceMode = null) {
   if (!sheetEl) {
     return {
       success: false,
@@ -51,16 +51,20 @@ export function optimizePageLayout(sheetEl) {
   let chosenLayout;
   const remaining = initialMeasurement.remainingSpace;
 
-  // 2. Decide strategy: Expand, Compress, or Keep Baseline
-  if (remaining > 25) {
-    // Underfilled: Graceful micro-expansion
-    chosenLayout = calculateVerticalExpansion(initialMeasurement);
-  } else if (remaining < -8) {
-    // Overflow: Controlled micro-compression
-    chosenLayout = calculateVerticalCompression(initialMeasurement);
-  } else {
-    // Near-perfect: Baseline
+  // 2. Decide strategy based on forceMode or natural remaining space
+  if (forceMode === 'expand') {
+    chosenLayout = calculateVerticalExpansion({ ...initialMeasurement, remainingSpace: Math.max(80, remaining) });
+  } else if (forceMode === 'natural') {
     chosenLayout = getBaselineLayout();
+  } else {
+    // Default smart adaptive mode:
+    if (remaining > 25) {
+      chosenLayout = calculateVerticalExpansion(initialMeasurement);
+    } else if (remaining < -8) {
+      chosenLayout = calculateVerticalCompression(initialMeasurement);
+    } else {
+      chosenLayout = getBaselineLayout();
+    }
   }
 
   // 3. Analyze visual balance across page thirds

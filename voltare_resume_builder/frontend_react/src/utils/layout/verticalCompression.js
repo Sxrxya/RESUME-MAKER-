@@ -7,15 +7,15 @@
  */
 
 export const COMPRESSION_CONSTRAINTS = {
-  fontSize: { min: 12.5, baseline: 13.5, unit: 'px' },
-  bodyLineHeight: { min: 1.12, baseline: 1.22, unit: '' },
-  summaryLineHeight: { min: 1.14, baseline: 1.24, unit: '' },
-  sectionGap: { min: 8, baseline: 14, unit: 'px' },
-  itemGap: { min: 3, baseline: 6, unit: 'px' },
-  bulletGap: { min: 1.5, baseline: 4, unit: 'px' },
-  skillRowGap: { min: 2, baseline: 4, unit: 'px' },
-  h2MarginBottom: { min: 3, baseline: 5, unit: 'px' },
-  paddingY: { min: 28, baseline: 38, unit: 'px' },
+  fontSize: { min: 12.2, baseline: 13.2, unit: 'px' },
+  bodyLineHeight: { min: 1.12, baseline: 1.20, unit: '' },
+  summaryLineHeight: { min: 1.14, baseline: 1.22, unit: '' },
+  sectionGap: { min: 8, baseline: 13, unit: 'px' },
+  itemGap: { min: 3, baseline: 5, unit: 'px' },
+  bulletGap: { min: 1.5, baseline: 2.5, unit: 'px' },
+  skillRowGap: { min: 2, baseline: 2.5, unit: 'px' },
+  h2MarginBottom: { min: 2.5, baseline: 4, unit: 'px' },
+  paddingY: { min: 26, baseline: 34, unit: 'px' },
 };
 
 /**

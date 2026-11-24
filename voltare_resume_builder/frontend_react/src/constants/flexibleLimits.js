@@ -20,7 +20,7 @@ export const FLEXIBLE_LIMITS = {
   minProjects: 1,
   maxExperience: 3,
   minExperience: 0, // Freshers can have 0
-  pageBudgetPoints: 720, // Single A4 usable vertical points
+  pageBudgetPoints: 792, // Single A4 usable vertical points
 };
 
 export const SAMPLE_FLEXIBLE_DATA = {

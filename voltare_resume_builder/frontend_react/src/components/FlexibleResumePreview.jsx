@@ -7,6 +7,7 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   const sheetRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [layoutMetrics, setLayoutMetrics] = useState(null);
+  const [isAutoFitActive, setIsAutoFitActive] = useState(false);
 
   // Auto-scale preview sheet to fit device screen width cleanly
   useEffect(() => {
@@ -28,8 +29,8 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   }, []);
 
   const personal = data.personal || {};
-  const firstName = personal.first_name || "YOUR";
-  const lastName = personal.last_name || "NAME";
+  const firstName = personal.first_name || "";
+  const lastName = personal.last_name || "";
   const fullName = `${firstName} ${lastName}`.trim();
 
   // Contact line items with clean hyperlink labels & nowrap
@@ -110,13 +111,18 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   // Adaptive Page Composition: Measures rendered geometry & dynamically balances vertical distribution
   useLayoutEffect(() => {
     if (sheetRef.current) {
-      const result = optimizePageLayout(sheetRef.current);
+      const mode = isAutoFitActive ? 'expand' : 'natural';
+      const result = optimizePageLayout(sheetRef.current, mode);
       if (result && result.layout) {
         applyLayoutToDOM(sheetRef.current, result.layout);
         setLayoutMetrics(result);
       }
     }
-  }, [data]);
+  }, [data, isAutoFitActive]);
+
+  const toggleAutoFit = () => {
+    setIsAutoFitActive(prev => !prev);
+  };
 
   const watermarkSrc = watermarkBase64
     ? `data:image/png;base64,${watermarkBase64}`
@@ -136,7 +142,7 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
           className={`flexible-resume-sheet density-${density}`}
           id="flexible-resume-print-area"
           style={{
-            padding: '38px 44px',
+            padding: '34px 44px',
           }}
         >
           {/* Centered Soft-Mask Watermark Overlay */}
@@ -148,7 +154,9 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
 
           {/* HEADER */}
           <header className="flex-resume-header">
-            <h1 className="flex-candidate-name">{fullName}</h1>
+            {fullName ? (
+              <h1 className="flex-candidate-name">{fullName}</h1>
+            ) : null}
             {contactParts.length > 0 && (
               <div className="flex-contact-line">
                 {contactParts.map((part, index) => (
@@ -349,6 +357,25 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
               </section>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* AUTO-FIT TO FULL PAGE BUTTON */}
+      <div className="resume-fit-controls-bar">
+        <div>
+          <button
+            type="button"
+            className={`resume-fit-btn ${isAutoFitActive ? 'active' : ''}`}
+            onClick={toggleAutoFit}
+            title="Intelligently scales line-heights, margins, and gaps to fill the full A4 page perfectly"
+          >
+            {isAutoFitActive ? '✓ Page Fit: Expanded' : '📐 Auto-Fit to Page Fully'}
+          </button>
+        </div>
+        <div className="resume-fit-desc">
+          {isAutoFitActive
+            ? '✨ Full page distribution active: elements adapted to utilize full A4 page.'
+            : 'Unused space at the bottom? Click to intelligently distribute and fit to full page.'}
         </div>
       </div>
     </div>

@@ -12,7 +12,6 @@ import AchievementsLeadership from './components/form/AchievementsLeadership';
 import ValidationExport from './components/ValidationExport';
 import LiveResumePreview from './components/LiveResumePreview';
 import ModeSwitcher from './components/ModeSwitcher';
-import PageBudgetTracker from './components/PageBudgetTracker';
 import FlexiblePersonalInfo from './components/flexible_form/FlexiblePersonalInfo';
 import FlexibleSummary from './components/flexible_form/FlexibleSummary';
 import FlexibleEducation from './components/flexible_form/FlexibleEducation';
@@ -411,9 +410,35 @@ export default function App() {
     setToastMessage("🧹 Flexible form cleared. Start adding your details!");
   };
 
-  // Download flexible PDF via strict vector print
-  const handleDownloadFlexiblePdf = () => {
-    window.print();
+  // Download flexible PDF likewise Mode 1 (generates high-res single-page PDF via backend or direct print)
+  const [isGeneratingFlexiblePdf, setIsGeneratingFlexiblePdf] = useState(false);
+
+  const handleDownloadFlexiblePdf = async () => {
+    setIsGeneratingFlexiblePdf(true);
+    try {
+      const response = await fetch('/api/generate-flexible-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: flexibleData }),
+      });
+
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.download_url) {
+          window.open(resData.download_url, '_blank');
+          setToastMessage("🎉 High-res Single-Page PDF generated & ready!");
+          setIsGeneratingFlexiblePdf(false);
+          return;
+        }
+      }
+      // If backend generation returns non-ok or error, fall back cleanly to direct print
+      window.print();
+    } catch (err) {
+      console.warn("Backend PDF generation fallback:", err);
+      window.print();
+    } finally {
+      setIsGeneratingFlexiblePdf(false);
+    }
   };
 
   // Client-side validation ensuring Project 1 is compulsory and Projects 2 & 3 are optional
@@ -768,9 +793,6 @@ export default function App() {
                 Modular layout. Professional Summary requires <strong>150+ chars</strong>. Freshers can leave Experience at 0 without penalty.
               </div>
 
-              {/* Real-Time Single-Page Budget Tracker */}
-              <PageBudgetTracker budget={flexibleValidation.budget} />
-
               {/* Flexible Form Tabs */}
               <Tabs
                 tabs={flexibleTabs}
@@ -836,6 +858,7 @@ export default function App() {
                 sectionStatus={flexSectionStatus}
                 onNavigateTab={setActiveFlexTab}
                 onDownloadPdf={handleDownloadFlexiblePdf}
+                isGeneratingPdf={isGeneratingFlexiblePdf}
               />
             </>
           )}

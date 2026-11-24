@@ -6,17 +6,17 @@
  * without ever applying clumsy justify-content: space-between or blowing up global gaps.
  */
 
-// Strict design constraints to preserve executive typography
+// Strict executive constraints calibrated with Standard Voltare Resume spacing
 export const EXPANSION_CONSTRAINTS = {
-  fontSize: { min: 13.5, baseline: 13.5, max: 14.2, unit: 'px' },
-  bodyLineHeight: { min: 1.22, baseline: 1.22, max: 1.34, unit: '' },
-  summaryLineHeight: { min: 1.24, baseline: 1.24, max: 1.38, unit: '' },
-  sectionGap: { min: 14, baseline: 14, max: 22, unit: 'px' },
-  itemGap: { min: 6, baseline: 6, max: 11, unit: 'px' },
-  bulletGap: { min: 3, baseline: 4, max: 7, unit: 'px' },
-  skillRowGap: { min: 3, baseline: 4, max: 6, unit: 'px' },
-  h2MarginBottom: { min: 4, baseline: 5, max: 8, unit: 'px' },
-  paddingY: { min: 38, baseline: 38, max: 48, unit: 'px' },
+  fontSize: { min: 13.0, baseline: 13.2, max: 13.6, unit: 'px' },
+  bodyLineHeight: { min: 1.18, baseline: 1.20, max: 1.25, unit: '' },
+  summaryLineHeight: { min: 1.20, baseline: 1.22, max: 1.28, unit: '' },
+  sectionGap: { min: 11, baseline: 13, max: 16, unit: 'px' },
+  itemGap: { min: 4, baseline: 5, max: 8, unit: 'px' },
+  bulletGap: { min: 2, baseline: 2.5, max: 4, unit: 'px' },
+  skillRowGap: { min: 2, baseline: 2.5, max: 4, unit: 'px' },
+  h2MarginBottom: { min: 3, baseline: 4, max: 5, unit: 'px' },
+  paddingY: { min: 32, baseline: 34, max: 40, unit: 'px' },
 };
 
 /**

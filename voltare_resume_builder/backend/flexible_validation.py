@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 
 SUMMARY_MIN_CHARS = 150
 SUMMARY_MAX_CHARS = 600
-TOTAL_A4_POINTS = 720
+TOTAL_A4_POINTS = 792  # Calibrated executive printable vertical points (842pt - 50pt padding)
 CHARS_PER_LINE = 110
 
 
@@ -226,7 +226,7 @@ def validate_flexible_resume(data: Dict[str, Any]) -> FlexibleValidationResult:
         score = 100
 
     progress_percent = min(100, score)
-    can_download_pdf = (progress_percent >= 80 and len(errors) == 0 and capacity_percent <= 108)
+    can_download_pdf = (progress_percent >= 80 and len(errors) == 0)
 
     result.is_valid = (len(errors) == 0)
     result.errors = errors

@@ -22,6 +22,8 @@ export default function FlexibleExportPanel({
 
   const requiredSections = sections.filter(s => s.required);
   const completedRequired = requiredSections.filter(s => s.complete).length;
+  const allRequiredDone = completedRequired === requiredSections.length;
+  const isDownloadEnabled = allRequiredDone || canDownloadPdf;
 
   return (
     <div className="validation-export-section" style={{ marginTop: '24px' }}>
@@ -33,8 +35,8 @@ export default function FlexibleExportPanel({
       {/* Progress Bar & Status */}
       <div className="progress-container" style={{ margin: '14px 0 16px 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px', fontWeight: 600 }}>
-          <span style={{ color: canDownloadPdf ? '#1e824c' : '#7D1128' }}>
-            {canDownloadPdf
+          <span style={{ color: isDownloadEnabled ? '#1e824c' : '#7D1128' }}>
+            {isDownloadEnabled
               ? "🎉 Ready for Download! All Required Standards Met."
               : `${completedRequired} of ${requiredSections.length} Required Parts Completed`}
           </span>
@@ -45,7 +47,7 @@ export default function FlexibleExportPanel({
             className="progress-bar-fill"
             style={{
               width: `${progressPercent}%`,
-              backgroundColor: canDownloadPdf ? '#2ecc71' : '#7D1128',
+              backgroundColor: isDownloadEnabled ? '#2ecc71' : '#7D1128',
               transition: 'width 0.3s ease',
             }}
           />
@@ -70,12 +72,12 @@ export default function FlexibleExportPanel({
         ))}
       </div>
 
-      {/* Clean friendly guidance box instead of messy red error lists */}
-      {!canDownloadPdf ? (
+      {/* Clean friendly guidance box */}
+      {!isDownloadEnabled ? (
         <div className="friendly-hint-box" style={{ marginBottom: '14px' }}>
           <span style={{ fontSize: '18px' }}>💡</span>
           <div>
-            <strong>Almost there!</strong> Complete the required sections above (marked with ⏳) to reach 80% completion and unlock single-page PDF download.
+            <strong>Almost there!</strong> Complete the required sections above (marked with ⏳) to unlock single-page PDF download.
           </div>
         </div>
       ) : (
@@ -92,13 +94,13 @@ export default function FlexibleExportPanel({
         <button
           type="button"
           className="voltare-btn"
-          disabled={!canDownloadPdf || isGeneratingPdf}
+          disabled={!isDownloadEnabled || isGeneratingPdf}
           onClick={onDownloadPdf}
           style={{
             flex: '1 1 220px',
-            backgroundColor: canDownloadPdf ? '#2e7d32' : '#9e9e9e',
-            cursor: canDownloadPdf ? 'pointer' : 'not-allowed',
-            opacity: canDownloadPdf ? 1 : 0.65,
+            backgroundColor: isDownloadEnabled ? '#2e7d32' : '#9e9e9e',
+            cursor: isDownloadEnabled ? 'pointer' : 'not-allowed',
+            opacity: isDownloadEnabled ? 1 : 0.65,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -106,7 +108,7 @@ export default function FlexibleExportPanel({
             fontSize: '14px',
             fontWeight: 700
           }}
-          title={canDownloadPdf ? "Export strictly single-page vector A4 PDF" : "Complete required sections (marked with ⏳) to unlock download"}
+          title={isDownloadEnabled ? "Export strictly single-page vector A4 PDF" : "Complete required sections (marked with ⏳) to unlock download"}
         >
           {isGeneratingPdf ? (
             <>
@@ -116,15 +118,15 @@ export default function FlexibleExportPanel({
           ) : (
             <>
               <span>📥 Download Single-Page PDF</span>
-              {canDownloadPdf && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.25)', padding: '2px 6px', borderRadius: '4px' }}>Strict A4</span>}
+              {isDownloadEnabled && <span style={{ fontSize: '11px', background: 'rgba(255,255,255,0.25)', padding: '2px 6px', borderRadius: '4px' }}>Strict A4</span>}
             </>
           )}
         </button>
       </div>
 
-      {!canDownloadPdf && (
+      {!isDownloadEnabled && (
         <div style={{ fontSize: '11.5px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
-          🔒 PDF download unlocks automatically once 80% completion and mandatory fields are satisfied.
+          🔒 PDF download unlocks automatically once mandatory fields (Personal, Summary, 2 Education, 1 Project) are satisfied.
         </div>
       )}
     </div>

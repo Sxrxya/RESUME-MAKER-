@@ -23,8 +23,8 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
     density = validation.density_mode or "balanced"
 
     personal = data.get("personal", {})
-    first_name = _escape(personal.get("first_name", "YOUR"))
-    last_name = _escape(personal.get("last_name", "NAME"))
+    first_name = _escape(personal.get("first_name", ""))
+    last_name = _escape(personal.get("last_name", ""))
     full_name = f"{first_name} {last_name}".strip()
 
     contact_items = []
