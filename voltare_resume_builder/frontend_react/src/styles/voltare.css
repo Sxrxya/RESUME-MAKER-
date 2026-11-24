@@ -1300,7 +1300,61 @@ h3 {
   object-fit: contain;
 }
 
-.flex-resume-header,
+.flex-resume-header {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-bottom: var(--flex-sec-gap, 14px);
+}
+
+.flex-candidate-name {
+  font-family: var(--font-sc);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0;
+  line-height: 1.15;
+}
+
+.flex-contact-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  font-size: calc(var(--flex-font-size, 13.5px) - 0.5px);
+  color: #333333;
+  margin-top: 5px;
+  line-height: 1.35;
+}
+
+.flex-contact-item {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.flex-contact-link {
+  color: #7D1128 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.flex-contact-link:hover {
+  opacity: 0.8;
+}
+
+.flex-bullet-sep {
+  color: #7D1128;
+  font-size: 10px;
+  user-select: none;
+  padding: 0 1px;
+}
+
 .flex-sections-container {
   position: relative;
   z-index: 2;

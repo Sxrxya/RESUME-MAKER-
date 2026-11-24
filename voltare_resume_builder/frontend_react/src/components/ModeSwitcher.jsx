@@ -8,7 +8,7 @@ export default function ModeSwitcher({ currentMode, onSelectMode }) {
         <span>Choose Builder Mode:</span>
       </div>
 
-      <div className="mode-cards-grid">
+      <div className="mode-cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
         {/* MODE 1: Standard Voltare Resume Format */}
         <button
           type="button"
@@ -17,20 +17,20 @@ export default function ModeSwitcher({ currentMode, onSelectMode }) {
           aria-pressed={currentMode === 'standard'}
         >
           <div className="mode-card-header">
-            <span className="mode-title">📄 Standard Voltare Resume Format</span>
-            <span className="mode-badge badge-standard">Official Strict</span>
+            <span className="mode-title">📄 Standard Voltare Format</span>
+            <span className="mode-badge badge-standard">Strict Reference</span>
           </div>
           <p className="mode-desc">
-            Exact official template matching the reference Voltare specification. Preserved strict structure, fixed sections, and calibrated coordinates.
+            Exact official template matching reference Voltare specification. Preserved strict structure, fixed sections, and calibrated coordinates.
           </p>
           <div className="mode-features-row">
-            <span className="mode-pill">🔒 Official Template</span>
-            <span className="mode-pill">📐 Fixed Architecture</span>
-            <span className="mode-pill">🎯 100% Unchanged</span>
+            <span className="mode-pill">🔒 Official Strict</span>
+            <span className="mode-pill">📐 Fixed Template</span>
+            <span className="mode-pill">🎯 100% Preserved</span>
           </div>
         </button>
 
-        {/* MODE 2: Voltare Flexible Resume Builder */}
+        {/* MODE 2: Voltare Technical Resume */}
         <button
           type="button"
           className={`mode-card ${currentMode === 'flexible' ? 'selected' : ''}`}
@@ -38,16 +38,37 @@ export default function ModeSwitcher({ currentMode, onSelectMode }) {
           aria-pressed={currentMode === 'flexible'}
         >
           <div className="mode-card-header">
-            <span className="mode-title">✨ Voltare Flexible Resume Builder</span>
-            <span className="mode-badge badge-flexible">Dynamic & Modular</span>
+            <span className="mode-title">⚡ Voltare Technical Resume</span>
+            <span className="mode-badge badge-flexible">Tech & Software</span>
           </div>
           <p className="mode-desc">
-            Modern auto-scaling builder. Dynamic spacing fills the full page even with 0 experience (freshers) or scales cleanly for experienced candidates.
+            Engineered for developers, DevOps, and tech freshers. Tailored for tech stack, GitHub links, algorithmic projects, and coding skills.
           </p>
           <div className="mode-features-row">
-            <span className="mode-pill">🎓 Freshers & Pros</span>
-            <span className="mode-pill">📊 1-Page Budget Engine</span>
-            <span className="mode-pill">🚀 80% Smart PDF Unlock</span>
+            <span className="mode-pill">💻 Software & Data</span>
+            <span className="mode-pill">🐙 GitHub & Projects</span>
+            <span className="mode-pill">📊 Auto-Fill A4</span>
+          </div>
+        </button>
+
+        {/* MODE 3: Voltare Non-Technical & Business Resume */}
+        <button
+          type="button"
+          className={`mode-card ${currentMode === 'non_technical' ? 'selected' : ''}`}
+          onClick={() => onSelectMode('non_technical')}
+          aria-pressed={currentMode === 'non_technical'}
+        >
+          <div className="mode-card-header">
+            <span className="mode-title">💼 Voltare Non-Technical Resume</span>
+            <span className="mode-badge" style={{ background: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' }}>Business & Ops</span>
+          </div>
+          <p className="mode-desc">
+            Designed for business analysts, finance, marketing, consulting, HR, and fresh graduates. Focuses on leadership, KPIs, and competencies.
+          </p>
+          <div className="mode-features-row">
+            <span className="mode-pill">📈 Business & Ops</span>
+            <span className="mode-pill">🎯 Strategy & Impact</span>
+            <span className="mode-pill">📄 Single-Page A4</span>
           </div>
         </button>
       </div>

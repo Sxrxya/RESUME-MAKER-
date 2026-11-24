@@ -29,19 +29,29 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
 
     contact_items = []
     if personal.get("city_state"):
-        contact_items.append(f"<span>{_escape(personal.get('city_state'))}</span>")
+        contact_items.append(f"<span class='flex-contact-item'>{_escape(personal.get('city_state'))}</span>")
     if personal.get("phone"):
-        contact_items.append(f"<span>{_escape(personal.get('phone'))}</span>")
+        contact_items.append(f"<span class='flex-contact-item'>{_escape(personal.get('phone'))}</span>")
     if personal.get("email"):
-        contact_items.append(f"<a href='mailto:{_escape(personal.get('email'))}' style='color:#7D1128;text-decoration:none;'>{_escape(personal.get('email'))}</a>")
+        em = _escape(personal.get("email"))
+        contact_items.append(f"<span class='flex-contact-item'><a href='mailto:{em}' class='flex-contact-link'>{em}</a></span>")
     if personal.get("linkedin"):
-        li = _escape(personal.get("linkedin").replace("https://", "").replace("http://", ""))
-        contact_items.append(f"<a href='https://{li}' target='_blank' style='color:#7D1128;text-decoration:none;'>{li}</a>")
+        raw_li = personal.get("linkedin").strip()
+        href_li = raw_li if raw_li.startswith("http") else f"https://{raw_li}"
+        contact_items.append(f"<span class='flex-contact-item'><a href='{href_li}' target='_blank' class='flex-contact-link'>LinkedIn</a></span>")
     if personal.get("portfolio"):
-        port = _escape(personal.get("portfolio").replace("https://", "").replace("http://", ""))
-        contact_items.append(f"<a href='https://{port}' target='_blank' style='color:#7D1128;text-decoration:none;'>{port}</a>")
+        raw_port = personal.get("portfolio").strip()
+        href_port = raw_port if raw_port.startswith("http") else f"https://{raw_port}"
+        port_lower = raw_port.lower()
+        if "github.com" in port_lower:
+            port_label = "GitHub"
+        elif "behance.net" in port_lower or "dribbble.com" in port_lower:
+            port_label = "Portfolio"
+        else:
+            port_label = "Website"
+        contact_items.append(f"<span class='flex-contact-item'><a href='{href_port}' target='_blank' class='flex-contact-link'>{port_label}</a></span>")
 
-    contact_html = ' <span style="color:#7D1128;font-size:9px;">•</span> '.join(contact_items)
+    contact_html = ' <span class="flex-bullet-sep">•</span> '.join(contact_items)
 
     # Summary
     summary = data.get("summary", "").strip()
@@ -378,8 +388,25 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 6px;
-            line-height: 1.2;
+            gap: 4px 6px;
+            line-height: 1.35;
+        }}
+        .flex-contact-item {{
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }}
+        .flex-contact-link {{
+            color: #7D1128 !important;
+            text-decoration: underline !important;
+            text-underline-offset: 2px;
+            font-weight: 500;
+        }}
+        .flex-bullet-sep {{
+            color: #7D1128;
+            font-size: 10px;
+            user-select: none;
+            padding: 0 1px;
         }}
         .sec {{
             margin-bottom: 0;

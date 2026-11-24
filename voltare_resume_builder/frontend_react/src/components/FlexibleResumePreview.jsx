@@ -32,31 +32,48 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   const lastName = personal.last_name || "NAME";
   const fullName = `${firstName} ${lastName}`.trim();
 
-  // Contact line items
+  // Contact line items with clean hyperlink labels & nowrap
   const contactParts = [];
-  if (personal.city_state) contactParts.push(<span key="loc">{personal.city_state}</span>);
-  if (personal.phone) contactParts.push(<span key="phone">{personal.phone}</span>);
+  if (personal.city_state) {
+    contactParts.push(<span key="loc" className="flex-contact-item">{personal.city_state}</span>);
+  }
+  if (personal.phone) {
+    contactParts.push(<span key="phone" className="flex-contact-item">{personal.phone}</span>);
+  }
   if (personal.email) {
     contactParts.push(
-      <a key="email" href={`mailto:${personal.email}`} style={{ color: '#7D1128', textDecoration: 'none' }}>
-        {personal.email}
-      </a>
+      <span key="email" className="flex-contact-item">
+        <a href={`mailto:${personal.email}`} className="flex-contact-link">
+          {personal.email}
+        </a>
+      </span>
     );
   }
   if (personal.linkedin) {
-    const cleanLinkedin = personal.linkedin.replace(/^https?:\/\//, '');
+    const rawLi = personal.linkedin.trim();
+    const hrefLi = rawLi.startsWith('http') ? rawLi : `https://${rawLi}`;
     contactParts.push(
-      <a key="li" href={`https://${cleanLinkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#7D1128', textDecoration: 'none' }}>
-        {cleanLinkedin}
-      </a>
+      <span key="li" className="flex-contact-item">
+        <a href={hrefLi} target="_blank" rel="noopener noreferrer" className="flex-contact-link">
+          LinkedIn
+        </a>
+      </span>
     );
   }
   if (personal.portfolio) {
-    const cleanPortfolio = personal.portfolio.replace(/^https?:\/\//, '');
+    const rawPort = personal.portfolio.trim();
+    const hrefPort = rawPort.startsWith('http') ? rawPort : `https://${rawPort}`;
+    const portLabel = rawPort.toLowerCase().includes('github.com')
+      ? 'GitHub'
+      : (rawPort.toLowerCase().includes('behance.net') || rawPort.toLowerCase().includes('dribbble.com'))
+        ? 'Portfolio'
+        : 'Website';
     contactParts.push(
-      <a key="port" href={`https://${cleanPortfolio}`} target="_blank" rel="noopener noreferrer" style={{ color: '#7D1128', textDecoration: 'none' }}>
-        {cleanPortfolio}
-      </a>
+      <span key="port" className="flex-contact-item">
+        <a href={hrefPort} target="_blank" rel="noopener noreferrer" className="flex-contact-link">
+          {portLabel}
+        </a>
+      </span>
     );
   }
 

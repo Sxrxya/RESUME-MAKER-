@@ -1,7 +1,7 @@
 import React from 'react';
 import { FLEXIBLE_LIMITS } from '../../constants/flexibleLimits';
 
-export default function FlexibleProjects({ projects = [], onChange }) {
+export default function FlexibleProjects({ projects = [], onChange, isNonTechnical = false }) {
   const minEntries = FLEXIBLE_LIMITS.minProjects; // 1
   const maxEntries = FLEXIBLE_LIMITS.maxProjects; // 3
 
@@ -39,14 +39,16 @@ export default function FlexibleProjects({ projects = [], onChange }) {
   return (
     <div className="form-section">
       <div className="section-title-row">
-        <h3>🚀 Project Experience <span className="req-badge">1 Mandatory, Max 3 Allowed</span></h3>
+        <h3>🚀 Projects <span className="req-badge">1 Mandatory, Max 3 Allowed</span></h3>
         <span className="entries-count-badge">
           {projects.length} / {maxEntries} Projects
         </span>
       </div>
 
       <p className="section-help-text">
-        Highlight key technical projects you have engineered. Project #1 is compulsory; you may add up to 2 additional projects (total maximum 3).
+        {isNonTechnical
+          ? "Highlight key academic, business, consulting, or case study initiatives. Project #1 is compulsory; you may add up to 2 additional projects (max 3)."
+          : "Highlight key technical projects you have engineered. Project #1 is compulsory; you may add up to 2 additional projects (total maximum 3)."}
       </p>
 
       {projects.map((proj, index) => {
@@ -81,7 +83,7 @@ export default function FlexibleProjects({ projects = [], onChange }) {
                   className="voltare-input"
                   value={proj.title || ''}
                   onChange={(e) => handleUpdate(index, 'title', e.target.value)}
-                  placeholder="e.g. Distributed Task Scheduler & Execution Engine"
+                  placeholder={isNonTechnical ? "e.g. Market Expansion Strategy & Consumer Analysis" : "e.g. Distributed Task Scheduler & Execution Engine"}
                   required={isMandatory}
                 />
               </div>
@@ -100,50 +102,54 @@ export default function FlexibleProjects({ projects = [], onChange }) {
 
             <div className="form-row">
               <div className="form-group flex-2">
-                <label>Tech Stack (Tools, Languages, Frameworks)</label>
+                <label>{isNonTechnical ? "Organization / Domain / Scope" : "Tech Stack (Tools, Languages, Frameworks)"}</label>
                 <input
                   type="text"
                   className="voltare-input"
                   value={proj.tech_stack || ''}
                   onChange={(e) => handleUpdate(index, 'tech_stack', e.target.value)}
-                  placeholder="e.g. Python, FastAPI, Redis, Docker, PostgreSQL"
+                  placeholder={isNonTechnical ? "e.g. Excel, Tableau, Market Research, Financial Modeling" : "e.g. Python, FastAPI, Redis, Docker, PostgreSQL"}
                 />
               </div>
 
               <div className="form-group flex-1">
-                <label>Project Link / GitHub (Optional)</label>
+                <label>{isNonTechnical ? "Project Link / Report (Optional)" : "Project Link / GitHub (Optional)"}</label>
                 <input
                   type="text"
                   className="voltare-input"
                   value={proj.link || ''}
                   onChange={(e) => handleUpdate(index, 'link', e.target.value)}
-                  placeholder="e.g. github.com/user/project"
+                  placeholder={isNonTechnical ? "e.g. drive.google.com/report" : "e.g. github.com/user/project"}
                 />
               </div>
             </div>
 
             <div className="form-group">
               <label>
-                Bullet Point 1 (Impact, Architecture, Implementation) {isMandatory && <span className="required-star">*</span>}
+                Bullet Point 1 (Impact, Methodology, Scope) {isMandatory && <span className="required-star">*</span>}
               </label>
               <textarea
                 rows={2}
                 className="voltare-textarea"
                 value={proj.bullet_1 || ''}
                 onChange={(e) => handleUpdate(index, 'bullet_1', e.target.value)}
-                placeholder="Architected a scalable distributed background task runner using Redis pub/sub and asynchronous worker pools, processing 5,000+ jobs/min..."
+                placeholder={isNonTechnical
+                  ? "Conducted comprehensive qualitative and quantitative market analysis across 500+ respondents, identifying 3 key growth opportunities..."
+                  : "Architected a scalable distributed background task runner using Redis pub/sub and asynchronous worker pools, processing 5,000+ jobs/min..."}
                 required={isMandatory}
               />
             </div>
 
             <div className="form-group">
-              <label>Bullet Point 2 (Metrics, Performance, Optimization)</label>
+              <label>Bullet Point 2 (Metrics, Outcomes, Results)</label>
               <textarea
                 rows={2}
                 className="voltare-textarea"
                 value={proj.bullet_2 || ''}
                 onChange={(e) => handleUpdate(index, 'bullet_2', e.target.value)}
-                placeholder="Designed fault-tolerant retry strategies with exponential backoff and persistent job state tracking, reducing failed task rate by 40%."
+                placeholder={isNonTechnical
+                  ? "Synthesized findings into executive presentation delivered to stakeholders, resulting in adoption of 2 strategic initiatives."
+                  : "Designed fault-tolerant retry strategies with exponential backoff and persistent job state tracking, reducing failed task rate by 40%."}
               />
             </div>
           </div>
