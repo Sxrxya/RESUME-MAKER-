@@ -437,20 +437,37 @@ export default function App() {
         }),
       });
 
-      if (response.ok) {
-        const resData = await response.json();
-        if (resData.download_url) {
-          window.open(resData.download_url, '_blank');
-          setToastMessage("🎉 High-res Single-Page PDF generated & ready!");
-          setIsGeneratingFlexiblePdf(false);
-          return;
-        }
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        const detail = errData?.detail?.errors?.join(' ') || errData?.detail?.message || errData?.detail || 'PDF generation failed.';
+        setToastMessage(`⚠️ ${detail}`);
+        return;
       }
-      // If backend generation returns non-ok or error, fall back cleanly to direct print
-      window.print();
+
+      const resData = await response.json();
+      if (!resData.download_url) {
+        setToastMessage('⚠️ PDF generation did not return a download link.');
+        return;
+      }
+
+      const fileResp = await fetch(resData.download_url);
+      if (!fileResp.ok) {
+        setToastMessage('⚠️ Failed to download generated PDF file.');
+        return;
+      }
+      const blob = await fileResp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = resData.filename || 'Voltare_Resume.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+      setToastMessage('📥 Single-Page PDF downloaded!');
     } catch (err) {
-      console.warn("Backend PDF generation fallback:", err);
-      window.print();
+      console.error('PDF download error:', err);
+      setToastMessage('⚠️ Could not reach PDF server. Make sure the backend server is running.');
     } finally {
       setIsGeneratingFlexiblePdf(false);
     }

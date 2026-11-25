@@ -29,7 +29,7 @@ export default function ValidationExport({
   const progressPercent = Math.round((completedRequired / requiredSections.length) * 100);
 
   const handleGeneratePdf = async () => {
-    if (!allRequiredDone || isGenerating) return;
+    if (!allRequiredDone || isGenerating || isOverflowing) return;
     setIsGenerating(true);
     setGenerationError(null);
     setPdfReady(false);
@@ -47,16 +47,31 @@ export default function ValidationExport({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail?.message || errorData.detail || 'PDF generation failed');
+        const errorData = await response.json().catch(() => ({}));
+        const msg = errorData.detail?.errors?.join(' ') || errorData.detail?.message || errorData.detail || 'PDF generation failed';
+        throw new Error(msg);
       }
 
       const resData = await response.json();
       setPdfDownloadUrl(resData.download_url);
+
+      // Strictly trigger direct .pdf file download (no Print / Save As dialog)
+      const fileResp = await fetch(resData.download_url);
+      if (!fileResp.ok) throw new Error('Failed to fetch generated PDF');
+      const blob = await fileResp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = resData.filename || 'Voltare_Resume.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+
       setPdfReady(true);
     } catch (err) {
       console.error('PDF generation error:', err);
-      setGenerationError(err.message || 'PDF export failed. Playwright or dependencies might not be configured.');
+      setGenerationError(err.message || 'PDF export failed. Make sure the backend server is running.');
     } finally {
       setIsGenerating(false);
     }
@@ -161,65 +176,37 @@ export default function ValidationExport({
         </div>
       )}
 
-      {/* PDF Generation trigger button */}
+      {/* PDF Download Button (Direct 1-Click PDF Download) */}
       <button
         type="button"
         className="voltare-btn"
         disabled={!allRequiredDone || isGenerating || isOverflowing}
         onClick={handleGeneratePdf}
-        style={{ marginTop: '14px' }}
+        style={{
+          marginTop: '14px',
+          backgroundColor: (allRequiredDone && !isOverflowing) ? '#2e7d32' : '#9e9e9e',
+          cursor: (allRequiredDone && !isOverflowing) ? 'pointer' : 'not-allowed',
+        }}
       >
         {isGenerating ? (
           <>
-            <span className="spinner"></span> Generating Official PDF...
+            <span className="spinner"></span> Generating &amp; Downloading PDF...
           </>
         ) : (
-          '📄 Generate PDF Resume'
+          '📥 Download Single-Page PDF'
         )}
       </button>
 
-      {/* PDF Ready Download Button */}
       {pdfReady && (
-        <div style={{ marginTop: '16px' }}>
-          <div className="friendly-success-box" style={{ marginBottom: '10px' }}>
-            <span>✅</span>
-            <div><strong>Success!</strong> Your official Voltare PDF resume is compiled. Click below to download!</div>
-          </div>
-          <button
-            type="button"
-            className="voltare-btn download-btn"
-            onClick={handleDownloadPdf}
-          >
-            ⬇️ Download PDF Resume
-          </button>
+        <div className="friendly-success-box" style={{ marginTop: '12px' }}>
+          <span>✅</span>
+          <div><strong>Downloaded!</strong> Your official single-page PDF resume has been downloaded.</div>
         </div>
       )}
 
-      {/* Fallback to HTML if PDF service encounters issue */}
       {generationError && (
-        <div style={{ marginTop: '16px' }}>
-          <div className="validation-error">
-            PDF compilation note: {generationError}
-          </div>
-          <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="voltare-btn download-btn"
-              onClick={handleDirectPrint}
-            >
-              🖨️ Instant Print / Save as PDF
-            </button>
-            <button
-              type="button"
-              className="voltare-btn download-btn"
-              onClick={onDownloadHtml}
-            >
-              ⬇️ Download HTML Resume
-            </button>
-          </div>
-          <div className="info-alert" style={{ marginTop: '10px' }}>
-            💡 <strong>Tip:</strong> Click <strong>"Instant Print / Save as PDF"</strong> to print directly, or download the HTML file and open it in your browser with <strong>Ctrl+P</strong>.
-          </div>
+        <div className="validation-error" style={{ marginTop: '12px' }}>
+          ⚠️ {generationError}
         </div>
       )}
     </div>
