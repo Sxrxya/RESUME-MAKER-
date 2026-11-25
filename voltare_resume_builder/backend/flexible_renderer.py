@@ -363,30 +363,6 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layou
             flex-direction: column;
             gap: var(--gap, 14px);
         }}
-        .sheet.density-spacious {{
-            --gap: 16px;
-            --item-gap: 9px;
-            --lh: 1.28;
-            --fs: 14px;
-        }}
-        .sheet.density-balanced {{
-            --gap: 12px;
-            --item-gap: 7px;
-            --lh: 1.20;
-            --fs: 13.5px;
-        }}
-        .sheet.density-compact {{
-            --gap: 9px;
-            --item-gap: 4px;
-            --lh: 1.14;
-            --fs: 13px;
-        }}
-        .sheet.density-overflow {{
-            --gap: 7px;
-            --item-gap: 3px;
-            --lh: 1.10;
-            --fs: 12.5px;
-        }}
         header {{
             text-align: center;
             margin-bottom: var(--gap);
@@ -559,28 +535,55 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layou
     <script>
     window.addEventListener('DOMContentLoaded', () => {{
         const sheet = document.querySelector('.sheet');
-        if (!sheet) return;
+        const hdr = sheet && sheet.querySelector('header');
+        const box = sheet && sheet.querySelector('.sections-box');
+        if (!sheet || !hdr || !box) return;
+
         const targetHeight = 1123;
-        const currentHeight = sheet.scrollHeight;
-        const diff = targetHeight - currentHeight;
-        if (diff > 35 && diff < 340) {{
-            const ratio = Math.min(1.0, diff / 300);
-            sheet.style.setProperty('--lh', (1.22 + 0.10 * ratio).toFixed(2));
-            sheet.style.setProperty('--summary-lh', (1.24 + 0.12 * ratio).toFixed(2));
-            sheet.style.setProperty('--gap', Math.round(14 + 7 * ratio) + 'px');
-            sheet.style.setProperty('--item-gap', Math.round(6 + 4 * ratio) + 'px');
-            sheet.style.setProperty('--bullet-gap', Math.round(3 + 3 * ratio) + 'px');
-            sheet.style.paddingTop = Math.round(38 + 8 * ratio) + 'px';
-            sheet.style.paddingBottom = Math.round(38 + 8 * ratio) + 'px';
-        }} else if (diff < -5) {{
-            const ratio = Math.min(1.0, Math.abs(diff) / 120);
-            sheet.style.setProperty('--lh', (1.22 - 0.08 * ratio).toFixed(2));
-            sheet.style.setProperty('--summary-lh', (1.24 - 0.08 * ratio).toFixed(2));
-            sheet.style.setProperty('--gap', Math.round(14 - 5 * ratio) + 'px');
-            sheet.style.setProperty('--item-gap', Math.round(6 - 3 * ratio) + 'px');
-            sheet.style.setProperty('--bullet-gap', '1.5px');
-            sheet.style.paddingTop = Math.round(38 - 8 * ratio) + 'px';
-            sheet.style.paddingBottom = Math.round(38 - 8 * ratio) + 'px';
+        const safeCeiling = 1105;
+        const cs = getComputedStyle(sheet);
+        const measureUsed = () => {{
+            const s = getComputedStyle(sheet);
+            return hdr.offsetHeight + box.offsetHeight + parseFloat(s.paddingTop) + parseFloat(s.paddingBottom);
+        }};
+
+        let used = measureUsed();
+        const coverage = used / targetHeight;
+        // If content covers >= 65% and still leaves > 22px empty space in PDF renderer, fine-tune up to ~98% fill
+        if (coverage >= 0.65 && (safeCeiling - used) > 22) {{
+            const baseFs = parseFloat(cs.getPropertyValue('--fs')) || 13.2;
+            const baseLh = parseFloat(cs.getPropertyValue('--lh')) || 1.20;
+            const baseSumLh = parseFloat(cs.getPropertyValue('--summary-lh')) || 1.22;
+            const baseGap = parseFloat(cs.getPropertyValue('--gap')) || 13;
+            const baseItem = parseFloat(cs.getPropertyValue('--item-gap')) || 5;
+            const baseBul = parseFloat(cs.getPropertyValue('--bullet-gap')) || 2.5;
+            const basePadY = parseFloat(cs.paddingTop) || 34;
+
+            const applyRatio = (r) => {{
+                const lerp = (a, b) => a + (b - a) * r;
+                sheet.style.setProperty('--fs', lerp(baseFs, 15.0).toFixed(2) + 'px');
+                sheet.style.setProperty('--lh', lerp(baseLh, 1.38).toFixed(2));
+                sheet.style.setProperty('--summary-lh', lerp(baseSumLh, 1.42).toFixed(2));
+                sheet.style.setProperty('--gap', Math.round(lerp(baseGap, 24)) + 'px');
+                sheet.style.setProperty('--item-gap', Math.round(lerp(baseItem, 11)) + 'px');
+                sheet.style.setProperty('--bullet-gap', lerp(baseBul, 5).toFixed(1) + 'px');
+                const py = Math.round(lerp(basePadY, 44));
+                sheet.style.paddingTop = py + 'px';
+                sheet.style.paddingBottom = py + 'px';
+            }};
+
+            let low = 0, high = 1, best = 0;
+            for (let i = 0; i < 8; i++) {{
+                const mid = (low + high) / 2;
+                applyRatio(mid);
+                if (measureUsed() <= safeCeiling) {{
+                    best = mid;
+                    low = mid;
+                }} else {{
+                    high = mid;
+                }}
+            }}
+            applyRatio(best);
         }}
     }});
     </script>
