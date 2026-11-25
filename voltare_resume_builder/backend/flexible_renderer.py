@@ -18,7 +18,7 @@ def _escape(text: Optional[str]) -> str:
         .replace('"', "&quot;")
     )
 
-def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layout_overrides: Optional[Dict[str, Any]] = None) -> str:
+def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layout_overrides: Optional[Dict[str, Any]] = None, is_non_technical: bool = False) -> str:
     validation = validate_flexible_resume(data)
     density = validation.density_mode or "balanced"
 
@@ -67,14 +67,18 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layou
     # Skills
     skills = data.get("skills", {})
     skill_rows = []
+    tools_label = "Tools &amp; Business Software:" if is_non_technical else "Tools &amp; Software:"
+    lang_label = "Languages &amp; Communication:" if is_non_technical else "Languages &amp; Tech:"
+    domain_label = "Industry Knowledge:" if is_non_technical else "Domain Knowledge:"
+
     if skills.get("concepts"):
         skill_rows.append(f"<div class='skill-row'><strong>Core Competencies:</strong> <span>{_escape(skills.get('concepts'))}</span></div>")
     if skills.get("tools_cloud"):
-        skill_rows.append(f"<div class='skill-row'><strong>Tools &amp; Software:</strong> <span>{_escape(skills.get('tools_cloud'))}</span></div>")
+        skill_rows.append(f"<div class='skill-row'><strong>{tools_label}</strong> <span>{_escape(skills.get('tools_cloud'))}</span></div>")
     if skills.get("languages"):
-        skill_rows.append(f"<div class='skill-row'><strong>Languages &amp; Tech:</strong> <span>{_escape(skills.get('languages'))}</span></div>")
+        skill_rows.append(f"<div class='skill-row'><strong>{lang_label}</strong> <span>{_escape(skills.get('languages'))}</span></div>")
     if skills.get("frameworks"):
-        skill_rows.append(f"<div class='skill-row'><strong>Domain Knowledge:</strong> <span>{_escape(skills.get('frameworks'))}</span></div>")
+        skill_rows.append(f"<div class='skill-row'><strong>{domain_label}</strong> <span>{_escape(skills.get('frameworks'))}</span></div>")
 
     skills_html = ""
     if skill_rows:

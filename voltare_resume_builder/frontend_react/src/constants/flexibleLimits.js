@@ -116,6 +116,96 @@ export const SAMPLE_FLEXIBLE_DATA = {
   }
 };
 
+export const SAMPLE_NON_TECH_DATA = {
+  personal: {
+    first_name: "Rohan",
+    last_name: "Mehta",
+    email: "rohan.mehta@email.com",
+    phone: "+91 98112 34567",
+    city_state: "Mumbai, Maharashtra",
+    linkedin: "linkedin.com/in/rohanmehta",
+    portfolio: "drive.google.com/rohan-portfolio"
+  },
+  summary: "Results-driven Business & Operations Associate with proven experience in quantitative market analysis, process re-engineering, and financial modeling. Demonstrated track record in managing cross-functional stakeholder initiatives, optimizing organizational workflows, and delivering actionable strategic insights that accelerate revenue growth and client satisfaction.",
+  skills: {
+    languages: "English (Fluent), Hindi (Native), Business Report Writing",
+    frameworks: "Agile Project Management, Financial Valuation, Market Sizing, DCF Modeling",
+    tools_cloud: "Microsoft Excel (VBA/Macros), Tableau, Power BI, Salesforce CRM, Jira, SAP",
+    concepts: "Strategic Planning, Stakeholder Communication, Cost-Benefit Analysis, Risk Mitigation"
+  },
+  education: [
+    {
+      institution: "St. Xavier's College",
+      location: "Mumbai, India",
+      degree: "Bachelor of Management Studies (Finance & Strategy)",
+      grad_date: "2020 – 2024",
+      gpa: "CGPA: 8.9 / 10",
+      highlights: "Coursework: Corporate Finance, Strategic Management, Managerial Economics"
+    },
+    {
+      institution: "Cathedral & John Connon School",
+      location: "Mumbai, India",
+      degree: "Higher Secondary Certificate (Commerce)",
+      grad_date: "2018 – 2020",
+      gpa: "Score: 95.6%",
+      highlights: "School Commerce Club President; State Rank in Accountancy & Economics"
+    },
+    {
+      institution: "Bombay Scottish School",
+      location: "Mumbai, India",
+      degree: "ICSE Class X (Secondary Certificate)",
+      grad_date: "2018",
+      gpa: "Score: 96.4%",
+      highlights: "Academic Excellence Award in Economics and Mathematics"
+    }
+  ],
+  projects: [
+    {
+      title: "Omnichannel Consumer Acquisition & Retention Strategy",
+      tech_stack: "Market Research, Excel, Tableau, Cohort Analysis",
+      role_or_org: "Consulting Capstone Project",
+      date_range: "Sep 2023 – Mar 2024",
+      bullet_1: "Analyzed transaction records across 12,000+ consumer touchpoints to identify customer churn triggers and repurchase cycles.",
+      bullet_2: "Formulated a targeted loyalty campaign model presented to executive board, reducing forecasted customer acquisition cost by 22%."
+    },
+    {
+      title: "Healthcare Supply Chain Optimization & Vendor Audit",
+      tech_stack: "Process Mapping, Power BI, Financial Modeling",
+      role_or_org: "Operational Case Study",
+      date_range: "Jan 2024 – Apr 2024",
+      bullet_1: "Mapped procurement workflows across 14 vendor categories, identifying supply bottlenecks and inventory carrying costs.",
+      bullet_2: "Designed an automated KPI monitoring dashboard in Power BI, improving vendor delivery fulfillment rate from 81% to 96%."
+    }
+  ],
+  experience: [
+    {
+      company: "Apex Strategy Partners",
+      role: "Business Consulting Intern",
+      location: "Mumbai, India",
+      start_date: "Jun 2023",
+      end_date: "Aug 2023",
+      bullet_1: "Conducted benchmark financial analysis for 4 mid-market manufacturing clients, synthesizing findings into 25-page C-suite presentations.",
+      bullet_2: "Assisted lead partners in building discounted cash flow (DCF) models, identifying INR 4.2M in annual operational expenditure savings."
+    }
+  ],
+  certifications: "CFA Institute Investment Foundations, Microsoft Certified Excel Expert, Scrum Fundamentals (SFC)",
+  custom_section: {
+    title: "Leadership & Extra-Curricular Initiatives",
+    subhead_1: {
+      title: "Vice President, Xavier's Consulting & Commerce Forum",
+      subtitle_or_date: "2023 – 2024",
+      bullet_1: "Organized annual National Case Study Competition drawing 450+ participants across 32 top undergraduate institutions.",
+      bullet_2: "Mentored 40+ junior candidates in structured casing, financial spreadsheet modeling, and interview presentation skills."
+    },
+    subhead_2: {
+      title: "Convener, Annual Inter-Collegiate Business Fest",
+      subtitle_or_date: "2022 – 2023",
+      bullet_1: "Negotiated and secured INR 350,000+ in corporate sponsorships through outbound business development pitches.",
+      bullet_2: "Managed a 15-member operations team handling logistics, hospitality, and event scheduling over 3 days."
+    }
+  }
+};
+
 export const EMPTY_FLEXIBLE_DATA = {
   personal: {
     first_name: "",

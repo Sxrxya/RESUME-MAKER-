@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { validateFlexibleResume } from '../utils/flexibleValidation';
 import { optimizePageLayout, applyLayoutToDOM } from '../utils/layout/layoutOptimizer';
 
-export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLayoutComputed }) {
+export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLayoutComputed, isNonTechnical = false }) {
   const previewContainerRef = useRef(null);
   const sheetRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -195,19 +195,19 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLa
                   )}
                   {skills.tools_cloud?.trim() && (
                     <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Tools & Software:</strong>
+                      <strong className="flex-skill-label">{isNonTechnical ? "Tools & Business Software:" : "Tools & Software:"}</strong>
                       <span className="flex-skill-val">{skills.tools_cloud.trim()}</span>
                     </div>
                   )}
                   {skills.languages?.trim() && (
                     <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Languages & Tech:</strong>
+                      <strong className="flex-skill-label">{isNonTechnical ? "Languages & Communication:" : "Languages & Tech:"}</strong>
                       <span className="flex-skill-val">{skills.languages.trim()}</span>
                     </div>
                   )}
                   {skills.frameworks?.trim() && (
                     <div className="flex-skill-row">
-                      <strong className="flex-skill-label">Domain Knowledge:</strong>
+                      <strong className="flex-skill-label">{isNonTechnical ? "Industry Knowledge:" : "Domain Knowledge:"}</strong>
                       <span className="flex-skill-val">{skills.frameworks.trim()}</span>
                     </div>
                   )}
