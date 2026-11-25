@@ -22,7 +22,7 @@ export default function Education({ data, onChange }) {
 
   const idx = activeSubTab === 'edu_1' ? 1 : activeSubTab === 'edu_2' ? 2 : 3;
   const isSchool = idx > 1 && eduTypes[activeSubTab] === 'school';
-  const isRequired = idx === 1;
+  const isRequired = true;
 
   const handleTypeToggle = (type) => {
     setEduTypes(prev => ({

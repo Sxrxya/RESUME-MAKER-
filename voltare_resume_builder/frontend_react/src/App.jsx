@@ -64,7 +64,7 @@ export default function App() {
       flexibleData.summary.trim().length >= FLEXIBLE_LIMITS.summaryMinChars
     ),
     education: Boolean(
-      (flexibleData.education || []).filter(e => e.institution?.trim() && e.degree?.trim()).length >= 2
+      (flexibleData.education || []).filter(e => e.institution?.trim() && e.degree?.trim()).length >= 3
     ),
     projects: Boolean(
       (flexibleData.projects || []).filter(p => p.title?.trim() && p.bullet_1?.trim()).length >= 1
@@ -111,7 +111,15 @@ export default function App() {
       formData.edu_1_university?.trim() &&
       formData.edu_1_city?.trim() &&
       formData.edu_1_program?.trim() &&
-      formData.edu_1_date?.trim()
+      formData.edu_1_date?.trim() &&
+      formData.edu_2_university?.trim() &&
+      formData.edu_2_city?.trim() &&
+      formData.edu_2_program?.trim() &&
+      formData.edu_2_date?.trim() &&
+      formData.edu_3_university?.trim() &&
+      formData.edu_3_city?.trim() &&
+      formData.edu_3_program?.trim() &&
+      formData.edu_3_date?.trim()
     ),
     research: Boolean(
       formData.res_1_title?.trim() &&
@@ -269,6 +277,14 @@ export default function App() {
           grad_date: "2018 – 2020",
           gpa: "Score: 94.2%",
           highlights: "Distinction in Mathematics and Physics; School Science Club Secretary"
+        },
+        {
+          institution: "Abhinava Vidyalaya English Medium High School",
+          location: "Pune, India",
+          degree: "Secondary School Certificate (SSC - Class X)",
+          grad_date: "2018",
+          gpa: "Score: 96.0%",
+          highlights: "Merit Rank in Mathematics Olympiad"
         }
       ],
       projects: [
@@ -353,6 +369,14 @@ export default function App() {
           grad_date: "2018 – 2020",
           gpa: "Score: 95.6%",
           highlights: "School Commerce Club President; State Rank in Accountancy & Economics"
+        },
+        {
+          institution: "Bombay Scottish School",
+          location: "Mumbai, India",
+          degree: "ICSE Class X (Secondary Certificate)",
+          grad_date: "2018",
+          gpa: "Score: 96.4%",
+          highlights: "Academic Excellence Award in Economics and Mathematics"
         }
       ],
       projects: [
@@ -412,6 +436,8 @@ export default function App() {
 
   // Download flexible PDF likewise Mode 1 (generates high-res single-page PDF via backend or direct print)
   const [isGeneratingFlexiblePdf, setIsGeneratingFlexiblePdf] = useState(false);
+  const standardLayoutRef = useRef(null);
+  const flexibleLayoutRef = useRef(null);
 
   const handleDownloadFlexiblePdf = async () => {
     setIsGeneratingFlexiblePdf(true);
@@ -419,7 +445,10 @@ export default function App() {
       const response = await fetch('/api/generate-flexible-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: flexibleData }),
+        body: JSON.stringify({
+          data: flexibleData,
+          layout_overrides: flexibleLayoutRef.current || null,
+        }),
       });
 
       if (response.ok) {
@@ -480,25 +509,16 @@ export default function App() {
       layout_errors.push(`Skills: Exceeds maximum 2 line(s). Please shorten by ~${excess * CHARS_PER_LINE} characters.`);
     }
 
-    // 3. Education: Entry 1 required, 2 & 3 optional
+    // 3. Education: All 3 entries are mandatory
     const edu = LIMITS.education.entry_fields;
     for (let i = 1; i <= 3; i++) {
-      const hasContent = Boolean(
-        data[`edu_${i}_university`]?.trim() ||
-        data[`edu_${i}_city`]?.trim() ||
-        data[`edu_${i}_program`]?.trim() ||
-        data[`edu_${i}_date`]?.trim()
-      );
-
-      if (i === 1 || hasContent) {
-        for (const [field, conf] of Object.entries(edu)) {
-          const val = data[`edu_${i}_${field}`] || '';
-          if (conf.required && !val.trim()) {
-            char_errors.push({ field: `edu_${i}_${field}`, message: `${conf.label} is required`, section: `Education Entry ${i}` });
-          }
-          if (val.length > conf.max_chars) {
-            char_errors.push({ field: `edu_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Education Entry ${i}` });
-          }
+      for (const [field, conf] of Object.entries(edu)) {
+        const val = data[`edu_${i}_${field}`] || '';
+        if (conf.required && !val.trim()) {
+          char_errors.push({ field: `edu_${i}_${field}`, message: `${conf.label} is required`, section: `Education Entry ${i}` });
+        }
+        if (val.length > conf.max_chars) {
+          char_errors.push({ field: `edu_${i}_${field}`, message: `Exceeds ${conf.max_chars} character limit`, section: `Education Entry ${i}` });
         }
       }
     }
@@ -727,6 +747,7 @@ export default function App() {
                 sectionStatus={sectionStatus}
                 onNavigateTab={setActiveTab}
                 onDownloadHtml={handleDownloadHtml}
+                layoutOverridesRef={standardLayoutRef}
               />
             </>
           ) : (
@@ -872,7 +893,11 @@ export default function App() {
               <div className="panel-subnote">
                 Official Voltare template with fixed coordinates and calibrated styling.
               </div>
-              <LiveResumePreview data={formData} watermarkBase64={watermarkBase64} />
+              <LiveResumePreview
+                data={formData}
+                watermarkBase64={watermarkBase64}
+                onLayoutComputed={(layout) => { standardLayoutRef.current = layout; }}
+              />
             </>
           ) : (
             <>
@@ -880,7 +905,11 @@ export default function App() {
               <div className="panel-subnote">
                 Dynamic auto-fill layout. Automatically expands for freshers or squeezes for experienced profiles.
               </div>
-              <FlexibleResumePreview data={flexibleData} watermarkBase64={watermarkBase64} />
+              <FlexibleResumePreview
+                data={flexibleData}
+                watermarkBase64={watermarkBase64}
+                onLayoutComputed={(layout) => { flexibleLayoutRef.current = layout; }}
+              />
             </>
           )}
         </section>

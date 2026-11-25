@@ -140,7 +140,7 @@ def calculate_resume_density(data: dict) -> dict:
         }
 
 
-def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: str = "") -> str:
+def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: str = "", layout_overrides: dict = None) -> str:
     """Render complete resume as HTML string."""
     
     personal = data.get("personal_info", {})
@@ -357,8 +357,21 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
             {ach_html}
         </div>''' if ach_html.strip() else ""
 
-    # Compute adaptive density configuration
+    # Compute adaptive density configuration & apply exact frontend DOM overrides if provided
     density = calculate_resume_density(data)
+    if layout_overrides:
+        for k in [
+            "line_height",
+            "section_margin_top",
+            "section_body_margin",
+            "entry_margin_bottom",
+            "bullet_margin_bottom",
+            "content_padding",
+            "font_size",
+            "summary_margin_bottom",
+        ]:
+            if layout_overrides.get(k):
+                density[k] = str(layout_overrides[k])
 
     html = f'''<!DOCTYPE html>
 <html lang="en">

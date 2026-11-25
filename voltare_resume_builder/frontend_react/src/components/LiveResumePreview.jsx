@@ -1,7 +1,29 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 
-export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
+function buildStandardVars(ratio) {
+  const r = Math.min(1, Math.max(0, ratio));
+  const lerp = (a, b) => a + (b - a) * r;
+  return {
+    '--resume-font-size': `${lerp(10.0, 11.3).toFixed(2)}pt`,
+    '--resume-line-height': `${lerp(1.16, 1.38).toFixed(2)}`,
+    '--resume-section-margin-top': `${lerp(6.0, 16.0).toFixed(1)}pt`,
+    '--resume-section-body-margin': `${lerp(2.5, 5.5).toFixed(1)}pt`,
+    '--resume-entry-margin-bottom': `${lerp(2.5, 8.0).toFixed(1)}pt`,
+    '--resume-bullet-margin-bottom': `${lerp(0.5, 3.5).toFixed(1)}pt`,
+    '--resume-content-padding': `${Math.round(lerp(26, 36))}pt 36pt ${Math.round(lerp(18, 30))}pt 21pt`,
+    '--resume-summary-margin-bottom': `${lerp(2.0, 5.0).toFixed(1)}pt`,
+  };
+}
+
+function applyVarsToDoc(docEl, vars) {
+  if (!docEl || !vars) return;
+  Object.entries(vars).forEach(([k, v]) => docEl.style.setProperty(k, v));
+}
+
+export default function LiveResumePreview({ data, watermarkBase64 = "", onLayoutComputed }) {
   const previewContainerRef = useRef(null);
+  const docRef = useRef(null);
+  const contentRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [isAutoFitActive, setIsAutoFitActive] = useState(false);
 
@@ -253,34 +275,62 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
 
   const effectiveLines = isAutoFitActive ? Math.min(totalLines, 20) : totalLines;
 
-  const densityStyles = effectiveLines <= 26 ? {
-    '--resume-line-height': '1.34',
-    '--resume-section-margin-top': '14pt',
-    '--resume-section-body-margin': '4.5pt',
-    '--resume-entry-margin-bottom': '7pt',
-    '--resume-bullet-margin-bottom': '3pt',
-    '--resume-content-padding': '34pt 36pt 28pt 21pt',
-    '--resume-font-size': '10.2pt',
-    '--resume-summary-margin-bottom': '4pt',
-  } : effectiveLines <= 38 ? {
-    '--resume-line-height': '1.23',
-    '--resume-section-margin-top': '9pt',
-    '--resume-section-body-margin': '3.5pt',
-    '--resume-entry-margin-bottom': '4.5pt',
-    '--resume-bullet-margin-bottom': '1.5pt',
-    '--resume-content-padding': '28pt 36pt 22pt 21pt',
-    '--resume-font-size': '10pt',
-    '--resume-summary-margin-bottom': '3pt',
-  } : {
-    '--resume-line-height': '1.15',
-    '--resume-section-margin-top': '5pt',
-    '--resume-section-body-margin': '2.5pt',
-    '--resume-entry-margin-bottom': '2.5pt',
-    '--resume-bullet-margin-bottom': '0pt',
-    '--resume-content-padding': '26pt 36pt 18pt 21pt',
-    '--resume-font-size': '10pt',
-    '--resume-summary-margin-bottom': '2pt',
-  };
+  const densityStyles = buildStandardVars(0);
+
+  // Measure actual rendered height of .resume-content inside 842pt A4 .resume-doc
+  useLayoutEffect(() => {
+    const docEl = docRef.current;
+    const contentEl = contentRef.current;
+    if (!docEl || !contentEl) return;
+
+    const baselineVars = buildStandardVars(0);
+    applyVarsToDoc(docEl, baselineVars);
+
+    const pageHeight = docEl.clientHeight || (842 * (96 / 72));
+    const naturalHeight = contentEl.scrollHeight;
+    const coverageRatio = naturalHeight / pageHeight;
+    const remaining = pageHeight - naturalHeight;
+
+    let chosenVars = baselineVars;
+
+    if ((isAutoFitActive || coverageRatio >= 0.65) && remaining > 18) {
+      let low = 0;
+      let high = 1;
+      let bestVars = baselineVars;
+      const safeCeiling = pageHeight - 16;
+
+      for (let i = 0; i < 8; i++) {
+        const mid = (low + high) / 2;
+        const candidate = buildStandardVars(mid);
+        applyVarsToDoc(docEl, candidate);
+        if (contentEl.scrollHeight <= safeCeiling) {
+          bestVars = candidate;
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      chosenVars = bestVars;
+    } else if (remaining > 20 && coverageRatio < 0.65) {
+      // Gentle breathing room below 65%
+      chosenVars = buildStandardVars(0.35);
+    }
+
+    applyVarsToDoc(docEl, chosenVars);
+
+    if (onLayoutComputed) {
+      onLayoutComputed({
+        font_size: chosenVars['--resume-font-size'],
+        line_height: chosenVars['--resume-line-height'],
+        section_margin_top: chosenVars['--resume-section-margin-top'],
+        section_body_margin: chosenVars['--resume-section-body-margin'],
+        entry_margin_bottom: chosenVars['--resume-entry-margin-bottom'],
+        bullet_margin_bottom: chosenVars['--resume-bullet-margin-bottom'],
+        content_padding: chosenVars['--resume-content-padding'],
+        summary_margin_bottom: chosenVars['--resume-summary-margin-bottom'],
+      });
+    }
+  }, [data, isAutoFitActive, onLayoutComputed]);
 
   return (
     <div ref={previewContainerRef} className="preview-scaler-wrapper">
@@ -308,14 +358,14 @@ export default function LiveResumePreview({ data, watermarkBase64 = "" }) {
             left: 0,
           }}
         >
-          <div className="resume-doc" style={densityStyles}>
+          <div ref={docRef} className="resume-doc" style={densityStyles}>
             {watermarkSrc && (
               <div className="resume-watermark">
                 <img src={watermarkSrc} alt="watermark" />
               </div>
             )}
 
-            <div className="resume-content">
+            <div ref={contentRef} className="resume-content">
               {/* NAME */}
               <div className="resume-name">{nameDisplay}</div>
 

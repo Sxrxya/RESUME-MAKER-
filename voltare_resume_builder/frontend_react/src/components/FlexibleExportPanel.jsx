@@ -12,7 +12,7 @@ export default function FlexibleExportPanel({
   const sections = [
     { id: 'personal', name: 'Personal Details', complete: Boolean(sectionStatus.personal), required: true },
     { id: 'summary', name: 'Professional Summary', complete: Boolean(sectionStatus.summary), required: true },
-    { id: 'education', name: 'Education (2 Required)', complete: Boolean(sectionStatus.education), required: true },
+    { id: 'education', name: 'Education (3 Required)', complete: Boolean(sectionStatus.education), required: true },
     { id: 'projects', name: 'Projects (1 Required)', complete: Boolean(sectionStatus.projects), required: true },
     { id: 'skills', name: 'Skills Matrix', complete: Boolean(sectionStatus.skills), required: false },
     { id: 'experience', name: 'Work Experience', complete: Boolean(sectionStatus.experience), required: false },
@@ -126,7 +126,7 @@ export default function FlexibleExportPanel({
 
       {!isDownloadEnabled && (
         <div style={{ fontSize: '11.5px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
-          🔒 PDF download unlocks automatically once mandatory fields (Personal, Summary, 2 Education, 1 Project) are satisfied.
+          🔒 PDF download unlocks automatically once mandatory fields (Personal, Summary, 3 Education, 1 Project) are satisfied.
         </div>
       )}
     </div>

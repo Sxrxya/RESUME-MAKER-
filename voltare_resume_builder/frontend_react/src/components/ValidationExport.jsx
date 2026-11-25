@@ -6,6 +6,7 @@ export default function ValidationExport({
   sectionStatus,
   onNavigateTab,
   onDownloadHtml,
+  layoutOverridesRef,
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfReady, setPdfReady] = useState(false);
@@ -38,7 +39,10 @@ export default function ValidationExport({
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: structured }),
+        body: JSON.stringify({
+          data: structured,
+          layout_overrides: layoutOverridesRef?.current || null,
+        }),
       });
 
       if (!response.ok) {
@@ -69,7 +73,10 @@ export default function ValidationExport({
       const res = await fetch('/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: structured }),
+        body: JSON.stringify({
+          data: structured,
+          layout_overrides: layoutOverridesRef?.current || null,
+        }),
       });
       if (res.ok) {
         const data = await res.json();

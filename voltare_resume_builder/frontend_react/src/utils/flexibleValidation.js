@@ -76,55 +76,42 @@ export function validateFlexibleResume(data) {
   summaryPoints += estimateTextHeight(summary, 12);
   sectionBreakdown.summary = { points: summaryPoints, label: 'Professional Summary' };
 
-  // 3. Education (2 MANDATORY, 1 OPTIONAL, MAX 3)
+  // 3. Education (All 3 MANDATORY)
   const education = Array.isArray(data.education) ? data.education : [];
   let educationPoints = 18; // Section heading
   let validEduCount = 0;
 
-  education.forEach((edu, index) => {
+  for (let index = 0; index < 3; index++) {
+    const edu = education[index] || {};
     const entryNum = index + 1;
-    const isRequired = entryNum <= 2;
-    const hasAnyField = Boolean(
-      edu.institution?.trim() ||
-      edu.degree?.trim() ||
-      edu.grad_date?.trim() ||
-      edu.location?.trim()
-    );
+    const isRequired = true;
 
-    if (isRequired) {
-      if (!edu.institution?.trim()) {
-        errors.push({ field: `edu_${entryNum}_institution`, section: 'education', message: `Education #${entryNum}: School / College name is required.` });
-      }
-      if (!edu.degree?.trim()) {
-        errors.push({ field: `edu_${entryNum}_degree`, section: 'education', message: `Education #${entryNum}: Degree / Certificate name is required.` });
-      }
-      if (!edu.grad_date?.trim()) {
-        errors.push({ field: `edu_${entryNum}_date`, section: 'education', message: `Education #${entryNum}: Graduation / Completion year is required.` });
-      }
-      if (edu.institution?.trim() && edu.degree?.trim()) {
-        validEduCount++;
-      }
-    } else if (hasAnyField) {
-      if (!edu.institution?.trim() || !edu.degree?.trim()) {
-        errors.push({ field: `edu_${entryNum}_incomplete`, section: 'education', message: `Education #${entryNum}: Please complete the school and degree, or remove this entry.` });
-      } else {
-        validEduCount++;
-      }
+    if (!edu.institution?.trim()) {
+      errors.push({ field: `edu_${entryNum}_institution`, section: 'education', message: `Education #${entryNum}: School / College name is required.` });
+    }
+    if (!edu.degree?.trim()) {
+      errors.push({ field: `edu_${entryNum}_degree`, section: 'education', message: `Education #${entryNum}: Degree / Certificate name is required.` });
+    }
+    if (!edu.grad_date?.trim()) {
+      errors.push({ field: `edu_${entryNum}_date`, section: 'education', message: `Education #${entryNum}: Graduation / Completion year is required.` });
+    }
+    if (edu.institution?.trim() && edu.degree?.trim() && edu.grad_date?.trim()) {
+      validEduCount++;
     }
 
-    if (hasAnyField || isRequired) {
+    if (isRequired) {
       educationPoints += 24; // Title line + date/degree
       if (edu.highlights?.trim()) {
         educationPoints += estimateTextHeight(edu.highlights, 11);
       }
     }
-  });
+  }
 
-  if (validEduCount < 2) {
+  if (validEduCount < 3) {
     errors.push({
       field: 'education_count',
       section: 'education',
-      message: `At least 2 Education entries are required (e.g. Undergrad Degree + 12th / High School). Currently completed: ${validEduCount}.`
+      message: `All 3 Education entries are required (e.g. Undergrad Degree + 12th + 10th). Currently completed: ${validEduCount}.`
     });
   }
   sectionBreakdown.education = { points: educationPoints, label: 'Education' };
@@ -309,10 +296,12 @@ export function validateFlexibleResume(data) {
   }
 
   // Education (25%)
-  if (validEduCount >= 2) {
+  if (validEduCount >= 3) {
     score += 25;
+  } else if (validEduCount === 2) {
+    score += 17;
   } else if (validEduCount === 1) {
-    score += 12;
+    score += 8;
   }
 
   // Projects (20%)

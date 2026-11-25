@@ -14,18 +14,46 @@
  */
 
 import { measurePageElements, A4_TARGET_HEIGHT_PX } from './pageMeasurement';
-import { calculateVerticalExpansion, getBaselineLayout } from './verticalExpansion';
+import { calculateVerticalExpansion, computeExpansionAtRatio, getBaselineLayout } from './verticalExpansion';
 import { calculateVerticalCompression } from './verticalCompression';
 import { analyzeVisualBalance } from './visualBalance';
 import { detectOverflowDetails } from './overflowDetection';
 
 /**
+ * Runs a fast binary-search DOM solver to expand typography & spacing
+ * until the sheet fills 95%-98% of the A4 page without overflowing.
+ */
+function solveIterativeExpansion(sheetEl, minRatio = 0.0) {
+  let low = minRatio;
+  let high = 1.0;
+  let bestLayout = computeExpansionAtRatio(low);
+  const safeCeiling = A4_TARGET_HEIGHT_PX - 18; // ~1105px (98.4% A4 fill)
+
+  for (let i = 0; i < 8; i++) {
+    const mid = (low + high) / 2;
+    const candidate = computeExpansionAtRatio(mid);
+    applyLayoutToDOM(sheetEl, candidate);
+    const m = measurePageElements(sheetEl);
+
+    if (m.totalHeight <= safeCeiling && sheetEl.scrollHeight <= A4_TARGET_HEIGHT_PX) {
+      bestLayout = candidate;
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  return bestLayout;
+}
+
+/**
  * Optimizes the layout of the given sheet element in real-time.
  * 
  * @param {HTMLElement} sheetEl - The DOM sheet element (.flexible-resume-sheet)
+ * @param {string|null} forceMode - 'expand', 'natural', or 'auto' (default)
  * @returns {Object} Optimized layout solution, visual balance, and CSS parameters
  */
-export function optimizePageLayout(sheetEl, forceMode = null) {
+export function optimizePageLayout(sheetEl, forceMode = 'auto') {
   if (!sheetEl) {
     return {
       success: false,
@@ -36,49 +64,56 @@ export function optimizePageLayout(sheetEl, forceMode = null) {
     };
   }
 
-  // 1. Initial measurement
+  // 1. Reset to baseline first so measurement reflects true natural content height
+  const baseline = getBaselineLayout();
+  applyLayoutToDOM(sheetEl, baseline);
   const initialMeasurement = measurePageElements(sheetEl);
   if (!initialMeasurement.isValid) {
     return {
       success: false,
-      layout: getBaselineLayout(),
+      layout: baseline,
       balance: { balanceScore: 0.5, status: 'neutral' },
       overflow: { hasOverflow: false },
       measurement: initialMeasurement
     };
   }
 
-  let chosenLayout;
+  let chosenLayout = baseline;
   const remaining = initialMeasurement.remainingSpace;
+  const coverageRatio = initialMeasurement.totalHeight / A4_TARGET_HEIGHT_PX;
 
-  // 2. Decide strategy based on forceMode or natural remaining space
-  if (forceMode === 'expand') {
-    chosenLayout = calculateVerticalExpansion({ ...initialMeasurement, remainingSpace: Math.max(80, remaining) });
+  // 2. Decide strategy:
+  //    - If forceMode === 'expand', always fill as much as allowed without overflowing.
+  //    - If forceMode === 'auto' (default), whenever content covers >= 65% of A4 and has > 20px slack,
+  //      iteratively increase text size + spacing to fill ~95%-98% of the page!
+  if (forceMode === 'expand' && remaining > 18) {
+    chosenLayout = solveIterativeExpansion(sheetEl, 0.0);
   } else if (forceMode === 'natural') {
-    chosenLayout = getBaselineLayout();
-  } else {
-    // Default smart adaptive mode:
-    if (remaining > 25) {
-      chosenLayout = calculateVerticalExpansion(initialMeasurement);
-    } else if (remaining < -8) {
-      chosenLayout = calculateVerticalCompression(initialMeasurement);
-    } else {
-      chosenLayout = getBaselineLayout();
-    }
+    chosenLayout = baseline;
+  } else if (coverageRatio >= 0.65 && remaining > 20) {
+    chosenLayout = solveIterativeExpansion(sheetEl, 0.0);
+  } else if (remaining > 25 && coverageRatio < 0.65) {
+    // Below 65%: gentle breathing room without oversized typography
+    chosenLayout = calculateVerticalExpansion({ ...initialMeasurement, remainingSpace: Math.min(remaining, 120) });
+  } else if (remaining < -4) {
+    chosenLayout = calculateVerticalCompression(initialMeasurement);
   }
 
+  applyLayoutToDOM(sheetEl, chosenLayout);
+  const finalMeasurement = measurePageElements(sheetEl);
+
   // 3. Analyze visual balance across page thirds
-  const balance = analyzeVisualBalance(sheetEl, initialMeasurement);
+  const balance = analyzeVisualBalance(sheetEl, finalMeasurement);
 
   // 4. Overflow inspection
-  const overflow = detectOverflowDetails(initialMeasurement, sheetEl);
+  const overflow = detectOverflowDetails(finalMeasurement, sheetEl);
 
   return {
     success: true,
     layout: chosenLayout,
     balance,
     overflow,
-    measurement: initialMeasurement
+    measurement: finalMeasurement
   };
 }
 

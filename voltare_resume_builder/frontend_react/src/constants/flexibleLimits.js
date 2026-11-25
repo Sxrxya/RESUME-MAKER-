@@ -15,7 +15,7 @@ export const FLEXIBLE_LIMITS = {
   summaryMinChars: 150,
   summaryMaxChars: 600,
   maxEducation: 3,
-  minEducation: 2,
+  minEducation: 3,
   maxProjects: 3,
   minProjects: 1,
   maxExperience: 3,
@@ -56,6 +56,14 @@ export const SAMPLE_FLEXIBLE_DATA = {
       grad_date: "2018 – 2020",
       gpa: "Score: 95.4%",
       highlights: "School Topper in Computer Science and Mathematics"
+    },
+    {
+      institution: "National Public School",
+      location: "Bengaluru, India",
+      degree: "Secondary School Certificate (CBSE Class X)",
+      grad_date: "2018",
+      gpa: "Score: 96.2%",
+      highlights: "Merit Certificate in Science & Mathematics"
     }
   ],
   projects: [
@@ -126,6 +134,14 @@ export const EMPTY_FLEXIBLE_DATA = {
     concepts: ""
   },
   education: [
+    {
+      institution: "",
+      location: "",
+      degree: "",
+      grad_date: "",
+      gpa: "",
+      highlights: ""
+    },
     {
       institution: "",
       location: "",

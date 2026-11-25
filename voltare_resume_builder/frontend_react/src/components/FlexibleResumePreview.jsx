@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { validateFlexibleResume } from '../utils/flexibleValidation';
 import { optimizePageLayout, applyLayoutToDOM } from '../utils/layout/layoutOptimizer';
 
-export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
+export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLayoutComputed }) {
   const previewContainerRef = useRef(null);
   const sheetRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -111,14 +111,17 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "" }) {
   // Adaptive Page Composition: Measures rendered geometry & dynamically balances vertical distribution
   useLayoutEffect(() => {
     if (sheetRef.current) {
-      const mode = isAutoFitActive ? 'expand' : 'natural';
+      const mode = isAutoFitActive ? 'expand' : 'auto';
       const result = optimizePageLayout(sheetRef.current, mode);
       if (result && result.layout) {
         applyLayoutToDOM(sheetRef.current, result.layout);
         setLayoutMetrics(result);
+        if (onLayoutComputed) {
+          onLayoutComputed(result.layout);
+        }
       }
     }
-  }, [data, isAutoFitActive]);
+  }, [data, isAutoFitActive, onLayoutComputed]);
 
   const toggleAutoFit = () => {
     setIsAutoFitActive(prev => !prev);

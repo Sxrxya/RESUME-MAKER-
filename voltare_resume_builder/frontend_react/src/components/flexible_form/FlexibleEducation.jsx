@@ -39,15 +39,14 @@ export default function FlexibleEducation({ education = [], onChange }) {
   return (
     <div className="form-section">
       <div className="section-title-row">
-        <h3>🎓 Education <span className="req-badge">2 Mandatory, 1 Optional (Max 3)</span></h3>
+        <h3>🎓 Education <span className="req-badge">All 3 Mandatory</span></h3>
         <span className="entries-count-badge">
           {education.length} / {maxEntries} Entries
         </span>
       </div>
 
       <p className="section-help-text">
-        Candidates must list at least 2 educational qualifications (e.g. College / University Degree and Higher Secondary / 12th).
-        You can optionally add a 3rd entry (e.g. 10th Standard or Post-Graduation).
+        All 3 educational qualifications are mandatory (e.g. College / University Degree, Higher Secondary / 12th, and Secondary / 10th Standard).
       </p>
 
       {education.map((item, index) => {

@@ -143,13 +143,12 @@ def validate_required_fields(data: dict) -> ValidationResult:
             result.add_error(field_name, f"{limit_config.get('label', field_name)} is required", "Professional Summary")
 
     edu_limits = FIELD_LIMITS.get("education", {}).get("entry_fields", {})
-    for i, entry in enumerate(data.get("education", [])):
-        # Education 1 is required; Education 2 and 3 are optional unless the user started filling them in
-        has_content = any(entry.get(k, "").strip() for k in edu_limits.keys())
-        if i == 0 or has_content:
-            for field_name, limit_config in edu_limits.items():
-                if limit_config.get("required") and not entry.get(field_name, "").strip():
-                    result.add_error(f"education_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Education Entry {i+1}")
+    education_entries = data.get("education", [])
+    for i in range(3):
+        entry = education_entries[i] if i < len(education_entries) and isinstance(education_entries[i], dict) else {}
+        for field_name, limit_config in edu_limits.items():
+            if limit_config.get("required") and not entry.get(field_name, "").strip():
+                result.add_error(f"education_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Education Entry {i+1}")
 
     res_limits = FIELD_LIMITS.get("research_projects", {}).get("entry_fields", {})
     for i, entry in enumerate(data.get("research_projects", [])):

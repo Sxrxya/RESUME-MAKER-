@@ -35,6 +35,11 @@ class TestFlexibleValidation(unittest.TestCase):
                     "institution": "Delhi Public School",
                     "degree": "CBSE Class XII",
                     "grad_date": "2020",
+                },
+                {
+                    "institution": "National Public School",
+                    "degree": "CBSE Class X",
+                    "grad_date": "2018",
                 }
             ],
             "projects": [

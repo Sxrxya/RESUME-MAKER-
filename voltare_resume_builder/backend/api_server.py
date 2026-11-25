@@ -49,6 +49,7 @@ os.makedirs(GENERATED_DIR, exist_ok=True)
 
 class ResumePayload(BaseModel):
     data: Dict[str, Any]
+    layout_overrides: Optional[Dict[str, Any]] = None
 
 
 @app.get("/api/health")
@@ -124,7 +125,7 @@ def generate_pdf_endpoint(payload: ResumePayload):
         raise HTTPException(status_code=400, detail={"message": "Validation failed", "errors": errors})
 
     try:
-        html_content = render_resume_html(resume_data, watermark_path=WATERMARK_PATH)
+        html_content = render_resume_html(resume_data, watermark_path=WATERMARK_PATH, layout_overrides=payload.layout_overrides)
         output_filename = "voltare_resume.pdf"
         output_path = os.path.join(GENERATED_DIR, output_filename)
 
@@ -192,7 +193,7 @@ def generate_flexible_pdf_endpoint(payload: ResumePayload):
 
     try:
         watermark_b64 = get_watermark_base64()
-        html_content = render_flexible_html(resume_data, watermark_base64=watermark_b64)
+        html_content = render_flexible_html(resume_data, watermark_base64=watermark_b64, layout_overrides=payload.layout_overrides)
         output_filename = "voltare_flexible_resume.pdf"
         output_path = os.path.join(GENERATED_DIR, output_filename)
 
@@ -286,5 +287,4 @@ else:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
+    uvicorn.run(app, host="0.0.0.0", port=8000)        

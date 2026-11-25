@@ -76,38 +76,32 @@ def validate_flexible_resume(data: Dict[str, Any]) -> FlexibleValidationResult:
         ))
     total_points += estimate_text_points(summary, line_pitch=14)
 
-    # 3. Education (2 Mandatory, 1 Optional, Max 3)
+    # 3. Education (All 3 Mandatory)
     education = data.get("education", [])
-    total_points += 22  # heading
+    total_points += 18  # heading
     valid_edu_count = 0
-    for idx, edu in enumerate(education):
+    for idx in range(3):
+        edu = education[idx] if idx < len(education) and isinstance(education[idx], dict) else {}
         entry_num = idx + 1
         inst = edu.get("institution", "").strip()
         degree = edu.get("degree", "").strip()
         grad_date = edu.get("grad_date", "").strip()
 
-        if entry_num <= 2:
-            if not inst:
-                errors.append(FlexibleValidationError(field=f"edu_{entry_num}_inst", message=f"Education #{entry_num}: Institution is required.", section="education"))
-            if not degree:
-                errors.append(FlexibleValidationError(field=f"edu_{entry_num}_degree", message=f"Education #{entry_num}: Degree is required.", section="education"))
-            if not grad_date:
-                errors.append(FlexibleValidationError(field=f"edu_{entry_num}_date", message=f"Education #{entry_num}: Graduation date is required.", section="education"))
-            if inst and degree:
-                valid_edu_count += 1
-        elif inst or degree:
-            if not inst or not degree:
-                errors.append(FlexibleValidationError(field=f"edu_{entry_num}_incomplete", message=f"Education #{entry_num} is incomplete.", section="education"))
-            else:
-                valid_edu_count += 1
+        if not inst:
+            errors.append(FlexibleValidationError(field=f"edu_{entry_num}_inst", message=f"Education #{entry_num}: Institution is required.", section="education"))
+        if not degree:
+            errors.append(FlexibleValidationError(field=f"edu_{entry_num}_degree", message=f"Education #{entry_num}: Degree is required.", section="education"))
+        if not grad_date:
+            errors.append(FlexibleValidationError(field=f"edu_{entry_num}_date", message=f"Education #{entry_num}: Graduation date is required.", section="education"))
+        if inst and degree and grad_date:
+            valid_edu_count += 1
 
-        if inst or degree or entry_num <= 2:
-            total_points += 32
-            if edu.get("highlights"):
-                total_points += estimate_text_points(edu.get("highlights"), 12)
+        total_points += 22
+        if edu.get("highlights"):
+            total_points += estimate_text_points(edu.get("highlights"), 11)
 
-    if valid_edu_count < 2:
-        errors.append(FlexibleValidationError(field="edu_count", message=f"At least 2 Education entries are required (found {valid_edu_count}).", section="education"))
+    if valid_edu_count < 3:
+        errors.append(FlexibleValidationError(field="edu_count", message=f"All 3 Education entries are required (found {valid_edu_count}).", section="education"))
 
     # 4. Projects (1 Mandatory, Max 3)
     projects = data.get("projects", [])
@@ -214,8 +208,12 @@ def validate_flexible_resume(data: Dict[str, Any]) -> FlexibleValidationResult:
         score += 20
     elif len(summary) > 0:
         score += int((len(summary) / SUMMARY_MIN_CHARS) * 15)
-    if valid_edu_count >= 2:
+    if valid_edu_count >= 3:
         score += 25
+    elif valid_edu_count == 2:
+        score += 17
+    elif valid_edu_count == 1:
+        score += 8
     if valid_proj_count >= 1:
         score += 20
     if any(skills.get(k) for k in ["languages", "frameworks", "tools_cloud"]):

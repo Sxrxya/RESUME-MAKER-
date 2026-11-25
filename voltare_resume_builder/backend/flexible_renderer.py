@@ -18,7 +18,7 @@ def _escape(text: Optional[str]) -> str:
         .replace('"', "&quot;")
     )
 
-def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> str:
+def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layout_overrides: Optional[Dict[str, Any]] = None) -> str:
     validation = validate_flexible_resume(data)
     density = validation.density_mode or "balanced"
 
@@ -274,15 +274,37 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "") -> st
         fs = round(13.5 - 0.8 * comp_ratio, 1)
         h2_margin = int(4 - 1 * comp_ratio)
     else:
-        padding_y = 38
-        sec_gap = 14
-        item_gap = 6
-        lh = 1.22
-        summary_lh = 1.24
-        bullet_gap = 3
-        skill_gap = 3
-        fs = 13.5
+        padding_y = 34
+        sec_gap = 13
+        item_gap = 5
+        lh = 1.20
+        summary_lh = 1.22
+        bullet_gap = 2.5
+        skill_gap = 2.5
+        fs = 13.2
         h2_margin = 4
+
+    # Sync exact layout overrides computed by the frontend DOM fitter for 100% Preview-to-PDF parity
+    if layout_overrides:
+        css_vars = layout_overrides.get("cssVariables") or {}
+        def _num(val, fallback):
+            if val is None:
+                return fallback
+            try:
+                return float(str(val).replace("px", "").strip())
+            except (ValueError, TypeError):
+                return fallback
+
+        if layout_overrides.get("paddingY") is not None:
+            padding_y = int(round(_num(layout_overrides.get("paddingY"), padding_y)))
+        fs = _num(css_vars.get("--flex-font-size"), fs)
+        lh = _num(css_vars.get("--flex-line-height"), lh)
+        summary_lh = _num(css_vars.get("--flex-summary-lh"), summary_lh)
+        sec_gap = _num(css_vars.get("--flex-sec-gap"), sec_gap)
+        item_gap = _num(css_vars.get("--flex-item-gap"), item_gap)
+        bullet_gap = _num(css_vars.get("--flex-bullet-gap"), bullet_gap)
+        skill_gap = _num(css_vars.get("--flex-skill-row-gap"), skill_gap)
+        h2_margin = _num(css_vars.get("--flex-h2-margin"), h2_margin)
 
     watermark_css = f"background-image: url('data:image/png;base64,{watermark_base64}');" if watermark_base64 else ""
 
