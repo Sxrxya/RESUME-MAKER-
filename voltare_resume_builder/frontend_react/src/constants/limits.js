@@ -68,11 +68,11 @@ export const SAMPLE_CANDIDATE_DATA = {
   exp_3_end: "Mon YYYY",
   exp_3_b1: "In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Vivamus quis mi. Phasellus a est. Phasellus magna quis ligula lacinia aliquet.",
   awards: "Aenean imperdiet. Etiam ultricies nisi vel augue.Curabitur ullamcorper ultricies nisi. Nam eget dui Etiam rhoncus .",
-  leadership_1: "Leadership Role, Community/Club Name: Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id mperdiet feugiat, pede. pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis gesta.",
-  leadership_2: "Leadership Role, Community/ Club Name: Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo alujnam ahtews uhsnayirp",
+  leadership_1: "Leadership Role, Community/Club Name: Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id imperdiet feugiat, pede. Pellentesque habitant morbi tristique senectus et netus.",
+  leadership_2: "Leadership Role, Community/Club Name: Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere.",
   achievement: "Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. op urallan rahknayhba.",
-  community_1: "Role, Community/ Club Name: Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum fringilla pede sit amet augue. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec.",
-  community_2: "Career Counsellor, DAV Group of Schools: ellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce id purus.Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam.",
+  community_1: "Role, Community/Club Name: Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum fringilla pede sit amet augue. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero.",
+  community_2: "Career Counsellor, DAV Group of Schools: Pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Fusce id purus. Ut varius tincidunt libero.",
   interests: "In dui magna, posuere eget, vestibulum et, tempor auctor, justo, Proin sapien ipsum, porta a, auctor quis, euiql."
 };
 

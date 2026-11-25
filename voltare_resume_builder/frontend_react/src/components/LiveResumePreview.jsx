@@ -15,17 +15,33 @@ function buildStandardVars(ratio) {
   };
 }
 
+function buildCompressedVars(ratio) {
+  const r = Math.min(1, Math.max(0, ratio));
+  const lerp = (a, b) => a + (b - a) * r;
+  return {
+    '--resume-font-size': `${lerp(10.0, 8.8).toFixed(2)}pt`,
+    '--resume-line-height': `${lerp(1.16, 1.07).toFixed(2)}`,
+    '--resume-section-margin-top': `${lerp(6.0, 3.0).toFixed(1)}pt`,
+    '--resume-section-body-margin': `${lerp(2.5, 1.5).toFixed(1)}pt`,
+    '--resume-entry-margin-bottom': `${lerp(2.5, 1.0).toFixed(1)}pt`,
+    '--resume-bullet-margin-bottom': `${lerp(0.5, 0.0).toFixed(1)}pt`,
+    '--resume-content-padding': `${Math.round(lerp(26, 18))}pt ${Math.round(lerp(36, 30))}pt ${Math.round(lerp(18, 12))}pt 21pt`,
+    '--resume-summary-margin-bottom': `${lerp(2.0, 1.0).toFixed(1)}pt`,
+  };
+}
+
 function applyVarsToDoc(docEl, vars) {
   if (!docEl || !vars) return;
   Object.entries(vars).forEach(([k, v]) => docEl.style.setProperty(k, v));
 }
 
-export default function LiveResumePreview({ data, watermarkBase64 = "", onLayoutComputed }) {
+export default function LiveResumePreview({ data, watermarkBase64 = "", onLayoutComputed, onOverflowChange }) {
   const previewContainerRef = useRef(null);
   const docRef = useRef(null);
   const contentRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [isAutoFitActive, setIsAutoFitActive] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
 
   // Auto-scale preview sheet to fit device screen width cleanly
   useEffect(() => {
@@ -287,13 +303,50 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
     applyVarsToDoc(docEl, baselineVars);
 
     const pageHeight = docEl.clientHeight || (842 * (96 / 72));
-    const naturalHeight = contentEl.scrollHeight;
+    const measureContentHeight = () => {
+      const cs = window.getComputedStyle(contentEl);
+      const pb = parseFloat(cs.paddingBottom) || 24;
+      const children = contentEl.children;
+      if (!children || children.length === 0) return contentEl.scrollHeight;
+      const last = children[children.length - 1];
+      const top = contentEl.getBoundingClientRect().top;
+      const lastBottom = last.getBoundingClientRect().bottom;
+      const measured = ((lastBottom - top) / (scale || 1)) + pb;
+      return Math.max(measured, contentEl.scrollHeight);
+    };
+
+    const naturalHeight = measureContentHeight();
     const coverageRatio = naturalHeight / pageHeight;
     const remaining = pageHeight - naturalHeight;
 
     let chosenVars = baselineVars;
+    let overflowing = false;
 
-    if ((isAutoFitActive || coverageRatio >= 0.65) && remaining > 18) {
+    if (remaining < -2) {
+      // Compress iteratively to fit 1 A4 page
+      let low = 0;
+      let high = 1;
+      let bestVars = buildCompressedVars(1);
+      let fitted = false;
+
+      for (let i = 0; i < 8; i++) {
+        const mid = (low + high) / 2;
+        const candidate = buildCompressedVars(mid);
+        applyVarsToDoc(docEl, candidate);
+        if (measureContentHeight() <= pageHeight - 2) {
+          bestVars = candidate;
+          fitted = true;
+          high = mid;
+        } else {
+          low = mid;
+        }
+      }
+      chosenVars = bestVars;
+      applyVarsToDoc(docEl, chosenVars);
+      if (!fitted && measureContentHeight() > pageHeight + 2) {
+        overflowing = true;
+      }
+    } else if ((isAutoFitActive || coverageRatio >= 0.65) && remaining > 18) {
       let low = 0;
       let high = 1;
       let bestVars = baselineVars;
@@ -303,7 +356,7 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
         const mid = (low + high) / 2;
         const candidate = buildStandardVars(mid);
         applyVarsToDoc(docEl, candidate);
-        if (contentEl.scrollHeight <= safeCeiling) {
+        if (measureContentHeight() <= safeCeiling) {
           bestVars = candidate;
           low = mid;
         } else {
@@ -312,11 +365,14 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
       }
       chosenVars = bestVars;
     } else if (remaining > 20 && coverageRatio < 0.65) {
-      // Gentle breathing room below 65%
       chosenVars = buildStandardVars(0.35);
     }
 
     applyVarsToDoc(docEl, chosenVars);
+    setIsOverflowing(overflowing);
+    if (onOverflowChange) {
+      onOverflowChange(overflowing);
+    }
 
     if (onLayoutComputed) {
       onLayoutComputed({
@@ -330,7 +386,7 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
         summary_margin_bottom: chosenVars['--resume-summary-margin-bottom'],
       });
     }
-  }, [data, isAutoFitActive, onLayoutComputed]);
+  }, [data, isAutoFitActive, scale, onLayoutComputed, onOverflowChange]);
 
   return (
     <div ref={previewContainerRef} className="preview-scaler-wrapper">
@@ -453,6 +509,12 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
           </div>
         </div>
       </div>
+
+      {isOverflowing && (
+        <div className="preview-overflow-banner">
+          ⚠️ <strong>Page Overflow:</strong> Content exceeds 1 A4 page and would be cut off. Shorten a few bullet points before exporting PDF.
+        </div>
+      )}
 
       {/* AUTO-FIT TO FULL PAGE BUTTON */}
       <div className="resume-fit-controls-bar">

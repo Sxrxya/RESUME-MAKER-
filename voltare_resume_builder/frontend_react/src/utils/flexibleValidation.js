@@ -12,6 +12,7 @@
  */
 
 import { FLEXIBLE_LIMITS } from '../constants/flexibleLimits';
+import { isValidEmail, isValidPhone, isValidLinkedIn, isTemplatePlaceholder } from './contactValidation';
 
 const TOTAL_A4_POINTS = 792; // Usable vertical points on single A4 at calibrated executive print margins (842pt - 50pt padding)
 const CHARS_PER_LINE = 110;  // Average characters per line at ~9.9pt font in standard body column
@@ -44,13 +45,18 @@ export function validateFlexibleResume(data) {
   }
   if (!personal.email?.trim()) {
     errors.push({ field: 'email', section: 'personal', message: 'Email address is required.' });
-  } else if (!/\S+@\S+\.\S+/.test(personal.email.trim())) {
+  } else if (!isValidEmail(personal.email)) {
     errors.push({ field: 'email', section: 'personal', message: 'Please enter a valid email address.' });
   }
   if (!personal.phone?.trim()) {
     errors.push({ field: 'phone', section: 'personal', message: 'Phone number is required.' });
+  } else if (!isValidPhone(personal.phone)) {
+    errors.push({ field: 'phone', section: 'personal', message: 'Phone must contain 7–15 digits and only +, -, (), or spaces.' });
   }
-  if (!personal.city_state?.trim()) {
+  if (personal.linkedin?.trim() && !isValidLinkedIn(personal.linkedin)) {
+    errors.push({ field: 'linkedin', section: 'personal', message: 'Please enter a valid LinkedIn URL (e.g. linkedin.com/in/username).' });
+  }
+  if (!personal.city_state?.trim() || isTemplatePlaceholder(personal.city_state)) {
     errors.push({ field: 'city_state', section: 'personal', message: 'Location (City, State / Country) is required.' });
   }
   sectionBreakdown.personal = { points: personalPoints, label: 'Header & Contact' };

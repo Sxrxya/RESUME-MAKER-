@@ -37,12 +37,47 @@ import {
   FLEXIBLE_LIMITS
 } from './constants/flexibleLimits';
 import { validateFlexibleResume } from './utils/flexibleValidation';
+import {
+  isValidEmail,
+  isValidPhone,
+  isValidLinkedIn,
+  isTemplatePlaceholder,
+} from './utils/contactValidation';
+
+const STORAGE_KEYS = {
+  mode: 'voltare_mode_v1',
+  standard: 'voltare_standard_v1',
+  tech: 'voltare_tech_v1',
+  nontech: 'voltare_nontech_v1',
+};
+
+function loadSavedState(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return typeof fallback === 'function' ? fallback() : fallback;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : (typeof fallback === 'function' ? fallback() : fallback);
+  } catch {
+    return typeof fallback === 'function' ? fallback() : fallback;
+  }
+}
+
+function loadSavedMode() {
+  try {
+    const m = localStorage.getItem(STORAGE_KEYS.mode);
+    return m === 'standard' || m === 'flexible' || m === 'non_technical' ? m : 'standard';
+  } catch {
+    return 'standard';
+  }
+}
 
 export default function App() {
-  const [resumeMode, setResumeMode] = useState('standard'); // 'standard' | 'flexible' | 'non_technical'
-  const [formData, setFormData] = useState(() => ({ ...EMPTY_FORM_DATA }));
-  const [technicalData, setTechnicalData] = useState(() => ({ ...SAMPLE_FLEXIBLE_DATA }));
-  const [nonTechData, setNonTechData] = useState(() => ({ ...SAMPLE_NON_TECH_DATA }));
+  const [resumeMode, setResumeMode] = useState(loadSavedMode); // 'standard' | 'flexible' | 'non_technical'
+  const [formData, setFormData] = useState(() => loadSavedState(STORAGE_KEYS.standard, () => ({ ...EMPTY_FORM_DATA })));
+  const [technicalData, setTechnicalData] = useState(() => loadSavedState(STORAGE_KEYS.tech, () => ({ ...SAMPLE_FLEXIBLE_DATA })));
+  const [nonTechData, setNonTechData] = useState(() => loadSavedState(STORAGE_KEYS.nontech, () => ({ ...SAMPLE_NON_TECH_DATA })));
+  const [isStandardOverflowing, setIsStandardOverflowing] = useState(false);
+  const [isFlexibleOverflowing, setIsFlexibleOverflowing] = useState(false);
   const isNonTech = resumeMode === 'non_technical';
   const flexibleData = isNonTech ? nonTechData : technicalData;
   const setFlexibleData = isNonTech ? setNonTechData : setTechnicalData;
@@ -52,6 +87,20 @@ export default function App() {
   const [watermarkBase64, setWatermarkBase64] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Persist all 3 modes & active mode to localStorage on every change
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEYS.mode, resumeMode); } catch {}
+  }, [resumeMode]);
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEYS.standard, JSON.stringify(formData)); } catch {}
+  }, [formData]);
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEYS.tech, JSON.stringify(technicalData)); } catch {}
+  }, [technicalData]);
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEYS.nontech, JSON.stringify(nonTechData)); } catch {}
+  }, [nonTechData]);
+
   // Flexible validation & 1-page budget analysis
   const flexibleValidation = validateFlexibleResume(flexibleData);
 
@@ -59,17 +108,25 @@ export default function App() {
   const flexSectionStatus = {
     personal: Boolean(
       flexibleData.personal?.first_name?.trim() &&
+      !isTemplatePlaceholder(flexibleData.personal.first_name) &&
       flexibleData.personal?.last_name?.trim() &&
-      flexibleData.personal?.email?.trim() &&
-      flexibleData.personal?.phone?.trim() &&
-      flexibleData.personal?.city_state?.trim()
+      !isTemplatePlaceholder(flexibleData.personal.last_name) &&
+      isValidEmail(flexibleData.personal?.email) &&
+      isValidPhone(flexibleData.personal?.phone) &&
+      (!flexibleData.personal?.linkedin?.trim() || isValidLinkedIn(flexibleData.personal.linkedin)) &&
+      flexibleData.personal?.city_state?.trim() &&
+      !isTemplatePlaceholder(flexibleData.personal.city_state)
     ),
     summary: Boolean(
       flexibleData.summary?.trim() &&
       flexibleData.summary.trim().length >= FLEXIBLE_LIMITS.summaryMinChars
     ),
     education: Boolean(
-      (flexibleData.education || []).filter(e => e.institution?.trim() && e.degree?.trim()).length >= 3
+      (flexibleData.education || []).filter(
+        e => e.institution?.trim() && !isTemplatePlaceholder(e.institution) &&
+             e.degree?.trim() && !isTemplatePlaceholder(e.degree) &&
+             e.grad_date?.trim() && !isTemplatePlaceholder(e.grad_date)
+      ).length >= 3
     ),
     projects: Boolean(
       (flexibleData.projects || []).filter(p => p.title?.trim() && p.bullet_1?.trim()).length >= 1
@@ -96,51 +153,52 @@ export default function App() {
     { id: 'custom', label: '✨ Custom Section', completed: flexSectionStatus.custom },
   ];
 
-  // Compute standard section completion status
+  // Compute standard section completion status (rejects invalid contacts & unedited template placeholders)
+  const nonPlaceholder = (val) => Boolean(val?.trim() && !isTemplatePlaceholder(val));
   const sectionStatus = {
     personal: Boolean(
-      formData.first_name?.trim() &&
-      formData.second_name?.trim() &&
-      formData.city_country?.trim() &&
-      formData.linkedin_url?.trim() &&
-      formData.phone?.trim() &&
-      formData.email?.trim()
+      nonPlaceholder(formData.first_name) &&
+      nonPlaceholder(formData.second_name) &&
+      nonPlaceholder(formData.city_country) &&
+      isValidLinkedIn(formData.linkedin_url) &&
+      isValidPhone(formData.phone) &&
+      isValidEmail(formData.email)
     ),
     summary: Boolean(
-      formData.summary?.trim() &&
-      formData.skills?.trim() &&
+      nonPlaceholder(formData.summary) &&
+      nonPlaceholder(formData.skills) &&
       estimateLines(formData.summary) <= 5 &&
       estimateLines(formData.skills) <= 2
     ),
     education: Boolean(
-      formData.edu_1_university?.trim() &&
-      formData.edu_1_city?.trim() &&
-      formData.edu_1_program?.trim() &&
-      formData.edu_1_date?.trim() &&
-      formData.edu_2_university?.trim() &&
-      formData.edu_2_city?.trim() &&
-      formData.edu_2_program?.trim() &&
-      formData.edu_2_date?.trim() &&
-      formData.edu_3_university?.trim() &&
-      formData.edu_3_city?.trim() &&
-      formData.edu_3_program?.trim() &&
-      formData.edu_3_date?.trim()
+      nonPlaceholder(formData.edu_1_university) &&
+      nonPlaceholder(formData.edu_1_city) &&
+      nonPlaceholder(formData.edu_1_program) &&
+      nonPlaceholder(formData.edu_1_date) &&
+      nonPlaceholder(formData.edu_2_university) &&
+      nonPlaceholder(formData.edu_2_city) &&
+      nonPlaceholder(formData.edu_2_program) &&
+      nonPlaceholder(formData.edu_2_date) &&
+      nonPlaceholder(formData.edu_3_university) &&
+      nonPlaceholder(formData.edu_3_city) &&
+      nonPlaceholder(formData.edu_3_program) &&
+      nonPlaceholder(formData.edu_3_date)
     ),
     research: Boolean(
-      formData.res_1_title?.trim() &&
-      formData.res_1_org?.trim() &&
-      formData.res_1_start?.trim() &&
-      formData.res_1_end?.trim() &&
-      formData.res_1_b1?.trim() &&
-      formData.res_1_b2?.trim()
+      nonPlaceholder(formData.res_1_title) &&
+      nonPlaceholder(formData.res_1_org) &&
+      nonPlaceholder(formData.res_1_start) &&
+      nonPlaceholder(formData.res_1_end) &&
+      nonPlaceholder(formData.res_1_b1) &&
+      nonPlaceholder(formData.res_1_b2)
     ),
     experience: Boolean(
-      formData.exp_1_company?.trim() &&
-      formData.exp_1_domain?.trim() &&
-      formData.exp_1_role?.trim() &&
-      formData.exp_1_start?.trim() &&
-      formData.exp_1_end?.trim() &&
-      formData.exp_1_b1?.trim()
+      nonPlaceholder(formData.exp_1_company) &&
+      nonPlaceholder(formData.exp_1_domain) &&
+      nonPlaceholder(formData.exp_1_role) &&
+      nonPlaceholder(formData.exp_1_start) &&
+      nonPlaceholder(formData.exp_1_end) &&
+      nonPlaceholder(formData.exp_1_b1)
     ),
     achievements: Boolean(
       formData.awards?.trim() ||
@@ -208,8 +266,16 @@ export default function App() {
     }));
   };
 
+  const hasStandardContent = () => Object.values(formData).some(v => typeof v === 'string' && v.trim() !== '');
+  const hasFlexibleContent = () => Boolean(
+    flexibleData.personal?.first_name?.trim() ||
+    flexibleData.personal?.email?.trim() ||
+    flexibleData.summary?.trim()
+  );
+
   // Load official reference data
   const handleLoadOfficialData = () => {
+    if (hasStandardContent() && !window.confirm("Replace your current Standard form entries with the Full Sample?")) return;
     setFormData({ ...SAMPLE_CANDIDATE_DATA });
     setToastMessage("📋 Loaded official template data successfully!");
   };
@@ -235,6 +301,7 @@ export default function App() {
 
   // Clear form
   const handleClearForm = () => {
+    if (hasStandardContent() && !window.confirm("Clear all fields in the Standard Resume form? This cannot be undone.")) return;
     setFormData({ ...EMPTY_FORM_DATA });
     setToastMessage("🧹 Form cleared. Start entering your details!");
   };
@@ -347,6 +414,7 @@ export default function App() {
 
   // Clear flexible form
   const handleClearFlexibleForm = () => {
+    if (hasFlexibleContent() && !window.confirm("Clear all fields in this resume form? This cannot be undone.")) return;
     setFlexibleData({ ...EMPTY_FLEXIBLE_DATA });
     setToastMessage("🧹 Flexible form cleared. Start adding your details!");
   };
@@ -665,6 +733,7 @@ export default function App() {
                 onNavigateTab={setActiveTab}
                 onDownloadHtml={handleDownloadHtml}
                 layoutOverridesRef={standardLayoutRef}
+                isOverflowing={isStandardOverflowing}
               />
             </>
           ) : (
@@ -797,6 +866,7 @@ export default function App() {
                 onNavigateTab={setActiveFlexTab}
                 onDownloadPdf={handleDownloadFlexiblePdf}
                 isGeneratingPdf={isGeneratingFlexiblePdf}
+                isOverflowing={isFlexibleOverflowing}
               />
             </>
           )}
@@ -814,6 +884,7 @@ export default function App() {
                 data={formData}
                 watermarkBase64={watermarkBase64}
                 onLayoutComputed={(layout) => { standardLayoutRef.current = layout; }}
+                onOverflowChange={setIsStandardOverflowing}
               />
             </>
           ) : (
@@ -827,6 +898,7 @@ export default function App() {
                 watermarkBase64={watermarkBase64}
                 isNonTechnical={isNonTech}
                 onLayoutComputed={(layout) => { flexibleLayoutRef.current = layout; }}
+                onOverflowChange={setIsFlexibleOverflowing}
               />
             </>
           )}

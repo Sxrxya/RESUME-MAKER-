@@ -7,6 +7,7 @@ export default function ValidationExport({
   onNavigateTab,
   onDownloadHtml,
   layoutOverridesRef,
+  isOverflowing = false,
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfReady, setPdfReady] = useState(false);
@@ -140,7 +141,11 @@ export default function ValidationExport({
       </div>
 
       {/* Gentle guidance instead of aggressive error lists */}
-      {!allRequiredDone ? (
+      {isOverflowing ? (
+        <div className="preview-overflow-banner" style={{ marginBottom: '12px' }}>
+          ⚠️ <strong>Page Overflow:</strong> Your text exceeds 1 A4 page even at maximum compression. Shorten a few bullet points so nothing is cut off in the PDF.
+        </div>
+      ) : !allRequiredDone ? (
         <div className="friendly-hint-box">
           <span style={{ fontSize: '16px' }}>💡</span>
           <div>
@@ -160,7 +165,7 @@ export default function ValidationExport({
       <button
         type="button"
         className="voltare-btn"
-        disabled={!allRequiredDone || isGenerating}
+        disabled={!allRequiredDone || isGenerating || isOverflowing}
         onClick={handleGeneratePdf}
         style={{ marginTop: '14px' }}
       >

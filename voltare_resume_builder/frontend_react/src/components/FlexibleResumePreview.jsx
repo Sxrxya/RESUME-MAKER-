@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { validateFlexibleResume } from '../utils/flexibleValidation';
 import { optimizePageLayout, applyLayoutToDOM } from '../utils/layout/layoutOptimizer';
 
-export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLayoutComputed, isNonTechnical = false }) {
+export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLayoutComputed, onOverflowChange, isNonTechnical = false }) {
   const previewContainerRef = useRef(null);
   const sheetRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -119,9 +119,12 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLa
         if (onLayoutComputed) {
           onLayoutComputed(result.layout);
         }
+        if (onOverflowChange) {
+          onOverflowChange(Boolean(result.overflow?.hasOverflow));
+        }
       }
     }
-  }, [data, isAutoFitActive, onLayoutComputed]);
+  }, [data, isAutoFitActive, onLayoutComputed, onOverflowChange]);
 
   const toggleAutoFit = () => {
     setIsAutoFitActive(prev => !prev);
@@ -362,6 +365,12 @@ export default function FlexibleResumePreview({ data, watermarkBase64 = "", onLa
           </div>
         </div>
       </div>
+
+      {layoutMetrics?.overflow?.hasOverflow && (
+        <div className="preview-overflow-banner">
+          ⚠️ <strong>Page Overflow:</strong> Content exceeds 1 A4 page and would be cut off. Shorten a few bullet points before exporting PDF.
+        </div>
+      )}
 
       {/* AUTO-FIT TO FULL PAGE BUTTON */}
       <div className="resume-fit-controls-bar">

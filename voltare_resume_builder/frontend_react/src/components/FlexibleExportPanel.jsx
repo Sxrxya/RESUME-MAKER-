@@ -6,6 +6,7 @@ export default function FlexibleExportPanel({
   onNavigateTab,
   onDownloadPdf,
   isGeneratingPdf = false,
+  isOverflowing = false,
 }) {
   const { progressPercent, canDownloadPdf } = validation;
 
@@ -23,7 +24,7 @@ export default function FlexibleExportPanel({
   const requiredSections = sections.filter(s => s.required);
   const completedRequired = requiredSections.filter(s => s.complete).length;
   const allRequiredDone = completedRequired === requiredSections.length;
-  const isDownloadEnabled = allRequiredDone || canDownloadPdf;
+  const isDownloadEnabled = (allRequiredDone || canDownloadPdf) && !isOverflowing;
 
   return (
     <div className="validation-export-section" style={{ marginTop: '24px' }}>
@@ -73,7 +74,11 @@ export default function FlexibleExportPanel({
       </div>
 
       {/* Clean friendly guidance box */}
-      {!isDownloadEnabled ? (
+      {isOverflowing ? (
+        <div className="preview-overflow-banner" style={{ marginBottom: '14px' }}>
+          ⚠️ <strong>Page Overflow:</strong> Your content exceeds 1 A4 page even at maximum compression. Shorten a few bullet points so nothing is cut off in the PDF.
+        </div>
+      ) : !isDownloadEnabled ? (
         <div className="friendly-hint-box" style={{ marginBottom: '14px' }}>
           <span style={{ fontSize: '18px' }}>💡</span>
           <div>

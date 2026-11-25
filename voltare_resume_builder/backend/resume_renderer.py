@@ -172,8 +172,9 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
     contact_parts = []
     if city:
         contact_parts.append(city)
-    if linkedin:
-        contact_parts.append(f'<a href="https://{linkedin}" style="color:#0000ff;text-decoration:underline;">{linkedin}</a>')
+    if linkedin and not linkedin.lower().startswith(("javascript:", "data:", "vbscript:")):
+        href_li = linkedin if linkedin.lower().startswith(("http://", "https://")) else f"https://{linkedin}"
+        contact_parts.append(f'<a href="{href_li}" style="color:#0000ff;text-decoration:underline;">{linkedin}</a>')
     if phone:
         contact_parts.append(phone)
     if email:
@@ -424,6 +425,8 @@ body {{
     height: 842pt;
     position: relative;
     overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
     background-color: #f7f3ef !important;
     margin: 0 auto;
     box-sizing: border-box;

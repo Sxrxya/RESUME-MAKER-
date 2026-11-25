@@ -60,8 +60,18 @@ def validate_flexible_resume(data: Dict[str, Any]) -> FlexibleValidationResult:
             errors.append(FlexibleValidationError(field=field_key, message=f"{field_name} is required.", section="personal"))
 
     email = personal.get("email", "").strip()
-    if email and not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+    if email and not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$", email):
         errors.append(FlexibleValidationError(field="email", message="Please enter a valid email address.", section="personal"))
+
+    phone = personal.get("phone", "").strip()
+    if phone:
+        digits = re.sub(r"\D", "", phone)
+        if not re.match(r"^[+\d\s\-()]+$", phone) or not (7 <= len(digits) <= 15):
+            errors.append(FlexibleValidationError(field="phone", message="Phone must contain 7-15 digits and only +, -, (), or spaces.", section="personal"))
+
+    linkedin = personal.get("linkedin", "").strip()
+    if linkedin and not re.match(r"^(https?://)?(www\.)?linkedin\.com/[^\s]+$", linkedin, re.IGNORECASE):
+        errors.append(FlexibleValidationError(field="linkedin", message="Please enter a valid LinkedIn URL.", section="personal"))
 
     # 2. Professional Summary (Mandatory: Minimum 150 characters)
     summary = data.get("summary", "").strip()

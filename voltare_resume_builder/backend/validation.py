@@ -133,8 +133,27 @@ def validate_required_fields(data: dict) -> ValidationResult:
     personal = data.get("personal_info", {})
     personal_limits = FIELD_LIMITS.get("personal", {})
     for field_name, limit_config in personal_limits.items():
-        if limit_config.get("required") and not personal.get(field_name, "").strip():
+        val = personal.get(field_name, "").strip()
+        if limit_config.get("required") and not val:
             result.add_error(field_name, f"{limit_config.get('label', field_name)} is required", "Personal Information")
+
+    import re
+    email = personal.get("email", "").strip()
+    if email and not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$", email):
+        result.add_error("email", "Please enter a valid email address", "Personal Information")
+
+    phone = personal.get("phone", "").strip()
+    if phone:
+        digits = re.sub(r"\D", "", phone)
+        if not re.match(r"^[+\d\s\-()]+$", phone) or not (7 <= len(digits) <= 15):
+            result.add_error("phone", "Phone must contain 7-15 digits and only +, -, (), or spaces", "Personal Information")
+
+    linkedin = personal.get("linkedin_url", "").strip()
+    if linkedin and (
+        re.match(r"^\s*(javascript|data|vbscript):", linkedin, re.IGNORECASE)
+        or not re.match(r"^(https?://)?(www\.)?linkedin\.com/[^\s]+$", linkedin, re.IGNORECASE)
+    ):
+        result.add_error("linkedin_url", "Please enter a valid LinkedIn URL", "Personal Information")
 
     prof = data.get("professional_summary", {})
     prof_limits = FIELD_LIMITS.get("professional_summary", {})

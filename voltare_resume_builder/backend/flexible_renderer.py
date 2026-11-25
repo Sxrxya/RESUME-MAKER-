@@ -37,19 +37,21 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layou
         contact_items.append(f"<span class='flex-contact-item'><a href='mailto:{em}' class='flex-contact-link'>{em}</a></span>")
     if personal.get("linkedin"):
         raw_li = personal.get("linkedin").strip()
-        href_li = raw_li if raw_li.startswith("http") else f"https://{raw_li}"
-        contact_items.append(f"<span class='flex-contact-item'><a href='{href_li}' target='_blank' class='flex-contact-link'>LinkedIn</a></span>")
+        if not raw_li.lower().startswith(("javascript:", "data:", "vbscript:")):
+            href_li = raw_li if raw_li.lower().startswith(("http://", "https://")) else f"https://{raw_li}"
+            contact_items.append(f"<span class='flex-contact-item'><a href='{_escape(href_li)}' target='_blank' class='flex-contact-link'>LinkedIn</a></span>")
     if personal.get("portfolio"):
         raw_port = personal.get("portfolio").strip()
-        href_port = raw_port if raw_port.startswith("http") else f"https://{raw_port}"
-        port_lower = raw_port.lower()
-        if "github.com" in port_lower:
-            port_label = "GitHub"
-        elif "behance.net" in port_lower or "dribbble.com" in port_lower:
-            port_label = "Portfolio"
-        else:
-            port_label = "Website"
-        contact_items.append(f"<span class='flex-contact-item'><a href='{href_port}' target='_blank' class='flex-contact-link'>{port_label}</a></span>")
+        if not raw_port.lower().startswith(("javascript:", "data:", "vbscript:")):
+            href_port = raw_port if raw_port.lower().startswith(("http://", "https://")) else f"https://{raw_port}"
+            port_lower = raw_port.lower()
+            if "github.com" in port_lower:
+                port_label = "GitHub"
+            elif "behance.net" in port_lower or "dribbble.com" in port_lower:
+                port_label = "Portfolio"
+            else:
+                port_label = "Website"
+            contact_items.append(f"<span class='flex-contact-item'><a href='{_escape(href_port)}' target='_blank' class='flex-contact-link'>{port_label}</a></span>")
 
     contact_html = ' <span class="flex-bullet-sep">•</span> '.join(contact_items)
 
@@ -346,6 +348,8 @@ def render_flexible_html(data: Dict[str, Any], watermark_base64: str = "", layou
             background: #fff;
             position: relative;
             overflow: hidden;
+            overflow-wrap: anywhere;
+            word-break: break-word;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             background-size: 500px auto;
             background-repeat: no-repeat;
