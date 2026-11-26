@@ -4,13 +4,17 @@ Connects the existing Python backend services (validation, layout engine,
 HTML renderer, PDF generator) to the React.js frontend.
 """
 import os
+import re
 import sys
+import uuid
 import base64
+import tempfile
 from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.background import BackgroundTask
 from pydantic import BaseModel
 
 # Add project root to path
@@ -127,8 +131,8 @@ def generate_pdf_endpoint(payload: ResumePayload):
 
     try:
         html_content = render_resume_html(resume_data, watermark_path=WATERMARK_PATH, layout_overrides=payload.layout_overrides)
-        output_filename = "voltare_resume.pdf"
-        output_path = os.path.join(GENERATED_DIR, output_filename)
+        file_id = uuid.uuid4().hex
+        output_path = os.path.join(tempfile.gettempdir(), f"voltare_{file_id}.pdf")
 
         generate_pdf_sync(html_content, output_path)
         verification = verify_pdf(output_path)
@@ -141,17 +145,31 @@ def generate_pdf_endpoint(payload: ResumePayload):
             "success": True,
             "verification": verification,
             "filename": download_name,
-            "download_url": f"/api/download-pdf?fn={download_name}",
+            "download_url": f"/api/download-pdf?id={file_id}&fn={download_name}",
         }
     except Exception as e:
         # Return error details so frontend can offer HTML fallback
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def _cleanup_file(path: str) -> None:
+    try:
+        if os.path.exists(path):
+            os.remove(path)
+    except OSError:
+        pass
+
+
 @app.get("/api/download-pdf")
-def download_pdf(fn: Optional[str] = None):
-    """Download the generated PDF file."""
-    output_path = os.path.join(GENERATED_DIR, "voltare_resume.pdf")
+def download_pdf(id: Optional[str] = None, fn: Optional[str] = None):
+    """Download the generated PDF file (per-request temp file with automatic cleanup)."""
+    if id and re.fullmatch(r"[a-f0-9]{32}", id):
+        output_path = os.path.join(tempfile.gettempdir(), f"voltare_{id}.pdf")
+        cleanup = BackgroundTask(_cleanup_file, output_path)
+    else:
+        output_path = os.path.join(GENERATED_DIR, "voltare_resume.pdf")
+        cleanup = None
+
     if not os.path.exists(output_path):
         raise HTTPException(status_code=404, detail="Generated PDF not found. Please generate it first.")
 
@@ -160,6 +178,7 @@ def download_pdf(fn: Optional[str] = None):
         path=output_path,
         media_type="application/pdf",
         filename=filename,
+        background=cleanup,
     )
 
 
@@ -200,8 +219,8 @@ def generate_flexible_pdf_endpoint(payload: ResumePayload):
             layout_overrides=payload.layout_overrides,
             is_non_technical=bool(payload.is_non_technical),
         )
-        output_filename = "voltare_flexible_resume.pdf"
-        output_path = os.path.join(GENERATED_DIR, output_filename)
+        file_id = uuid.uuid4().hex
+        output_path = os.path.join(tempfile.gettempdir(), f"voltare_flex_{file_id}.pdf")
 
         generate_pdf_sync(html_content, output_path)
 
@@ -212,16 +231,22 @@ def generate_flexible_pdf_endpoint(payload: ResumePayload):
         return {
             "success": True,
             "filename": download_name,
-            "download_url": f"/api/download-flexible-pdf?fn={download_name}",
+            "download_url": f"/api/download-flexible-pdf?id={file_id}&fn={download_name}",
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/download-flexible-pdf")
-def download_flexible_pdf(fn: Optional[str] = None):
-    """Download the generated flexible PDF file."""
-    output_path = os.path.join(GENERATED_DIR, "voltare_flexible_resume.pdf")
+def download_flexible_pdf(id: Optional[str] = None, fn: Optional[str] = None):
+    """Download the generated flexible PDF file (per-request temp file with automatic cleanup)."""
+    if id and re.fullmatch(r"[a-f0-9]{32}", id):
+        output_path = os.path.join(tempfile.gettempdir(), f"voltare_flex_{id}.pdf")
+        cleanup = BackgroundTask(_cleanup_file, output_path)
+    else:
+        output_path = os.path.join(GENERATED_DIR, "voltare_flexible_resume.pdf")
+        cleanup = None
+
     if not os.path.exists(output_path):
         raise HTTPException(status_code=404, detail="Generated PDF not found. Please generate it first.")
 
@@ -230,6 +255,7 @@ def download_flexible_pdf(fn: Optional[str] = None):
         path=output_path,
         media_type="application/pdf",
         filename=filename,
+        background=cleanup,
     )
 
 
