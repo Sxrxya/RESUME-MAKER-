@@ -307,12 +307,13 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
       const cs = window.getComputedStyle(contentEl);
       const pb = parseFloat(cs.paddingBottom) || 24;
       const children = contentEl.children;
-      if (!children || children.length === 0) return contentEl.scrollHeight;
+      if (!children || children.length === 0) return 0;
       const last = children[children.length - 1];
-      const top = contentEl.getBoundingClientRect().top;
-      const lastBottom = last.getBoundingClientRect().bottom;
-      const measured = ((lastBottom - top) / (scale || 1)) + pb;
-      return Math.max(measured, contentEl.scrollHeight);
+      // Unscaled DOM offsetTop + offsetHeight ignores .resume-content's forced height:100%
+      const measured = last.offsetTop + last.offsetHeight + pb;
+      return contentEl.scrollHeight > pageHeight + 2
+        ? Math.max(measured, contentEl.scrollHeight)
+        : measured;
     };
 
     const naturalHeight = measureContentHeight();
