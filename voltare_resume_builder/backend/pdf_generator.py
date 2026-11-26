@@ -19,6 +19,10 @@ def _generate_pdf(html_content: str, output_path: str) -> str:
         try:
             page = browser.new_page()
             page.set_content(html_content, wait_until="networkidle", timeout=60000)
+            try:
+                page.evaluate("() => document.fonts.ready")
+            except Exception:
+                pass
             page.wait_for_timeout(1000)
             page.pdf(
                 path=output_path,
