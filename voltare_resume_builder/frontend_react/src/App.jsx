@@ -72,7 +72,8 @@ function loadSavedMode() {
 }
 
 export default function App() {
-  const [resumeMode, setResumeMode] = useState(loadSavedMode); // 'standard' | 'flexible' | 'non_technical'
+  // Single-form mode active; Mode 2 & 3 preserved in codebase for future use
+  const [resumeMode, setResumeMode] = useState('standard'); // 'standard' | 'flexible' | 'non_technical'
   const [formData, setFormData] = useState(() => loadSavedState(STORAGE_KEYS.standard, () => ({ ...EMPTY_FORM_DATA })));
   const [technicalData, setTechnicalData] = useState(() => loadSavedState(STORAGE_KEYS.tech, () => ({ ...SAMPLE_FLEXIBLE_DATA })));
   const [nonTechData, setNonTechData] = useState(() => loadSavedState(STORAGE_KEYS.nontech, () => ({ ...SAMPLE_NON_TECH_DATA })));
@@ -651,8 +652,8 @@ export default function App() {
       {/* Top Header */}
       <Header />
 
-      {/* Top Mode Selector: Standard vs Flexible */}
-      <ModeSwitcher currentMode={resumeMode} onSelectMode={handleModeChange} />
+      {/* Mode Switcher hidden from UI while keeping Mode 2 & 3 code intact for future use */}
+      {false && <ModeSwitcher currentMode={resumeMode} onSelectMode={handleModeChange} />}
 
       {/* Mobile/Tablet View Switcher */}
       <div className="mobile-view-switcher">
