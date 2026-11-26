@@ -63,17 +63,11 @@ function loadSavedState(key, fallback) {
 }
 
 function loadSavedMode() {
-  try {
-    const m = localStorage.getItem(STORAGE_KEYS.mode);
-    return m === 'standard' || m === 'flexible' || m === 'non_technical' ? m : 'standard';
-  } catch {
-    return 'standard';
-  }
+  return 'standard';
 }
 
 export default function App() {
-  // Single-form mode active; Mode 2 & 3 preserved in codebase for future use
-  const [resumeMode, setResumeMode] = useState('standard'); // 'standard' | 'flexible' | 'non_technical'
+  const [resumeMode, setResumeMode] = useState(loadSavedMode); // 'standard' | 'flexible' | 'non_technical'
   const [formData, setFormData] = useState(() => loadSavedState(STORAGE_KEYS.standard, () => ({ ...EMPTY_FORM_DATA })));
   const [technicalData, setTechnicalData] = useState(() => loadSavedState(STORAGE_KEYS.tech, () => ({ ...SAMPLE_FLEXIBLE_DATA })));
   const [nonTechData, setNonTechData] = useState(() => loadSavedState(STORAGE_KEYS.nontech, () => ({ ...SAMPLE_NON_TECH_DATA })));
@@ -652,7 +646,7 @@ export default function App() {
       {/* Top Header */}
       <Header />
 
-      {/* Mode Switcher hidden from UI while keeping Mode 2 & 3 code intact for future use */}
+      {/* Mode Switcher hidden from UI; all Mode 2 & 3 code preserved for future use */}
       {false && <ModeSwitcher currentMode={resumeMode} onSelectMode={handleModeChange} />}
 
       {/* Mobile/Tablet View Switcher */}
