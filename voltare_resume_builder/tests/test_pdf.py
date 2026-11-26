@@ -122,7 +122,8 @@ class TestResumeRendering(unittest.TestCase):
 
     def test_empty_data_renders(self):
         html = render_resume_html({})
-        self.assertIn("PROFESSIONAL SUMMARY", html)
+        self.assertIn("resume-page", html)
+        self.assertNotIn("ACHIEVEMENT AND LEADERSHIP", html)
         self.assertGreater(len(html), 1000)
 
     def test_empty_data_does_not_insert_sample_content(self):
