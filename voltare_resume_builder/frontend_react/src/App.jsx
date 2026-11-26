@@ -153,52 +153,51 @@ export default function App() {
     { id: 'custom', label: '✨ Custom Section', completed: flexSectionStatus.custom },
   ];
 
-  // Compute standard section completion status (rejects invalid contacts & unedited template placeholders)
-  const nonPlaceholder = (val) => Boolean(val?.trim() && !isTemplatePlaceholder(val));
+  // Compute standard section completion status (matching Mode 2 & 3 behavior)
   const sectionStatus = {
     personal: Boolean(
-      nonPlaceholder(formData.first_name) &&
-      nonPlaceholder(formData.second_name) &&
-      nonPlaceholder(formData.city_country) &&
+      formData.first_name?.trim() &&
+      formData.second_name?.trim() &&
+      formData.city_country?.trim() &&
       isValidLinkedIn(formData.linkedin_url) &&
       isValidPhone(formData.phone) &&
       isValidEmail(formData.email)
     ),
     summary: Boolean(
-      nonPlaceholder(formData.summary) &&
-      nonPlaceholder(formData.skills) &&
+      formData.summary?.trim() &&
+      formData.skills?.trim() &&
       estimateLines(formData.summary) <= 5 &&
       estimateLines(formData.skills) <= 2
     ),
     education: Boolean(
-      nonPlaceholder(formData.edu_1_university) &&
-      nonPlaceholder(formData.edu_1_city) &&
-      nonPlaceholder(formData.edu_1_program) &&
-      nonPlaceholder(formData.edu_1_date) &&
-      nonPlaceholder(formData.edu_2_university) &&
-      nonPlaceholder(formData.edu_2_city) &&
-      nonPlaceholder(formData.edu_2_program) &&
-      nonPlaceholder(formData.edu_2_date) &&
-      nonPlaceholder(formData.edu_3_university) &&
-      nonPlaceholder(formData.edu_3_city) &&
-      nonPlaceholder(formData.edu_3_program) &&
-      nonPlaceholder(formData.edu_3_date)
+      formData.edu_1_university?.trim() &&
+      formData.edu_1_city?.trim() &&
+      formData.edu_1_program?.trim() &&
+      formData.edu_1_date?.trim() &&
+      formData.edu_2_university?.trim() &&
+      formData.edu_2_city?.trim() &&
+      formData.edu_2_program?.trim() &&
+      formData.edu_2_date?.trim() &&
+      formData.edu_3_university?.trim() &&
+      formData.edu_3_city?.trim() &&
+      formData.edu_3_program?.trim() &&
+      formData.edu_3_date?.trim()
     ),
     research: Boolean(
-      nonPlaceholder(formData.res_1_title) &&
-      nonPlaceholder(formData.res_1_org) &&
-      nonPlaceholder(formData.res_1_start) &&
-      nonPlaceholder(formData.res_1_end) &&
-      nonPlaceholder(formData.res_1_b1) &&
-      nonPlaceholder(formData.res_1_b2)
+      formData.res_1_title?.trim() &&
+      formData.res_1_org?.trim() &&
+      formData.res_1_start?.trim() &&
+      formData.res_1_end?.trim() &&
+      formData.res_1_b1?.trim() &&
+      formData.res_1_b2?.trim()
     ),
     experience: Boolean(
-      nonPlaceholder(formData.exp_1_company) &&
-      nonPlaceholder(formData.exp_1_domain) &&
-      nonPlaceholder(formData.exp_1_role) &&
-      nonPlaceholder(formData.exp_1_start) &&
-      nonPlaceholder(formData.exp_1_end) &&
-      nonPlaceholder(formData.exp_1_b1)
+      formData.exp_1_company?.trim() &&
+      formData.exp_1_domain?.trim() &&
+      formData.exp_1_role?.trim() &&
+      formData.exp_1_start?.trim() &&
+      formData.exp_1_end?.trim() &&
+      formData.exp_1_b1?.trim()
     ),
     achievements: Boolean(
       formData.awards?.trim() ||
