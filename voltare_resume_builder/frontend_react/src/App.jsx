@@ -63,7 +63,12 @@ function loadSavedState(key, fallback) {
 }
 
 function loadSavedMode() {
-  return 'standard';
+  try {
+    const m = localStorage.getItem(STORAGE_KEYS.mode);
+    return m === 'standard' || m === 'flexible' || m === 'non_technical' ? m : 'standard';
+  } catch {
+    return 'standard';
+  }
 }
 
 export default function App() {
@@ -646,8 +651,8 @@ export default function App() {
       {/* Top Header */}
       <Header />
 
-      {/* Mode Switcher hidden from UI; all Mode 2 & 3 code preserved for future use */}
-      {false && <ModeSwitcher currentMode={resumeMode} onSelectMode={handleModeChange} />}
+      {/* Top Mode Selector: Standard vs Flexible */}
+      <ModeSwitcher currentMode={resumeMode} onSelectMode={handleModeChange} />
 
       {/* Mobile/Tablet View Switcher */}
       <div className="mobile-view-switcher">

@@ -380,7 +380,7 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@700&family=EB+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@700&display=swap');
 
 :root {{
     --line-height: {density['line_height']};
@@ -409,7 +409,7 @@ html {{
 }}
 
 body {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
     color: #000000;
@@ -473,7 +473,7 @@ body {{
 }}
 
 .contact-info {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     text-align: center;
     font-size: var(--font-size);
     margin-bottom: 5pt;
@@ -486,7 +486,7 @@ body {{
 }}
 
 .section-heading {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: 11pt;
     font-weight: 700;
     text-transform: uppercase;
@@ -502,7 +502,7 @@ body {{
 }}
 
 .summary-text {{
-    font-family: 'EB Garamond', 'Garamond', 'Georgia', serif;
+    font-family: 'Garamond', 'Georgia', serif;
     text-align: justify;
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -510,7 +510,7 @@ body {{
 }}
 
 .skills-line {{
-    font-family: 'EB Garamond', 'Garamond', 'Georgia', serif;
+    font-family: 'Garamond', 'Georgia', serif;
     font-size: var(--font-size);
     margin-bottom: var(--summary-margin-bottom);
     line-height: var(--line-height);
@@ -518,7 +518,7 @@ body {{
 
 .edu-entry {{
     margin-bottom: var(--entry-margin-bottom);
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: var(--font-size);
 }}
 
@@ -541,25 +541,24 @@ body {{
 }}
 
 .relevant-courses {{
-    font-size: 9.5pt;
+    font-size: 9pt;
     font-style: italic;
     line-height: var(--line-height);
 }}
 
 .research-entry, .experience-entry {{
     margin-bottom: var(--entry-margin-bottom);
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: var(--font-size);
 }}
 
 .additional-info {{
-    font-size: 9.5pt;
+    font-size: var(--font-size);
     font-style: italic;
     line-height: var(--line-height);
 }}
 
 .bullet {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
     margin-bottom: var(--bullet-margin-bottom);
@@ -569,7 +568,7 @@ body {{
 }}
 
 .ach-line {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', Times, serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
     margin-bottom: var(--bullet-margin-bottom);
