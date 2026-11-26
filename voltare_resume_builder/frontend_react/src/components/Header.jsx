@@ -3,14 +3,11 @@ import React from 'react';
 export default function Header() {
   return (
     <header className="voltare-header">
-      <div className="voltare-header-brand">
-        <img
-          src="/original_watermark.png"
-          alt="Voltare Logo"
-          className="voltare-header-logo"
-        />
-        <h1>VOLTARE</h1>
-      </div>
+      <img
+        src="/voltare_logo.png"
+        alt="Voltare - Talent, Elevated"
+        className="voltare-header-logo-full"
+      />
       <div className="subtitle">Official Resume Builder</div>
     </header>
   );

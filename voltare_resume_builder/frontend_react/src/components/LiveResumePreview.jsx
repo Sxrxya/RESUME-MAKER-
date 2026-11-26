@@ -516,25 +516,6 @@ export default function LiveResumePreview({ data, watermarkBase64 = "", onLayout
           ⚠️ <strong>Page Overflow:</strong> Content exceeds 1 A4 page and would be cut off. Shorten a few bullet points before exporting PDF.
         </div>
       )}
-
-      {/* AUTO-FIT TO FULL PAGE BUTTON */}
-      <div className="resume-fit-controls-bar">
-        <div>
-          <button
-            type="button"
-            className={`resume-fit-btn ${isAutoFitActive ? 'active' : ''}`}
-            onClick={() => setIsAutoFitActive(prev => !prev)}
-            title="Intelligently scales line-heights, margins, and gaps to fill the full A4 page perfectly"
-          >
-            {isAutoFitActive ? '✓ Page Fit: Expanded' : '📐 Auto-Fit to Page Fully'}
-          </button>
-        </div>
-        <div className="resume-fit-desc">
-          {isAutoFitActive
-            ? '✨ Full page distribution active: elements adapted to utilize full A4 page.'
-            : 'Unused space at the bottom? Click to intelligently distribute and fit to full page.'}
-        </div>
-      </div>
     </div>
   );
 }

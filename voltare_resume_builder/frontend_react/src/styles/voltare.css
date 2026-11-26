@@ -51,23 +51,19 @@ html, body {
 /* Top Header */
 .voltare-header {
   text-align: center;
-  padding: 20px 0 16px 0;
+  padding: 16px 0 14px 0;
   border-bottom: 1px solid var(--color-border);
   margin-bottom: 20px;
 }
 
-.voltare-header-brand {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.voltare-header-logo {
-  height: clamp(36px, 4.5vw, 48px);
+.voltare-header-logo-full {
+  max-height: clamp(54px, 7vw, 76px);
   width: auto;
+  max-width: min(320px, 85vw);
   object-fit: contain;
   display: block;
+  margin: 0 auto 6px auto;
+  mix-blend-mode: multiply;
 }
 
 .voltare-header h1 {
