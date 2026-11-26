@@ -621,58 +621,6 @@ body {{
         </div>
     </div>
 </div>
-<script>
-window.addEventListener('DOMContentLoaded', () => {{
-    const page = document.querySelector('.resume-page');
-    const content = document.querySelector('.content');
-    const root = document.documentElement;
-    if (!page || !content) return;
-
-    const pageHeight = page.clientHeight || (842 * (96 / 72));
-    const measureHeight = () => {{
-        const pb = parseFloat(getComputedStyle(content).paddingBottom) || 20;
-        const children = content.children;
-        if (!children || children.length === 0) return 0;
-        const last = children[children.length - 1];
-        const m = last.offsetTop + last.offsetHeight + pb;
-        return content.scrollHeight > pageHeight + 2 ? Math.max(m, content.scrollHeight) : m;
-    }};
-
-    if (measureHeight() > pageHeight - 2) {{
-        const cs = getComputedStyle(root);
-        const baseFs = parseFloat(cs.getPropertyValue('--font-size')) || 10.0;
-        const baseLh = parseFloat(cs.getPropertyValue('--line-height')) || 1.15;
-        const baseSec = parseFloat(cs.getPropertyValue('--section-margin-top')) || 6.0;
-        const baseBody = parseFloat(cs.getPropertyValue('--section-body-margin')) || 2.5;
-        const baseEntry = parseFloat(cs.getPropertyValue('--entry-margin-bottom')) || 2.5;
-
-        const applyRatio = (r) => {{
-            const lerp = (a, b) => a + (b - a) * r;
-            root.style.setProperty('--font-size', lerp(baseFs, 8.4).toFixed(2) + 'pt');
-            root.style.setProperty('--line-height', lerp(baseLh, 1.04).toFixed(2));
-            root.style.setProperty('--section-margin-top', lerp(baseSec, 2.5).toFixed(1) + 'pt');
-            root.style.setProperty('--section-body-margin', lerp(baseBody, 1.0).toFixed(1) + 'pt');
-            root.style.setProperty('--entry-margin-bottom', lerp(baseEntry, 1.0).toFixed(1) + 'pt');
-            root.style.setProperty('--bullet-margin-bottom', '0pt');
-            root.style.setProperty('--summary-margin-bottom', '1pt');
-            root.style.setProperty('--content-padding', `${{Math.round(lerp(24, 16))}}pt ${{Math.round(lerp(36, 30))}}pt ${{Math.round(lerp(18, 12))}}pt 21pt`);
-        }};
-
-        let low = 0, high = 1, best = 1;
-        for (let i = 0; i < 8; i++) {{
-            const mid = (low + high) / 2;
-            applyRatio(mid);
-            if (measureHeight() <= pageHeight - 2) {{
-                best = mid;
-                high = mid;
-            }} else {{
-                low = mid;
-            }}
-        }}
-        applyRatio(best);
-    }}
-}});
-</script>
 </body>
 </html>'''
 
