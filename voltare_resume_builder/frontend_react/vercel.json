@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://resume-maker-production-637df510.up.railway.app/api/:path*"
+    }
+  ]
+}
