@@ -295,13 +295,13 @@ def render_resume_html(data: dict, watermark_path: str = "", watermark_base64: s
         exp_html += '\n        </div>'
 
     # Build achievements HTML
-    awards_text = _escape_html(achievements.get("awards", ""))
-    lead1 = _escape_html(achievements.get("leadership_1", ""))
-    lead2 = _escape_html(achievements.get("leadership_2", ""))
-    ach_text = _escape_html(achievements.get("achievement", ""))
-    comm1 = _escape_html(achievements.get("community_1", ""))
-    comm2 = _escape_html(achievements.get("community_2", ""))
-    interests = _escape_html(achievements.get("interests", ""))
+    awards_text = _escape_html(str(achievements.get("awards", "") or "").strip())
+    lead1 = _escape_html(str(achievements.get("leadership_1", "") or "").strip())
+    lead2 = _escape_html(str(achievements.get("leadership_2", "") or "").strip())
+    ach_text = _escape_html(str(achievements.get("achievement", "") or "").strip())
+    comm1 = _escape_html(str(achievements.get("community_1", "") or "").strip())
+    comm2 = _escape_html(str(achievements.get("community_2", "") or "").strip())
+    interests = _escape_html(str(achievements.get("interests", "") or "").strip())
 
     ach_html = ""
     if awards_text:
@@ -594,31 +594,15 @@ body {{
         <div class="name">{name_display}</div>
         {f'<div class="contact-info">{contact_line}</div>' if contact_line else '<div class="contact-info"></div>'}
 
-        <div class="section-heading">PROFESSIONAL SUMMARY</div>
-        <div class="section-body">
-            {f'<div class="summary-text">{summary_text}</div>' if summary_text else ''}
-            {f'<div class="skills-line"><strong>Skills:</strong> {skills_text}</div>' if skills_text else ''}
-        </div>
+        {summary_section}
 
-        <div class="section-heading">EDUCATION</div>
-        <div class="section-body">
-            {edu_html}
-        </div>
+        {edu_section}
 
-        <div class="section-heading">RESEARCH/PROJECT EXPERIENCE</div>
-        <div class="section-body">
-            {res_html}
-        </div>
+        {res_section}
 
-        <div class="section-heading">PROFESSIONAL EXPERIENCE</div>
-        <div class="section-body">
-            {exp_html}
-        </div>
+        {exp_section}
 
-        <div class="section-heading">ACHIEVEMENT AND LEADERSHIP</div>
-        <div class="section-body">
-            {ach_html}
-        </div>
+        {ach_section}
     </div>
 </div>
 </body>
