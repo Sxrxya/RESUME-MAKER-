@@ -409,7 +409,7 @@ html {{
 }}
 
 body {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', 'Tinos', Times, serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
     color: #000000;
@@ -473,7 +473,7 @@ body {{
 }}
 
 .contact-info {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', 'Tinos', Times, serif;
     text-align: center;
     font-size: var(--font-size);
     margin-bottom: 5pt;
@@ -486,7 +486,7 @@ body {{
 }}
 
 .section-heading {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', 'Tinos', Times, serif;
     font-size: 11pt;
     font-weight: 700;
     text-transform: uppercase;
@@ -502,7 +502,7 @@ body {{
 }}
 
 .summary-text {{
-    font-family: 'EB Garamond', 'Garamond', 'Georgia', serif;
+    font-family: 'Garamond', 'EB Garamond', 'Georgia', serif;
     text-align: justify;
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -510,7 +510,7 @@ body {{
 }}
 
 .skills-line {{
-    font-family: 'EB Garamond', 'Garamond', 'Georgia', serif;
+    font-family: 'Garamond', 'EB Garamond', 'Georgia', serif;
     font-size: var(--font-size);
     margin-bottom: var(--summary-margin-bottom);
     line-height: var(--line-height);
@@ -518,7 +518,7 @@ body {{
 
 .edu-entry {{
     margin-bottom: var(--entry-margin-bottom);
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', 'Tinos', Times, serif;
     font-size: var(--font-size);
 }}
 
@@ -548,7 +548,7 @@ body {{
 
 .research-entry, .experience-entry {{
     margin-bottom: var(--entry-margin-bottom);
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', 'Tinos', Times, serif;
     font-size: var(--font-size);
 }}
 
@@ -568,7 +568,7 @@ body {{
 }}
 
 .ach-line {{
-    font-family: 'Tinos', 'Times New Roman', Times, serif;
+    font-family: 'Times New Roman', 'Tinos', Times, serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
     margin-bottom: var(--bullet-margin-bottom);
@@ -593,11 +593,32 @@ body {{
     <div class="content">
         <div class="name">{name_display}</div>
         {f'<div class="contact-info">{contact_line}</div>' if contact_line else '<div class="contact-info"></div>'}
-        {summary_section}
-        {edu_section}
-        {res_section}
-        {exp_section}
-        {ach_section}
+
+        <div class="section-heading">PROFESSIONAL SUMMARY</div>
+        <div class="section-body">
+            {f'<div class="summary-text">{summary_text}</div>' if summary_text else ''}
+            {f'<div class="skills-line"><strong>Skills:</strong> {skills_text}</div>' if skills_text else ''}
+        </div>
+
+        <div class="section-heading">EDUCATION</div>
+        <div class="section-body">
+            {edu_html}
+        </div>
+
+        <div class="section-heading">RESEARCH/PROJECT EXPERIENCE</div>
+        <div class="section-body">
+            {res_html}
+        </div>
+
+        <div class="section-heading">PROFESSIONAL EXPERIENCE</div>
+        <div class="section-body">
+            {exp_html}
+        </div>
+
+        <div class="section-heading">ACHIEVEMENT AND LEADERSHIP</div>
+        <div class="section-body">
+            {ach_html}
+        </div>
     </div>
 </div>
 </body>

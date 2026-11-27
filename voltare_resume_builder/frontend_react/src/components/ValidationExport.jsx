@@ -1,28 +1,5 @@
 import React, { useState } from 'react';
 import { toStructuredData } from '../constants/limits';
-import { isValidEmail, isValidPhone, isValidLinkedIn } from '../utils/contactValidation';
-
-function getMissingHints(formData) {
-  const hints = [];
-  if (!formData.first_name?.trim()) hints.push('Personal: First Name');
-  if (!formData.second_name?.trim()) hints.push('Personal: Last Name');
-  if (!formData.city_country?.trim()) hints.push('Personal: City/Country');
-  if (!isValidLinkedIn(formData.linkedin_url)) hints.push('Personal: Valid LinkedIn/URL');
-  if (!isValidPhone(formData.phone)) hints.push('Personal: Valid Phone (7-15 digits)');
-  if (!isValidEmail(formData.email)) hints.push('Personal: Valid Email');
-  if (!formData.summary?.trim()) hints.push('Summary: Summary text');
-  if (!formData.skills?.trim()) hints.push('Summary: Skills');
-  if (!formData.edu_1_university?.trim() || !formData.edu_1_program?.trim() || !formData.edu_1_date?.trim() || !formData.edu_1_city?.trim()) {
-    hints.push('Education: Entry 1 (Institution, Degree, Date, City)');
-  }
-  if (!formData.res_1_title?.trim() || !formData.res_1_org?.trim() || !formData.res_1_start?.trim() || !formData.res_1_end?.trim() || !formData.res_1_b1?.trim()) {
-    hints.push('Research/Project 1: Title, Org, Dates & Description 1');
-  }
-  if (!formData.exp_1_company?.trim() || !formData.exp_1_role?.trim() || !formData.exp_1_start?.trim() || !formData.exp_1_end?.trim() || !formData.exp_1_b1?.trim()) {
-    hints.push('Experience 1: Company, Role, Dates & Description');
-  }
-  return hints;
-}
 
 export default function ValidationExport({
   formData,
@@ -187,10 +164,7 @@ export default function ValidationExport({
         <div className="friendly-hint-box">
           <span style={{ fontSize: '16px' }}>💡</span>
           <div>
-            <strong>Almost there!</strong> Complete the pending sections above (marked with ⏳) to enable PDF download:
-            <div style={{ marginTop: '4px', fontSize: '12px', color: '#7D1128' }}>
-              {getMissingHints(formData).slice(0, 4).join(' • ')}
-            </div>
+            <strong>Almost there!</strong> Complete the pending sections above (marked with ⏳) to enable high-resolution PDF download.
           </div>
         </div>
       ) : (

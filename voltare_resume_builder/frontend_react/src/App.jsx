@@ -89,16 +89,16 @@ export default function App() {
 
   // Persist all 3 modes & active mode to localStorage on every change
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.mode, resumeMode); } catch {}
+    try { localStorage.setItem(STORAGE_KEYS.mode, resumeMode); } catch { }
   }, [resumeMode]);
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.standard, JSON.stringify(formData)); } catch {}
+    try { localStorage.setItem(STORAGE_KEYS.standard, JSON.stringify(formData)); } catch { }
   }, [formData]);
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.tech, JSON.stringify(technicalData)); } catch {}
+    try { localStorage.setItem(STORAGE_KEYS.tech, JSON.stringify(technicalData)); } catch { }
   }, [technicalData]);
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.nontech, JSON.stringify(nonTechData)); } catch {}
+    try { localStorage.setItem(STORAGE_KEYS.nontech, JSON.stringify(nonTechData)); } catch { }
   }, [nonTechData]);
 
   // Flexible validation & 1-page budget analysis
@@ -124,8 +124,8 @@ export default function App() {
     education: Boolean(
       (flexibleData.education || []).filter(
         e => e.institution?.trim() && !isTemplatePlaceholder(e.institution) &&
-             e.degree?.trim() && !isTemplatePlaceholder(e.degree) &&
-             e.grad_date?.trim() && !isTemplatePlaceholder(e.grad_date)
+          e.degree?.trim() && !isTemplatePlaceholder(e.degree) &&
+          e.grad_date?.trim() && !isTemplatePlaceholder(e.grad_date)
       ).length >= 3
     ),
     projects: Boolean(
@@ -166,24 +166,34 @@ export default function App() {
     summary: Boolean(
       formData.summary?.trim() &&
       formData.skills?.trim() &&
-      formData.summary.length <= 560 &&
-      formData.skills.length <= 180
+      estimateLines(formData.summary) <= 5 &&
+      estimateLines(formData.skills) <= 2
     ),
     education: Boolean(
       formData.edu_1_university?.trim() &&
       formData.edu_1_city?.trim() &&
       formData.edu_1_program?.trim() &&
-      formData.edu_1_date?.trim()
+      formData.edu_1_date?.trim() &&
+      formData.edu_2_university?.trim() &&
+      formData.edu_2_city?.trim() &&
+      formData.edu_2_program?.trim() &&
+      formData.edu_2_date?.trim() &&
+      formData.edu_3_university?.trim() &&
+      formData.edu_3_city?.trim() &&
+      formData.edu_3_program?.trim() &&
+      formData.edu_3_date?.trim()
     ),
     research: Boolean(
       formData.res_1_title?.trim() &&
       formData.res_1_org?.trim() &&
       formData.res_1_start?.trim() &&
       formData.res_1_end?.trim() &&
-      formData.res_1_b1?.trim()
+      formData.res_1_b1?.trim() &&
+      formData.res_1_b2?.trim()
     ),
     experience: Boolean(
       formData.exp_1_company?.trim() &&
+      formData.exp_1_domain?.trim() &&
       formData.exp_1_role?.trim() &&
       formData.exp_1_start?.trim() &&
       formData.exp_1_end?.trim() &&
@@ -588,7 +598,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: structured }),
-      }).catch(() => {});
+      }).catch(() => { });
     }, 200);
     return () => clearTimeout(timer);
   }, [formData]);

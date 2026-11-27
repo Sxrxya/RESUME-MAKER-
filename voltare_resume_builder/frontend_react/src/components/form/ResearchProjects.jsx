@@ -103,7 +103,7 @@ export default function ResearchProjects({ data, onChange }) {
         onChange={onChange}
         maxChars={p.bullet_2.max_chars}
         maxLines={p.bullet_2.max_lines}
-        required={false}
+        required={isCompulsory}
         placeholder={p.bullet_2.placeholder}
         rows={3}
       />

@@ -15,14 +15,14 @@ export default function Education({ data, onChange }) {
   const p = LIMITS.education.entry_fields;
 
   const tabs = [
-    { id: 'edu_1', label: '1. College / University (Required)' },
-    { id: 'edu_2', label: `2. ${eduTypes.edu_2 === 'college' ? 'College' : 'School'} (Optional)` },
-    { id: 'edu_3', label: `3. ${eduTypes.edu_3 === 'college' ? 'College' : 'School'} (Optional)` },
+    { id: 'edu_1', label: '1. College / University' },
+    { id: 'edu_2', label: `2. ${eduTypes.edu_2 === 'college' ? 'College' : 'School'}` },
+    { id: 'edu_3', label: `3. ${eduTypes.edu_3 === 'college' ? 'College' : 'School'}` },
   ];
 
   const idx = activeSubTab === 'edu_1' ? 1 : activeSubTab === 'edu_2' ? 2 : 3;
   const isSchool = idx > 1 && eduTypes[activeSubTab] === 'school';
-  const isRequired = idx === 1;
+  const isRequired = true;
 
   const handleTypeToggle = (type) => {
     setEduTypes(prev => ({

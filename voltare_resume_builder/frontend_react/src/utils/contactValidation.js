@@ -50,11 +50,10 @@ export function isValidPhone(phone) {
 export function isValidLinkedIn(url) {
   if (!url || typeof url !== 'string') return false;
   const trimmed = url.trim();
-  if (!trimmed || isTemplatePlaceholder(trimmed) || trimmed.toLowerCase() === 'linkedin') return false;
+  if (!trimmed || isTemplatePlaceholder(trimmed)) return false;
   if (DANGEROUS_SCHEME_RE.test(trimmed)) return false;
-  return /^(https?:\/\/)?(www\.)?linkedin\.com\/[^\s]+$/i.test(trimmed)
-    || /^(in|pub)\/[a-zA-Z0-9\-_%]+\/?$/i.test(trimmed)
-    || /^(https?:\/\/)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/i.test(trimmed);
+  return /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|pub|company)\/[a-zA-Z0-9\-_%]+\/?$/i.test(trimmed)
+    || /^(https?:\/\/)?(www\.)?linkedin\.com\/[^\s]+$/i.test(trimmed);
 }
 
 export function sanitizeHref(url) {

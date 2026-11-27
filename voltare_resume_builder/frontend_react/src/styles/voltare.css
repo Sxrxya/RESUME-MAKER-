@@ -753,7 +753,7 @@ h3 {
   background-color: #f7f3ef !important;
   overflow: hidden;
   box-sizing: border-box;
-  font-family: 'Tinos', 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', 'Tinos', Times, serif;
   font-size: 10pt;
   line-height: 1.15;
   color: #000000;
@@ -802,7 +802,7 @@ h3 {
 }
 
 .resume-contact-info {
-  font-family: 'Tinos', 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', 'Tinos', Times, serif;
   text-align: center;
   font-size: var(--resume-font-size, 10pt);
   margin-bottom: 5pt;
@@ -815,7 +815,7 @@ h3 {
 }
 
 .resume-section-heading {
-  font-family: 'Tinos', 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', 'Tinos', Times, serif;
   font-size: 11pt;
   font-weight: 700;
   text-transform: uppercase;
@@ -832,7 +832,7 @@ h3 {
 }
 
 .resume-summary-text {
-  font-family: 'EB Garamond', 'Garamond', 'Georgia', serif;
+  font-family: 'Garamond', 'EB Garamond', 'Georgia', serif;
   text-align: justify;
   font-size: var(--resume-font-size, 10pt);
   line-height: var(--resume-line-height, 1.15);
@@ -840,7 +840,7 @@ h3 {
 }
 
 .resume-skills-line {
-  font-family: 'EB Garamond', 'Garamond', 'Georgia', serif;
+  font-family: 'Garamond', 'EB Garamond', 'Georgia', serif;
   font-size: var(--resume-font-size, 10pt);
   margin-bottom: var(--resume-summary-margin-bottom, 2pt);
   line-height: var(--resume-line-height, 1.15);
@@ -850,7 +850,7 @@ h3 {
 .resume-research-entry,
 .resume-experience-entry {
   margin-bottom: var(--resume-entry-margin-bottom, 2.5pt);
-  font-family: 'Tinos', 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', 'Tinos', Times, serif;
   font-size: var(--resume-font-size, 10pt);
 }
 
@@ -886,7 +886,7 @@ h3 {
 }
 
 .resume-bullet {
-  font-family: 'Tinos', 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', 'Tinos', Times, serif;
   font-size: var(--resume-font-size, 10pt);
   line-height: var(--resume-line-height, 1.15);
   margin-bottom: var(--resume-bullet-margin-bottom, 0pt);
@@ -895,7 +895,7 @@ h3 {
 }
 
 .resume-ach-line {
-  font-family: 'Tinos', 'Times New Roman', Times, serif;
+  font-family: 'Times New Roman', 'Tinos', Times, serif;
   font-size: var(--resume-font-size, 10pt);
   line-height: var(--resume-line-height, 1.15);
   margin-bottom: var(--resume-bullet-margin-bottom, 1pt);
