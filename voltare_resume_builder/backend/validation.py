@@ -151,9 +151,14 @@ def validate_required_fields(data: dict) -> ValidationResult:
     linkedin = personal.get("linkedin_url", "").strip()
     if linkedin and (
         re.match(r"^\s*(javascript|data|vbscript):", linkedin, re.IGNORECASE)
-        or not re.match(r"^(https?://)?(www\.)?linkedin\.com/[^\s]+$", linkedin, re.IGNORECASE)
+        or linkedin.lower() == "linkedin"
+        or not (
+            re.match(r"^(https?://)?(www\.)?linkedin\.com/[^\s]+$", linkedin, re.IGNORECASE)
+            or re.match(r"^(in|pub)/[a-zA-Z0-9\-_%]+/?$", linkedin, re.IGNORECASE)
+            or re.match(r"^(https?://)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(/[^\s]*)?$", linkedin, re.IGNORECASE)
+        )
     ):
-        result.add_error("linkedin_url", "Please enter a valid LinkedIn URL", "Personal Information")
+        result.add_error("linkedin_url", "Please enter a valid LinkedIn or profile URL", "Personal Information")
 
     prof = data.get("professional_summary", {})
     prof_limits = FIELD_LIMITS.get("professional_summary", {})
@@ -165,9 +170,11 @@ def validate_required_fields(data: dict) -> ValidationResult:
     education_entries = data.get("education", [])
     for i in range(3):
         entry = education_entries[i] if i < len(education_entries) and isinstance(education_entries[i], dict) else {}
-        for field_name, limit_config in edu_limits.items():
-            if limit_config.get("required") and not entry.get(field_name, "").strip():
-                result.add_error(f"education_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Education Entry {i+1}")
+        has_edu_content = any(entry.get(k, "").strip() for k in edu_limits.keys())
+        if i == 0 or has_edu_content:
+            for field_name, limit_config in edu_limits.items():
+                if limit_config.get("required") and not entry.get(field_name, "").strip():
+                    result.add_error(f"education_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Education Entry {i+1}")
 
     res_limits = FIELD_LIMITS.get("research_projects", {}).get("entry_fields", {})
     for i, entry in enumerate(data.get("research_projects", [])):
@@ -175,7 +182,7 @@ def validate_required_fields(data: dict) -> ValidationResult:
         has_content = any(entry.get(k, "").strip() for k in res_limits.keys())
         if i == 0 or has_content:
             for field_name, limit_config in res_limits.items():
-                if limit_config.get("required") and not entry.get(field_name, "").strip():
+                if field_name != "bullet_2" and limit_config.get("required") and not entry.get(field_name, "").strip():
                     result.add_error(f"research_{i+1}_{field_name}", f"{limit_config.get('label', field_name)} is required", f"Research Entry {i+1}")
 
     # Professional Experience: Entry 1 is mandatory; Entries 2 and 3 are optional
@@ -191,7 +198,7 @@ def validate_required_fields(data: dict) -> ValidationResult:
             # Experience 1 is strictly mandatory; Experience 2 and 3 are optional
             if i == 0 or has_content:
                 for field_name, limit_config in cfg_fields.items():
-                    if limit_config.get("required"):
+                    if field_name != "domain" and limit_config.get("required"):
                         if field_name.startswith("bullet_"):
                             b_idx = int(field_name.split("_")[1]) - 1
                             bullets = entry.get("bullets", [])

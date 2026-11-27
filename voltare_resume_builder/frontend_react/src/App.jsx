@@ -166,34 +166,24 @@ export default function App() {
     summary: Boolean(
       formData.summary?.trim() &&
       formData.skills?.trim() &&
-      estimateLines(formData.summary) <= 5 &&
-      estimateLines(formData.skills) <= 2
+      formData.summary.length <= 560 &&
+      formData.skills.length <= 180
     ),
     education: Boolean(
       formData.edu_1_university?.trim() &&
       formData.edu_1_city?.trim() &&
       formData.edu_1_program?.trim() &&
-      formData.edu_1_date?.trim() &&
-      formData.edu_2_university?.trim() &&
-      formData.edu_2_city?.trim() &&
-      formData.edu_2_program?.trim() &&
-      formData.edu_2_date?.trim() &&
-      formData.edu_3_university?.trim() &&
-      formData.edu_3_city?.trim() &&
-      formData.edu_3_program?.trim() &&
-      formData.edu_3_date?.trim()
+      formData.edu_1_date?.trim()
     ),
     research: Boolean(
       formData.res_1_title?.trim() &&
       formData.res_1_org?.trim() &&
       formData.res_1_start?.trim() &&
       formData.res_1_end?.trim() &&
-      formData.res_1_b1?.trim() &&
-      formData.res_1_b2?.trim()
+      formData.res_1_b1?.trim()
     ),
     experience: Boolean(
       formData.exp_1_company?.trim() &&
-      formData.exp_1_domain?.trim() &&
       formData.exp_1_role?.trim() &&
       formData.exp_1_start?.trim() &&
       formData.exp_1_end?.trim() &&
