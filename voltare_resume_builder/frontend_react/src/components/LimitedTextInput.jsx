@@ -8,6 +8,7 @@ export default function LimitedTextInput({
   maxChars = 999,
   required = false,
   placeholder = "",
+  error = null,
 }) {
   const current = (value || "").length;
   const remaining = maxChars - current;
@@ -35,11 +36,17 @@ export default function LimitedTextInput({
         id={name}
         type="text"
         className="voltare-input"
+        style={error ? { borderColor: '#c62828' } : undefined}
         value={value}
         onChange={handleChange}
         maxLength={maxChars}
         placeholder={placeholder}
       />
+      {error && (
+        <div style={{ color: '#c62828', fontSize: '11.5px', marginTop: '3px', fontWeight: 500 }}>
+          ⚠️ {error}
+        </div>
+      )}
       <div className={counterClass}>
         {current} / {maxChars} characters ({remaining} remaining)
       </div>

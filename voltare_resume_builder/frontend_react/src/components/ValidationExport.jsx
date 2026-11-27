@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { toStructuredData } from '../constants/limits';
+import { toStructuredData, estimateLines } from '../constants/limits';
+import { isValidEmail, isValidPhone, isValidLinkedIn } from '../utils/contactValidation';
 
 export default function ValidationExport({
   formData,
@@ -27,6 +28,59 @@ export default function ValidationExport({
   const completedRequired = requiredSections.filter(s => s.complete).length;
   const allRequiredDone = completedRequired === requiredSections.length;
   const progressPercent = Math.round((completedRequired / requiredSections.length) * 100);
+
+  const getPendingReasons = () => {
+    const reasons = [];
+    if (!sectionStatus.personal) {
+      const missing = [];
+      if (!formData.first_name?.trim()) missing.push('First Name');
+      if (!formData.second_name?.trim()) missing.push('Last Name');
+      if (!formData.city_country?.trim()) missing.push('City, Country');
+      if (!formData.linkedin_url?.trim()) missing.push('LinkedIn URL');
+      else if (!isValidLinkedIn(formData.linkedin_url)) missing.push('valid LinkedIn URL (linkedin.com/...)');
+      if (!formData.phone?.trim()) missing.push('Phone Number');
+      else if (!isValidPhone(formData.phone)) missing.push('valid Phone (7–15 digits)');
+      if (!formData.email?.trim()) missing.push('Email');
+      else if (!isValidEmail(formData.email)) missing.push('valid Email (name@domain.tld)');
+      if (missing.length) reasons.push(`Personal: ${missing.join(', ')}`);
+    }
+    if (!sectionStatus.summary) {
+      const issues = [];
+      if (!formData.summary?.trim()) issues.push('Summary');
+      else if (estimateLines(formData.summary) > 5) issues.push('Summary exceeds 5 lines');
+      if (!formData.skills?.trim()) issues.push('Skills');
+      else if (estimateLines(formData.skills) > 2) issues.push('Skills exceeds 2 lines');
+      if (issues.length) reasons.push(`Summary: ${issues.join(', ')}`);
+    }
+    if (!sectionStatus.education) {
+      const missingEntries = [1, 2, 3].filter(
+        i => !formData[`edu_${i}_university`]?.trim() || !formData[`edu_${i}_city`]?.trim() || !formData[`edu_${i}_program`]?.trim() || !formData[`edu_${i}_date`]?.trim()
+      );
+      if (missingEntries.length) reasons.push(`Education: complete Entry ${missingEntries.join(', ')} (University/School, City, Program, Date)`);
+    }
+    if (!sectionStatus.research) {
+      const missing = [];
+      if (!formData.res_1_title?.trim()) missing.push('Title');
+      if (!formData.res_1_org?.trim()) missing.push('Organization');
+      if (!formData.res_1_start?.trim()) missing.push('Start Date');
+      if (!formData.res_1_end?.trim()) missing.push('End Date');
+      if (!formData.res_1_b1?.trim()) missing.push('Bullet 1');
+      if (!formData.res_1_b2?.trim()) missing.push('Bullet 2');
+      if (missing.length) reasons.push(`Project 1: ${missing.join(', ')}`);
+    }
+    if (!sectionStatus.experience) {
+      const missing = [];
+      if (!formData.exp_1_company?.trim()) missing.push('Company');
+      if (!formData.exp_1_domain?.trim()) missing.push('Domain');
+      if (!formData.exp_1_role?.trim()) missing.push('Role');
+      if (!formData.exp_1_start?.trim()) missing.push('Start Date');
+      if (!formData.exp_1_end?.trim()) missing.push('End Date');
+      if (!formData.exp_1_b1?.trim()) missing.push('Bullet 1');
+      if (missing.length) reasons.push(`Experience 1: ${missing.join(', ')}`);
+    }
+    return reasons;
+  };
+  const pendingReasons = !allRequiredDone ? getPendingReasons() : [];
 
   const handleGeneratePdf = async () => {
     if (!allRequiredDone || isGenerating || isOverflowing) return;
@@ -165,6 +219,13 @@ export default function ValidationExport({
           <span style={{ fontSize: '16px' }}>💡</span>
           <div>
             <strong>Almost there!</strong> Complete the pending sections above (marked with ⏳) to enable high-resolution PDF download.
+            {pendingReasons.length > 0 && (
+              <ul style={{ margin: '6px 0 0 16px', padding: 0, fontSize: '12px', lineHeight: 1.45 }}>
+                {pendingReasons.map((r, idx) => (
+                  <li key={idx}>{r}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       ) : (

@@ -2,9 +2,20 @@ import React from 'react';
 import SectionHeader from '../SectionHeader';
 import LimitedTextInput from '../LimitedTextInput';
 import { LIMITS } from '../../constants/limits';
+import { isValidEmail, isValidPhone, isValidLinkedIn } from '../../utils/contactValidation';
 
 export default function PersonalInfo({ data, onChange }) {
   const p = LIMITS.personal;
+
+  const linkedinError = data.linkedin_url?.trim() && !isValidLinkedIn(data.linkedin_url)
+    ? 'Enter a valid LinkedIn URL (e.g. linkedin.com/in/your-name)'
+    : null;
+  const phoneError = data.phone?.trim() && !isValidPhone(data.phone)
+    ? 'Enter 7–15 digits using only +, digits, spaces, -, or ()'
+    : null;
+  const emailError = data.email?.trim() && !isValidEmail(data.email)
+    ? 'Enter a valid email address (e.g. name@example.com)'
+    : null;
 
   return (
     <div className="form-section-card">
@@ -51,6 +62,7 @@ export default function PersonalInfo({ data, onChange }) {
         maxChars={p.linkedin_url.max_chars}
         required={p.linkedin_url.required}
         placeholder={p.linkedin_url.placeholder}
+        error={linkedinError}
       />
 
       <div className="grid-2">
@@ -62,6 +74,7 @@ export default function PersonalInfo({ data, onChange }) {
           maxChars={p.phone.max_chars}
           required={p.phone.required}
           placeholder={p.phone.placeholder}
+          error={phoneError}
         />
         <LimitedTextInput
           name="email"
@@ -71,6 +84,7 @@ export default function PersonalInfo({ data, onChange }) {
           maxChars={p.email.max_chars}
           required={p.email.required}
           placeholder={p.email.placeholder}
+          error={emailError}
         />
       </div>
     </div>
