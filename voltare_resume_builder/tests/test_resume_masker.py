@@ -1,8 +1,11 @@
 import io
+import logging
 import os
+import re
 import sys
 
 import fitz
+import pytest
 from docx import Document
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -13,10 +16,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from backend import api_server
 from backend.resume_masker import (
+    PDFProcessingError,
     _find_pdf_text_rects,
     mask_docx,
     mask_pdf,
     mask_text_content,
+    normalize_pdf,
 )
 
 REDIRECT_URL = "https://www.voltare.in/"
@@ -82,6 +87,66 @@ def test_pdf_masks_phone_email_and_profile_urls():
     assert stats["linkedin_profiles"] == 1
     assert stats["github_profiles"] == 1
     assert stats["phone_numbers"] == 1
+
+
+def test_pdf_with_broken_startxref_is_repaired_and_page_count_preserved():
+    document = fitz.open()
+    page = document.new_page(width=1000, height=300)
+    page.insert_text((72, 72), "alex@example.com")
+    document.new_page(width=1000, height=300)
+    original_bytes = document.tobytes()
+    document.close()
+
+    startxref = list(re.finditer(rb"startxref\s+(\d+)", original_bytes))[-1]
+    broken_pdf = (
+        original_bytes[:startxref.start(1)]
+        + b"99999999"
+        + original_bytes[startxref.end(1):]
+    )
+
+    masked_bytes, stats = mask_pdf(broken_pdf)
+    output = fitz.open(stream=masked_bytes, filetype="pdf")
+    assert output.page_count == 2
+    assert "alex@example.com" not in output[0].get_text()
+    assert "XXXX@example.com" in output[0].get_text()
+    assert stats["emails"] == 1
+    output.close()
+
+
+def test_password_protected_pdf_has_a_clear_error():
+    document = fitz.open()
+    document.new_page()
+    encrypted_bytes = document.tobytes(
+        encryption=fitz.PDF_ENCRYPT_AES_256,
+        owner_pw="owner-password",
+        user_pw="user-password",
+    )
+    document.close()
+
+    with pytest.raises(PDFProcessingError, match="password-protected"):
+        mask_pdf(encrypted_bytes)
+
+
+def test_unrecoverable_pdf_has_a_clear_error():
+    with pytest.raises(PDFProcessingError) as error:
+        normalize_pdf(b"this is not a PDF")
+    assert "could not be repaired" in error.value.user_message
+
+
+def test_pdf_api_returns_safe_error_and_logs_traceback(caplog):
+    with caplog.at_level(logging.ERROR):
+        response = TestClient(api_server.app).post(
+            "/api/admin/mask-resumes",
+            files={"files": ("invalid.pdf", b"this is not a PDF", "application/pdf")},
+        )
+
+    result = response.json()["results"][0]
+    assert response.status_code == 200
+    assert result["status"] == "error"
+    assert "could not be repaired" in result["error"]
+    assert "PyMuPDF" not in result["error"]
+    assert "Traceback (most recent call last)" in caplog.text
+    assert "PyMuPDF normalization failed" in caplog.text
 
 
 def test_pdf_span_fallback_locates_profile_url():

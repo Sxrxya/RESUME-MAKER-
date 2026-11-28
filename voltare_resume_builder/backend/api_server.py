@@ -4,6 +4,7 @@ Connects the existing Python backend services (validation, layout engine,
 HTML renderer, PDF generator) to the React.js frontend.
 """
 import base64
+import logging
 import os
 import re
 import sys
@@ -29,7 +30,7 @@ from backend.flexible_renderer import render_flexible_html
 from backend.flexible_validation import validate_flexible_resume
 from backend.layout_engine import get_validation_summary, validate_layout
 from backend.pdf_generator import generate_pdf_sync, verify_pdf
-from backend.resume_masker import mask_resume_file
+from backend.resume_masker import PDFProcessingError, mask_resume_file
 from backend.resume_renderer import render_resume_html
 from backend.validation import validate_all
 from backend.watermark_extractor import (
@@ -43,6 +44,7 @@ app = FastAPI(
     description="Backend API serving the Voltare Resume Builder React application",
     version="1.0.0",
 )
+logger = logging.getLogger(__name__)
 
 # Enable CORS for local React dev server
 app.add_middleware(
@@ -364,6 +366,9 @@ async def mask_resumes_endpoint(files: List[UploadFile] = File(...)):
         filename = file.filename or "resume.pdf"
         name_root, ext = os.path.splitext(filename)
         ext_lower = ext.lower()
+        temporary_path = None
+        output_path = None
+        stored = False
 
         if ext_lower not in [".pdf", ".docx", ".doc"]:
             results.append({
@@ -398,14 +403,31 @@ async def mask_resumes_endpoint(files: List[UploadFile] = File(...)):
             masked_filename = mask_res["masked_filename"]
             masked_bytes = mask_res["masked_bytes"]
 
-            # Save masked output file to disk
             out_path = os.path.join(MASKED_DIR, f"{file_id}_{masked_filename}")
-            with open(out_path, "wb") as f_out:
-                f_out.write(masked_bytes)
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                prefix=f"{file_id}_",
+                suffix=".tmp",
+                dir=MASKED_DIR,
+                delete=False,
+            ) as f_out:
+                temporary_path = f_out.name
+                written_size = f_out.write(masked_bytes)
+                f_out.flush()
+                os.fsync(f_out.fileno())
+
+            if written_size != len(masked_bytes):
+                raise OSError("The complete masked resume was not written to storage.")
+
+            os.replace(temporary_path, out_path)
+            temporary_path = None
+            output_path = out_path
+            if os.path.getsize(out_path) != len(masked_bytes):
+                raise OSError("The stored masked resume failed its size check.")
 
             # Record in metadata store for secure retrieval
             MASKED_STORE[file_id] = {
-                "path": out_path,
+                "path": output_path,
                 "filename": masked_filename,
                 "content_type": (
                     "application/pdf"
@@ -413,6 +435,7 @@ async def mask_resumes_endpoint(files: List[UploadFile] = File(...)):
                     else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 ),
             }
+            stored = True
 
             results.append({
                 "file_id": file_id,
@@ -425,14 +448,40 @@ async def mask_resumes_endpoint(files: List[UploadFile] = File(...)):
                 "stats": mask_res["stats"],
                 "download_url": f"/api/admin/download-masked/{file_id}",
             })
-        except Exception as e:
+        except PDFProcessingError as e:
+            logger.exception("PDF resume processing failed (format=%s)", ext_lower)
+            if temporary_path:
+                _cleanup_file(temporary_path)
+            if output_path and not stored:
+                _cleanup_file(output_path)
             results.append({
                 "file_id": None,
                 "original_filename": filename,
                 "masked_filename": None,
                 "file_type": ext_lower.replace(".", "").upper(),
                 "status": "error",
-                "error": f"Masking error: {str(e)}",
+                "error": e.user_message,
+                "stats": None,
+                "download_url": None,
+            })
+        except Exception:
+            logger.exception("Resume processing failed (format=%s)", ext_lower)
+            if temporary_path:
+                _cleanup_file(temporary_path)
+            if output_path and not stored:
+                _cleanup_file(output_path)
+            user_message = (
+                "The PDF could not be processed. Re-export it as a valid, unlocked PDF and try again."
+                if ext_lower == ".pdf"
+                else "The resume could not be processed. Verify that it is a valid DOCX file and try again."
+            )
+            results.append({
+                "file_id": None,
+                "original_filename": filename,
+                "masked_filename": None,
+                "file_type": ext_lower.replace(".", "").upper(),
+                "status": "error",
+                "error": user_message,
                 "stats": None,
                 "download_url": None,
             })

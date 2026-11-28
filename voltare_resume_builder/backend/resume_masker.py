@@ -11,8 +11,12 @@ Masking Requirements:
 """
 
 import io
+import logging
 import os
 import re
+import shutil
+import subprocess
+import tempfile
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -20,6 +24,21 @@ import docx
 import fitz
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml.ns import qn
+
+logger = logging.getLogger(__name__)
+
+
+class PDFProcessingError(Exception):
+    """PDF failure with a safe message suitable for an upload result."""
+
+    def __init__(self, user_message: str, technical_message: Optional[str] = None):
+        self.user_message = user_message
+        super().__init__(technical_message or user_message)
+
+
+class _PDFNormalizationError(Exception):
+    """Internal error that may be recoverable with QPDF."""
+
 
 # Regular expression patterns for personal identifiable information (PII)
 EMAIL_PATTERN = re.compile(
@@ -201,6 +220,146 @@ def _find_pdf_text_rects(page, text: str) -> List[fitz.Rect]:
     return rects
 
 
+def _normalize_pdf_with_pymupdf(file_bytes: bytes) -> Tuple[bytes, int]:
+    document = None
+    try:
+        document = fitz.open(stream=file_bytes, filetype="pdf")
+        if document.needs_pass:
+            raise PDFProcessingError(
+                "This PDF is password-protected. Upload an unlocked copy."
+            )
+
+        page_count = document.page_count
+        if page_count < 1:
+            raise _PDFNormalizationError("PDF contains no pages.")
+
+        was_repaired = bool(getattr(document, "is_repaired", False))
+        normalized_bytes = document.tobytes(garbage=4, deflate=True)
+        document.close()
+
+        document = fitz.open(stream=normalized_bytes, filetype="pdf")
+        if document.needs_pass:
+            raise _PDFNormalizationError("Normalized PDF unexpectedly requires a password.")
+        if document.page_count != page_count:
+            raise _PDFNormalizationError(
+                f"Page count changed during normalization: {page_count} to {document.page_count}."
+            )
+        for page in document:
+            page.get_links()
+
+        if was_repaired:
+            logger.warning("PyMuPDF repaired the uploaded PDF cross-reference structure.")
+        return normalized_bytes, page_count
+    except PDFProcessingError:
+        raise
+    except (fitz.FileDataError, RuntimeError, ValueError, OSError) as exc:
+        raise _PDFNormalizationError(f"PyMuPDF could not normalize the PDF: {exc}") from exc
+    finally:
+        if document is not None:
+            document.close()
+
+
+def _recover_pdf_with_qpdf(file_bytes: bytes, qpdf_path: str) -> bytes:
+    with tempfile.TemporaryDirectory(prefix="voltare-pdf-recovery-") as recovery_dir:
+        input_path = os.path.join(recovery_dir, "candidate.pdf")
+        output_path = os.path.join(recovery_dir, "recovered.pdf")
+        with open(input_path, "wb") as input_file:
+            input_file.write(file_bytes)
+
+        try:
+            result = subprocess.run(
+                [qpdf_path, input_path, output_path],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise _PDFNormalizationError(f"QPDF recovery could not run: {exc}") from exc
+
+        if result.returncode not in (0, 3) or not os.path.isfile(output_path):
+            details = (result.stderr or result.stdout).strip()
+            raise _PDFNormalizationError(
+                f"QPDF exited with status {result.returncode}: {details or 'no diagnostic output'}"
+            )
+
+        with open(output_path, "rb") as recovered_file:
+            return recovered_file.read()
+
+
+def normalize_pdf(file_bytes: bytes) -> Tuple[bytes, int]:
+    """Repair and normalize a PDF in memory without modifying its original bytes."""
+    if not file_bytes:
+        raise PDFProcessingError("The uploaded PDF is empty.")
+
+    try:
+        return _normalize_pdf_with_pymupdf(file_bytes)
+    except PDFProcessingError:
+        raise
+    except _PDFNormalizationError as pymupdf_error:
+        qpdf_path = shutil.which("qpdf")
+        if not qpdf_path:
+            raise PDFProcessingError(
+                "This PDF could not be repaired. Re-export it as a new, unlocked PDF and upload it again.",
+                f"PyMuPDF normalization failed: {pymupdf_error}; QPDF is not installed.",
+            ) from pymupdf_error
+
+        try:
+            recovered_bytes = _recover_pdf_with_qpdf(file_bytes, qpdf_path)
+            return _normalize_pdf_with_pymupdf(recovered_bytes)
+        except PDFProcessingError:
+            raise
+        except _PDFNormalizationError as qpdf_error:
+            raise PDFProcessingError(
+                "This PDF is damaged or uses unsupported features and could not be repaired. Re-export it as a new PDF.",
+                f"PyMuPDF normalization failed: {pymupdf_error}; QPDF recovery failed: {qpdf_error}",
+            ) from qpdf_error
+
+
+def _verify_masked_pdf(
+    file_bytes: bytes,
+    expected_page_count: int,
+    entities_by_page: Dict[int, List[Tuple[str, str, str]]],
+    expected_link_counts: Dict[int, int],
+) -> None:
+    document = None
+    try:
+        document = fitz.open(stream=file_bytes, filetype="pdf")
+        if document.needs_pass:
+            raise PDFProcessingError("The generated masked PDF unexpectedly requires a password.")
+        if document.page_count != expected_page_count:
+            raise PDFProcessingError(
+                "The generated PDF failed verification because its page count changed."
+            )
+
+        for page_index, page in enumerate(document):
+            links = [link for link in page.get_links() if link.get("uri")]
+            if len(links) != expected_link_counts.get(page_index, 0):
+                raise PDFProcessingError(
+                    "The generated PDF failed verification because a hyperlink was lost."
+                )
+            if any(link["uri"] != MASKED_LINK_REDIRECT_URL for link in links):
+                raise PDFProcessingError(
+                    "The generated PDF failed verification because a hyperlink was not redirected."
+                )
+
+            page_text = page.get_text()
+            if any(original in page_text for _, original, _ in entities_by_page.get(page_index, [])):
+                raise PDFProcessingError(
+                    "The generated PDF failed verification because detected personal information remains visible."
+                )
+    except PDFProcessingError:
+        raise
+    except (fitz.FileDataError, RuntimeError, ValueError, OSError) as exc:
+        raise PDFProcessingError(
+            "The generated masked PDF could not be verified.",
+            f"PyMuPDF output verification failed: {exc}",
+        ) from exc
+    finally:
+        if document is not None:
+            document.close()
+
+
 def mask_pdf(file_bytes: bytes) -> Tuple[bytes, Dict[str, Any]]:
     """
     Mask sensitive information and redirect external links while preserving PDF layout.
@@ -213,16 +372,19 @@ def mask_pdf(file_bytes: bytes) -> Tuple[bytes, Dict[str, Any]]:
         "total_masked": 0,
     }
 
-    doc = fitz.open(stream=file_bytes, filetype="pdf")
+    normalized_bytes, expected_page_count = normalize_pdf(file_bytes)
+    doc = fitz.open(stream=normalized_bytes, filetype="pdf")
     external_links_by_page = {
         page.number: [link for link in page.get_links() if link.get("uri")]
         for page in doc
     }
+    entities_by_page = {}
 
     for page_idx in range(len(doc)):
         page = doc[page_idx]
         page_text = page.get_text()
         entities = find_maskable_entities(page_text)
+        entities_by_page[page_idx] = entities
 
         if entities:
             # Get detailed font and span layout dictionary for precise font matching
@@ -330,8 +492,14 @@ def mask_pdf(file_bytes: bytes) -> Tuple[bytes, Dict[str, Any]]:
                     "uri": MASKED_LINK_REDIRECT_URL,
                 })
 
-    output_stream = doc.tobytes(deflate=True)
+    output_stream = doc.tobytes(garbage=4, deflate=True)
     doc.close()
+    _verify_masked_pdf(
+        output_stream,
+        expected_page_count,
+        entities_by_page,
+        {page_idx: len(links) for page_idx, links in external_links_by_page.items()},
+    )
     return output_stream, stats
 
 
