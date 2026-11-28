@@ -3,34 +3,40 @@ FastAPI Backend API Server for Voltare Resume Builder
 Connects the existing Python backend services (validation, layout engine,
 HTML renderer, PDF generator) to the React.js frontend.
 """
+import base64
 import os
 import re
 import sys
-import uuid
-import base64
 import tempfile
-from typing import Dict, Any, Optional, List
-from fastapi import FastAPI, HTTPException, Response, UploadFile, File
+import uuid
+from typing import Any, Dict, List, Optional
+
+from fastapi import FastAPI, File, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
-from starlette.background import BackgroundTask
 from pydantic import BaseModel
+from starlette.background import BackgroundTask  # type: ignore
 
 # Add project root to path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
+from frontend.candidate_form import LIMITS, SAMPLE_CANDIDATE_DATA
+
+from backend.flexible_renderer import render_flexible_html
+from backend.flexible_validation import validate_flexible_resume
+from backend.layout_engine import get_validation_summary, validate_layout
+from backend.pdf_generator import generate_pdf_sync, verify_pdf
+from backend.resume_masker import mask_resume_file
 from backend.resume_renderer import render_resume_html
 from backend.validation import validate_all
-from backend.layout_engine import validate_layout, get_validation_summary
-from backend.watermark_extractor import get_watermark_path, get_watermark_base64, verify_watermark_exists
-from backend.pdf_generator import generate_pdf_sync, verify_pdf
-from backend.flexible_validation import validate_flexible_resume
-from backend.flexible_renderer import render_flexible_html
-from backend.resume_masker import mask_resume_file
-from frontend.candidate_form import SAMPLE_CANDIDATE_DATA, LIMITS
+from backend.watermark_extractor import (
+    get_watermark_base64,
+    get_watermark_path,
+    verify_watermark_exists,
+)
 
 app = FastAPI(
     title="Voltare Resume Builder API",
@@ -343,9 +349,9 @@ async def mask_resumes_endpoint(files: List[UploadFile] = File(...)):
     """
     Upload between 1 and 10 resumes (PDF, DOCX) and automatically mask personal information:
     - Phone Number (last 5 digits masked)
-    - LinkedIn Profile (profile name masked, URL preserved)
+    - LinkedIn Profile (only the "LinkedIn" label remains visible)
     - Email Address (username before @ masked, domain preserved)
-    - GitHub Profile (username masked, URL preserved)
+    - GitHub Profile (only "Git" remains visible)
     """
     if not files or len(files) == 0:
         raise HTTPException(status_code=400, detail="No resume files uploaded. Please upload at least 1 file.")
@@ -458,6 +464,22 @@ def download_masked_file(file_id: str):
         media_type=meta["content_type"],
         filename=meta["filename"],
     )
+
+
+@app.delete("/api/admin/masked-resumes/{file_id}")
+def delete_masked_file(file_id: str):
+    """Permanently remove a processed resume from storage and the download registry."""
+    meta = MASKED_STORE.get(file_id)
+    if not meta:
+        raise HTTPException(status_code=404, detail="Masked resume file not found or already removed.")
+
+    if not os.path.exists(meta["path"]):
+        MASKED_STORE.pop(file_id, None)
+        raise HTTPException(status_code=404, detail="Masked resume file not found or already removed.")
+
+    os.remove(meta["path"])
+    del MASKED_STORE[file_id]
+    return {"success": True, "file_id": file_id}
 
 
 # Serve built React static files if dist exists

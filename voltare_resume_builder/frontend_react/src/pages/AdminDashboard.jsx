@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [deletingFileId, setDeletingFileId] = useState(null);
   const [processedResults, setProcessedResults] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -219,6 +220,36 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteResume = async (resultItem) => {
+    if (!resultItem.file_id || !window.confirm(
+      `Permanently remove ${resultItem.masked_filename} from the masking system?`
+    )) {
+      return;
+    }
+
+    setDeletingFileId(resultItem.file_id);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const response = await fetch(`/api/admin/masked-resumes/${encodeURIComponent(resultItem.file_id)}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to remove ${resultItem.masked_filename}.`);
+      }
+
+      setProcessedResults((previous) => previous.filter(
+        (item) => item.file_id !== resultItem.file_id
+      ));
+      setSuccessMessage(`${resultItem.masked_filename} was permanently removed.`);
+    } catch (err) {
+      setErrorMessage(err.message || `Failed to remove ${resultItem.masked_filename}.`);
+    } finally {
+      setDeletingFileId(null);
+    }
+  };
+
   // Download all masked resumes sequentially
   const handleDownloadAll = async () => {
     if (!processedResults || processedResults.length === 0) return;
@@ -311,7 +342,7 @@ export default function AdminDashboard() {
               <span className="rule-icon">🔗</span>
               <div>
                 <strong>LinkedIn Profiles</strong>
-                <p>Profile name masked: <code>linkedin.com/in/... → linkedin.com/in/XXXXXXXX</code></p>
+                <p>Visible label: <code>LinkedIn</code>; remaining profile content masked</p>
               </div>
             </div>
             <div className="rule-item">
@@ -325,7 +356,7 @@ export default function AdminDashboard() {
               <span className="rule-icon">🐙</span>
               <div>
                 <strong>GitHub Profiles</strong>
-                <p>Username masked: <code>github.com/... → github.com/XXXXXXXX</code></p>
+                <p>Visible label: <code>Git</code>; remaining profile content masked</p>
               </div>
             </div>
           </div>
@@ -491,7 +522,7 @@ export default function AdminDashboard() {
                       <th>Original Resume</th>
                       <th>Masked Output Filename</th>
                       <th>Personal Info Masked</th>
-                      <th style={{ textAlign: 'right' }}>Download</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -537,14 +568,25 @@ export default function AdminDashboard() {
                           </td>
                           <td style={{ textAlign: 'right' }}>
                             {isSuccess && result.download_url ? (
-                              <button
-                                type="button"
-                                className="voltare-btn download-single-btn"
-                                onClick={() => handleDownloadSingle(result)}
-                                title={`Download ${result.masked_filename}`}
-                              >
-                                📥 Download
-                              </button>
+                              <div className="results-top-actions">
+                                <button
+                                  type="button"
+                                  className="voltare-btn download-single-btn"
+                                  onClick={() => handleDownloadSingle(result)}
+                                  title={`Download ${result.masked_filename}`}
+                                >
+                                  📥 Download
+                                </button>
+                                <button
+                                  type="button"
+                                  className="voltare-btn secondary"
+                                  onClick={() => handleDeleteResume(result)}
+                                  disabled={deletingFileId === result.file_id}
+                                  title={`Permanently remove ${result.masked_filename}`}
+                                >
+                                  {deletingFileId === result.file_id ? 'Removing…' : 'Remove Resume'}
+                                </button>
+                              </div>
                             ) : (
                               <span className="disabled-action">Unavailable</span>
                             )}
