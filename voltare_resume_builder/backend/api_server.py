@@ -9,8 +9,8 @@ import sys
 import uuid
 import base64
 import tempfile
-from typing import Dict, Any, Optional
-from fastapi import FastAPI, HTTPException, Response
+from typing import Dict, Any, Optional, List
+from fastapi import FastAPI, HTTPException, Response, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -29,6 +29,7 @@ from backend.watermark_extractor import get_watermark_path, get_watermark_base64
 from backend.pdf_generator import generate_pdf_sync, verify_pdf
 from backend.flexible_validation import validate_flexible_resume
 from backend.flexible_renderer import render_flexible_html
+from backend.resume_masker import mask_resume_file
 from frontend.candidate_form import SAMPLE_CANDIDATE_DATA, LIMITS
 
 app = FastAPI(
@@ -300,6 +301,163 @@ def download_flexible_html(payload: ResumePayload):
     }
     return Response(content=html_content, media_type="text/html", headers=headers)
 
+
+# ============================================================================
+# Admin Authentication & Resume Masking Workspace Endpoints
+# ============================================================================
+
+MASKED_STORE: Dict[str, Dict[str, Any]] = {}
+MASKED_DIR = os.path.join(tempfile.gettempdir(), "voltare_masked")
+os.makedirs(MASKED_DIR, exist_ok=True)
+
+
+class AdminLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/api/admin/login")
+def admin_login(payload: AdminLoginRequest):
+    """
+    Validate administrator credentials.
+    Current development credentials:
+    Username: Akashvoltare (case-insensitive)
+    Password: U002 or u002 (case-insensitive)
+    """
+    u = payload.username.strip()
+    p = payload.password.strip()
+    if u.lower() == "akashvoltare" and p.upper() == "U002":
+        session_token = uuid.uuid4().hex
+        return {
+            "success": True,
+            "token": session_token,
+            "username": "Akashvoltare",
+            "role": "administrator",
+            "message": "Authentication successful"
+        }
+    raise HTTPException(status_code=401, detail="Invalid administrator credentials")
+
+
+@app.post("/api/admin/mask-resumes")
+async def mask_resumes_endpoint(files: List[UploadFile] = File(...)):
+    """
+    Upload between 1 and 10 resumes (PDF, DOCX) and automatically mask personal information:
+    - Phone Number (last 5 digits masked)
+    - LinkedIn Profile (profile name masked, URL preserved)
+    - Email Address (username before @ masked, domain preserved)
+    - GitHub Profile (username masked, URL preserved)
+    """
+    if not files or len(files) == 0:
+        raise HTTPException(status_code=400, detail="No resume files uploaded. Please upload at least 1 file.")
+
+    if len(files) > 10:
+        raise HTTPException(status_code=400, detail="Maximum 10 resumes can be uploaded and processed simultaneously.")
+
+    results = []
+    for file in files:
+        filename = file.filename or "resume.pdf"
+        name_root, ext = os.path.splitext(filename)
+        ext_lower = ext.lower()
+
+        if ext_lower not in [".pdf", ".docx", ".doc"]:
+            results.append({
+                "file_id": None,
+                "original_filename": filename,
+                "masked_filename": None,
+                "file_type": ext_lower.replace(".", "").upper() or "UNKNOWN",
+                "status": "error",
+                "error": f"Unsupported format '{ext}'. Only PDF and DOCX files are supported.",
+                "stats": None,
+                "download_url": None,
+            })
+            continue
+
+        try:
+            content = await file.read()
+            if not content:
+                results.append({
+                    "file_id": None,
+                    "original_filename": filename,
+                    "masked_filename": None,
+                    "file_type": ext_lower.replace(".", "").upper(),
+                    "status": "error",
+                    "error": "The uploaded file is empty.",
+                    "stats": None,
+                    "download_url": None,
+                })
+                continue
+
+            mask_res = mask_resume_file(filename, content)
+            file_id = mask_res["file_id"]
+            masked_filename = mask_res["masked_filename"]
+            masked_bytes = mask_res["masked_bytes"]
+
+            # Save masked output file to disk
+            out_path = os.path.join(MASKED_DIR, f"{file_id}_{masked_filename}")
+            with open(out_path, "wb") as f_out:
+                f_out.write(masked_bytes)
+
+            # Record in metadata store for secure retrieval
+            MASKED_STORE[file_id] = {
+                "path": out_path,
+                "filename": masked_filename,
+                "content_type": (
+                    "application/pdf"
+                    if ext_lower == ".pdf"
+                    else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                ),
+            }
+
+            results.append({
+                "file_id": file_id,
+                "original_filename": filename,
+                "masked_filename": masked_filename,
+                "file_type": mask_res["file_type"],
+                "original_size": mask_res["original_size"],
+                "masked_size": mask_res["masked_size"],
+                "status": "success",
+                "stats": mask_res["stats"],
+                "download_url": f"/api/admin/download-masked/{file_id}",
+            })
+        except Exception as e:
+            results.append({
+                "file_id": None,
+                "original_filename": filename,
+                "masked_filename": None,
+                "file_type": ext_lower.replace(".", "").upper(),
+                "status": "error",
+                "error": f"Masking error: {str(e)}",
+                "stats": None,
+                "download_url": None,
+            })
+
+    successful_count = sum(1 for r in results if r["status"] == "success")
+
+    return {
+        "success": True,
+        "total_uploaded": len(files),
+        "total_processed": len(results),
+        "successful_count": successful_count,
+        "failed_count": len(results) - successful_count,
+        "results": results,
+    }
+
+
+@app.get("/api/admin/download-masked/{file_id}")
+def download_masked_file(file_id: str):
+    """
+    Download an individually processed masked resume.
+    Preserves original filename with '_Masked' before file extension.
+    """
+    meta = MASKED_STORE.get(file_id)
+    if not meta or not os.path.exists(meta["path"]):
+        raise HTTPException(status_code=404, detail="Masked resume file not found or expired.")
+
+    return FileResponse(
+        path=meta["path"],
+        media_type=meta["content_type"],
+        filename=meta["filename"],
+    )
 
 
 # Serve built React static files if dist exists

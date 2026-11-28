@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Header() {
+export default function Header({ subtitle = 'Official Resume Builder' }) {
   return (
     <header className="voltare-header">
       <img
@@ -8,8 +8,7 @@ export default function Header() {
         alt="Voltare - Talent, Elevated"
         className="voltare-header-logo-full"
       />
-      <div className="subtitle">Official Resume Builder</div>
+      <div className="subtitle">{subtitle}</div>
     </header>
   );
 }
-
